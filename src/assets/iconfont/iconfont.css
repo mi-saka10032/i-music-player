@@ -1,0 +1,147 @@
+@font-face {
+  font-family: "iconfont"; /* Project id 4278277 */
+  src: url('iconfont.woff2?t=1697714315444') format('woff2'),
+       url('iconfont.woff?t=1697714315444') format('woff'),
+       url('iconfont.ttf?t=1697714315444') format('truetype');
+}
+
+.iconfont {
+  font-family: "iconfont" !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-playlist:before {
+  content: "\ea83";
+}
+
+.icon-volume_cross:before {
+  content: "\ea0f";
+}
+
+.icon-volume-disable:before {
+  content: "\ea10";
+}
+
+.icon-volume-low:before {
+  content: "\ea11";
+}
+
+.icon-volume_high:before {
+  content: "\ea12";
+}
+
+.icon-volume_zero:before {
+  content: "\ea13";
+}
+
+.icon-volume-middle:before {
+  content: "\ea14";
+}
+
+.icon-next:before {
+  content: "\ea7f";
+}
+
+.icon-previous:before {
+  content: "\ea88";
+}
+
+.icon-star_fill:before {
+  content: "\e601";
+}
+
+.icon-star:before {
+  content: "\e602";
+}
+
+.icon-play:before {
+  content: "\ea82";
+}
+
+.icon-pause:before {
+  content: "\e618";
+}
+
+.icon-close:before {
+  content: "\e86e";
+}
+
+.icon-close_bold:before {
+  content: "\e903";
+}
+
+.icon-like_full:before {
+  content: "\e870";
+}
+
+.icon-like:before {
+  content: "\e86f";
+}
+
+.icon-music:before {
+  content: "\e604";
+}
+
+.icon-setting:before {
+  content: "\e600";
+}
+
+.icon-search:before {
+  content: "\e616";
+}
+
+.icon-theme:before {
+  content: "\e647";
+}
+
+.icon-mail:before {
+  content: "\e653";
+}
+
+.icon-mini:before {
+  content: "\e60e";
+}
+
+.icon-sequential:before {
+  content: "\e690";
+}
+
+.icon-share:before {
+  content: "\e61c";
+}
+
+.icon-download:before {
+  content: "\e668";
+}
+
+.icon-random:before {
+  content: "\e66b";
+}
+
+.icon-loop:before {
+  content: "\e66c";
+}
+
+.icon-single:before {
+  content: "\e66d";
+}
+
+.icon-al:before {
+  content: "\e68c";
+}
+
+.icon-ar:before {
+  content: "\e68d";
+}
+
+.icon-ad:before {
+  content: "\e68e";
+}
+
+.icon-at:before {
+  content: "\e68f";
+}
+
