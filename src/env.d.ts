@@ -19,11 +19,23 @@ type PlayLists = Array<{
   id: number
   name: string
   picUrl: string
+  playCount: number
 }>
 
 // 每日推荐歌单Response
 interface PlayListsRes extends CommonRes {
   result: PlayLists
+}
+
+type ResourceLists = Array<{
+  id: number
+  name: string
+  picUrl: string
+  playcount: number
+}>
+
+interface ResourceListsRes extends CommonRes {
+  recommend: ResourceLists
 }
 
 // 登录key Response

@@ -1,18 +1,16 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { getAccountInfo } from '@/api/user'
-import { getCookie } from '@/utils'
+import { getCookie, clearCookie } from '@/utils'
 
 interface UserState {
   cookie: string
   accountInfo: AccountInfoRes
-  userInfo: any
 }
 
 const initialState: UserState = {
   cookie: getCookie() ?? '',
-  accountInfo: { code: 0 },
-  userInfo: null
+  accountInfo: { code: 0 }
 }
 
 export const fetchAccountInfo = createAsyncThunk(
@@ -24,11 +22,12 @@ const userSlice = createSlice({
   name: 'user',
   initialState,
   reducers: {
-    setUserInfo (state, action: PayloadAction<any>) {
-      state.userInfo = action.payload
-    },
     setCookie (state, action: PayloadAction<string>) {
-      state.cookie = action.payload
+      const curCookie = action.payload
+      state.cookie = curCookie
+      if (curCookie.length === 0) {
+        clearCookie()
+      }
     },
     setAccountInfo (state, action: PayloadAction<AccountInfoRes>) {
       state.accountInfo = action.payload
@@ -43,4 +42,4 @@ const userSlice = createSlice({
 
 export const userState = userSlice.getInitialState()
 export const userReducer = userSlice.reducer
-export const { setUserInfo, setCookie, setAccountInfo } = userSlice.actions
+export const { setCookie, setAccountInfo } = userSlice.actions

@@ -35,7 +35,7 @@ const QRContent = memo(({ qrimg, status, onRefresh }: QRContentProps) => {
         {
           status === LoginCode.EXPIRED
             ? (
-              <div className="flex flex-col items-center justify-center absolute w-full h-full bg-black/80 text-while">
+              <div className="flex flex-col items-center justify-center absolute w-full h-full bg-black/80 text-white">
                 <div>二维码已失效</div>
                 <button
                   className="mt-4 px-4 py-1.5 bg-primary rounded-full"

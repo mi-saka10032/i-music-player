@@ -8,7 +8,7 @@ export default {
   theme: {
     colors: {
       black: "#000000",
-      while: "#ffffff",
+      white: "#ffffff",
       primary: "#d33a31",
       ct: "#2d2d2d",
       ctd: "#787878",

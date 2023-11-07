@@ -3,6 +3,7 @@ import { NavLink } from 'react-router-dom'
 import { Popover, Button } from 'antd'
 import { focusWindow, getLoginWindow, initLogin } from '@/utils'
 import { fetchAccountInfo, setCookie, setAccountInfo } from '@/store/user'
+import { fetchRecommendData } from '@/store/cache'
 import { useAppSelector, useAppDispatch } from '@/hooks'
 
 const links = [
@@ -48,6 +49,7 @@ const Sider = memo(() => {
       .then(res => {
         dispatch(setCookie(res.cookie))
         void dispatch(fetchAccountInfo())
+        void dispatch(fetchRecommendData())
       })
       .catch(error => {
         console.log(error)
@@ -58,12 +60,13 @@ const Sider = memo(() => {
     dispatch(setCookie(''))
     dispatch(setAccountInfo({ code: 0 }))
     setLogout(false)
+    void dispatch(fetchRecommendData())
     console.log('退出登录')
   }, [hasLogin])
 
   // 挂载时判断cookie有效性，来调取用户信息
   useEffect(() => {
-    if (cookie !== '') {
+    if (cookie.length > 0) {
       void dispatch(fetchAccountInfo())
     }
   }, [])

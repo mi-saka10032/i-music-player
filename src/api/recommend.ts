@@ -1,7 +1,7 @@
 import tauriClient from '@/request'
 
 /** 获取每日推荐歌单(需要登录) */
-export const getRecommendResource = async () => await tauriClient.get('/recommend/resource')
+export const getRecommendResource = async () => await tauriClient.get<ResourceListsRes>('/recommend/resource')
 
 /**
  * 推荐歌单
