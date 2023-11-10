@@ -1,4 +1,4 @@
-import PlayBar from '@/components/play-bar'
+import PlayBar from '@/components/core/playBar'
 import { memo } from 'react'
 
 const Footer = memo(() => {

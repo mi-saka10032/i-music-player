@@ -1,18 +1,24 @@
-import { getBanners, getPersonalized, getRecommendResource } from '@/api'
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
+import { getBanners, getPersonalized, getRecommendResource } from '@/api'
 import { getCookie } from '@/utils'
 
-const initialState = {
-  banners: [] as Banners,
-  personalizedPlaylist: [] as PlayLists,
-  recommendList: [] as ResourceLists
+export interface CacheState {
+  banners: Banners
+  personalizedPlaylist: PersonalLists
+  recommendList: ResourceLists
+}
+
+const initialState: CacheState = {
+  banners: [],
+  personalizedPlaylist: [],
+  recommendList: []
 }
 
 export const fetchRecommendData = createAsyncThunk('cache/fetchRecommendData', async () => {
-  const data: typeof initialState = {
-    banners: [] as Banners,
-    personalizedPlaylist: [] as PlayLists,
-    recommendList: [] as ResourceLists
+  const data: CacheState = {
+    banners: [],
+    personalizedPlaylist: [],
+    recommendList: []
   }
   const fetchList: Array<Promise<any>> = [getBanners().then(res => data.banners = res.banners)]
   if (getCookie().length > 0) {
@@ -35,5 +41,4 @@ const cacheSlice = createSlice({
   }
 })
 
-export const cacheState = cacheSlice.getInitialState()
 export const cacheReducer = cacheSlice.reducer

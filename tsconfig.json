@@ -114,10 +114,11 @@
     "skipLibCheck": true /* Skip type checking all .d.ts files. */
   },
   "include": [
+    "src/types/*.d.ts",
     "src/**/*.ts",
     "src/**/*.tsx",
     "vite.config.ts",
-    "node_modules/vite-plugin-svgr/client.d.ts"
+    "node_modules/vite-plugin-svgr/client.d.ts"          /** SVG转化React组件 */
   ],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

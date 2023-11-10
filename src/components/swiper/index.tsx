@@ -44,16 +44,18 @@ const SwiperComponent = memo(({ banners }: { banners: Banners }) => {
       onUpdate={handleUpdate}
     >
       {
-        banners.map((item, index) => {
-          return (
-            <SwiperSlide className="h-[200px]" key={item.encodeId + String(index)}>
-              <img
-                className="swiper-banner-img mx-[auto] rounded-lg h-[200px]"
-                src={item.imageUrl}
+        Array.isArray(banners)
+          ? banners.map((item, index) => {
+            return (
+              <SwiperSlide className="h-[200px]" key={item.encodeId + String(index)}>
+                <img
+                  className="swiper-banner-img mx-[auto] rounded-lg h-[200px]"
+                  src={item.imageUrl}
               />
-            </SwiperSlide>
-          )
-        })
+              </SwiperSlide>
+            )
+          })
+          : null
       }
     </Swiper>
   )

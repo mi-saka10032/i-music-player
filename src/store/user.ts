@@ -1,9 +1,8 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import type { PayloadAction } from '@reduxjs/toolkit'
+import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit'
 import { getAccountInfo } from '@/api/user'
 import { getCookie, clearCookie } from '@/utils'
 
-interface UserState {
+export interface UserState {
   cookie: string
   accountInfo: AccountInfoRes
 }
@@ -40,6 +39,5 @@ const userSlice = createSlice({
   }
 })
 
-export const userState = userSlice.getInitialState()
 export const userReducer = userSlice.reducer
 export const { setCookie, setAccountInfo } = userSlice.actions

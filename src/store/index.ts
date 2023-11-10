@@ -1,25 +1,29 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit'
-import { cacheState, cacheReducer } from './cache'
-import { userState, userReducer } from './user'
+import { type CacheState, cacheReducer } from './cache'
+import { type UserState, userReducer } from './user'
+import { type PlaylistState, playlistReducer } from './playlist'
 import persist, { setInitialState } from './middleware/persist'
 import { INITIAL_STATE_LOADED } from '@/common/constants'
 
-// 初始化state（仅提供typeof类型）
-const initialState = {
-  user: userState,
-  cache: cacheState
+interface InitialState {
+  user: UserState
+  cache: CacheState
+  playlist: PlaylistState
 }
 
 // 初始化reducers
 const configureReducers = combineReducers({
   cache: cacheReducer,
-  user: userReducer
+  user: userReducer,
+  playlist: playlistReducer
 })
 
 // 初始化store
 const store = configureStore({
-  reducer: (state: any, action: { type: string, payload: typeof initialState }) => {
+  reducer: (state: any, action: { type: string, payload: InitialState }) => {
     if (action.type === INITIAL_STATE_LOADED) {
+      console.log('INITIAL DB↓')
+      console.log(action.payload)
       return action.payload
     } else {
       return configureReducers(state, action)
