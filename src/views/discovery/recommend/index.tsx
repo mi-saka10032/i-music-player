@@ -1,7 +1,7 @@
 import { memo, useCallback, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '@/hooks'
-import { fetchPlaylistDetail, setPlayStatus } from '@/store/playlist'
+import { fetchPlaylistDetail, setAutoplay } from '@/store/playlist'
 import Card from './card'
 import SwiperComponent from '@/components/swiper'
 
@@ -9,11 +9,9 @@ const Recommend = memo(() => {
   const { cookie } = useAppSelector(state => state.user)
   const { banners, personalizedPlaylist, recommendList } = useAppSelector(state => state.cache)
   const dispatch = useAppDispatch()
-  const getPlaylists = useCallback(async (id: number, autoplay: boolean) => {
-    await dispatch(fetchPlaylistDetail({ id, autoplay }))
-    if (autoplay) {
-      dispatch(setPlayStatus('playing'))
-    }
+  const getPlaylists = useCallback((id: number, autoplay: boolean) => {
+    dispatch(setAutoplay(autoplay))
+    void dispatch(fetchPlaylistDetail(id))
   }, [])
   const CurRecommendList = useMemo(() => {
     if (cookie.length > 0) {

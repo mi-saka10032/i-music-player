@@ -1,129 +1,72 @@
 import { memo, useCallback, useEffect, useMemo, useRef } from 'react'
-import { Howl } from 'howler'
-import { useAppDispatch, useAppSelector } from '@/hooks'
+import { type Handler } from 'mitt'
+import player, { PlayerEvent, type PlayerState } from '@/core/player'
+import { useAppSelector, useAppDispatch } from '@/hooks'
+import { setPlayStatus, setProgress } from '@/store/playlist'
 import ProgressBar from '@/components/core/progressBar'
-import PlayTypeIcon from './playTypeIcon'
+import PlayTypeIcon from '@/components/core/playTypeIcon'
 import VolumeController from '@/components/core/volumeController'
-import { setDuration, setPlayStatus, setProgress } from '@/store/playlist'
 import PlayIcon from '@/assets/svg/play.svg?react'
 import PauseIcon from '@/assets/svg/pause.svg?react'
 
 // 总播放栏组件
 const PlayBar = memo(() => {
-  const { playlists, playIndex, playerInstance } = useAppSelector(state => state.playlist)
+  const { playlists, playerInstance } = useAppSelector(state => state.playlist)
   const dispatch = useAppDispatch()
-  // 当前音乐id
-  const activeId = useMemo<number | null>(() => {
-    const playlist = playlists[playIndex]
-    return playlist != null ? (playlist.id > 0 ? playlist.id : null) : null
-  }, [playlists, playIndex])
-  // 当前音乐链接
-  const activeUrl = useMemo<string | null>(() => {
-    const playlist = playlists[playIndex]
-    return playlist != null ? (playlist.url?.length > 0 ? playlist.url : null) : null
-  }, [playlists, playIndex])
-  // 动态播放/暂停图标类名
+  // 动态图标
   const DynamicIcon = useMemo(() => {
-    console.log('switch play icon')
-    return playerInstance.status === 'playing' ? <PauseIcon className='w-12 h-12' /> : <PlayIcon className='w-12 h-12' />
+    return playerInstance.status === 'playing' ? <PauseIcon className="w-12 h-12" /> : <PlayIcon className="w-12 h-12" />
   }, [playerInstance.status])
-  // 播放/暂停切换点击
-  const switchPlayStatus = useCallback(() => {
-    if (activeId == null || activeUrl == null) {
-      return
-    }
+  // 生命周期内仅维持一份player实例
+  const playerRef = useRef(player)
+  // 手动调用实例播放/暂停
+  const changeStatus = useCallback(() => {
     if (playerInstance.status === 'playing') {
-      dispatch(setPlayStatus('paused'))
+      playerRef.current.pause()
     } else {
-      dispatch(setPlayStatus('playing'))
+      playerRef.current.play()
     }
-  }, [activeId, activeUrl, playerInstance.status])
-  // Howl音频对象哈希管理
-  const howlMap = useRef<Map<number, Howl>>(new Map())
-  const getCurrentHowl = useCallback((): Howl | null => {
-    if (activeId == null) {
-      return null
-    }
-    return howlMap.current.get(activeId) ?? null
-  }, [activeId])
-  const getProgress = useCallback((seekTime: number, duration: number): number => {
-    if (duration === 0) return 0
-    return Math.max(0, Math.min(100, (seekTime / duration) * 100))
+  }, [playerInstance.status, playerRef.current])
+  // 真正地切换播放/暂停监听回调
+  const switchStatus: Handler<PlayerState> = useCallback((state) => {
+    dispatch(setPlayStatus(state.status))
   }, [])
-  const getSeekTime = useCallback((percent: number, duration: number) => {
-    if (duration === 0) return 0
-    return Math.max(0, Math.min(100, percent)) / 100 * duration
-  }, [])
-  // 更新seekTime 与 percent
-  const animationRef = useRef<number>(0)
-  function update () {
-    const howl = getCurrentHowl()
-    if (howl == null) {
-      return
-    }
-    const seekTime = howl.seek() ?? 0
-    const duration = howl.duration() ?? 0
-    const progress = getProgress(seekTime, duration)
+  // 手动调用实例跳进度
+  const changeProgress = useCallback((progress: number) => {
+    playerRef.current.progressTo(progress)
+  }, [playerRef.current])
+  // 自动更新进度
+  const updateProgress: Handler<number> = useCallback((progress) => {
     dispatch(setProgress(progress))
-    window.cancelAnimationFrame(animationRef.current)
-    if (howl.playing()) {
-      animationRef.current = window.requestAnimationFrame(update)
-    }
-  }
-  // 拖拽更新音乐进度
-  function updateProgress (percent: number) {
-    const howl = getCurrentHowl()
-    if (howl == null) {
-      return
-    }
-    const duration = howl.duration() ?? 0
-    const seekTime = getSeekTime(percent, duration)
-    howl.seek(seekTime)
-  }
-  // 音乐切换与howl挂载/卸载
+  }, [])
+  // 跳转维持播放/暂停状态
+  const handleSeek: Handler<PlayerState> = useCallback((state) => {
+    console.log(state)
+  }, [playerRef.current])
+  // 自动更新进度条
+  // 全局Player事件监听
   useEffect(() => {
-    if (activeId == null || activeUrl == null) {
-      return
+    playerRef.current.on(PlayerEvent.PLAY, switchStatus)
+    playerRef.current.on(PlayerEvent.PAUSE, switchStatus)
+    playerRef.current.on(PlayerEvent.STOP, switchStatus)
+    playerRef.current.on(PlayerEvent.PROGRESS_CHANGE, updateProgress)
+    playerRef.current.on(PlayerEvent.SEEK, handleSeek)
+    return () => {
+      playerRef.current.off(PlayerEvent.PLAY, switchStatus)
+      playerRef.current.off(PlayerEvent.PAUSE, switchStatus)
+      playerRef.current.off(PlayerEvent.STOP, switchStatus)
+      playerRef.current.off(PlayerEvent.PROGRESS_CHANGE, updateProgress)
+      playerRef.current.off(PlayerEvent.SEEK, handleSeek)
     }
-    if (!howlMap.current.has(activeId)) {
-      const howl = new Howl({
-        src: [activeUrl],
-        html5: true,
-        onload: () => {
-          // 设置总时长
-          const duration = howl.duration() ?? 0
-          console.log('总时长', duration)
-          dispatch(setDuration(duration))
-        },
-        onloaderror: () => {
-          console.log('音频加载错误')
-        }
-      })
-      howl.on('play', update)
-      howl.on('seek', update)
-      howlMap.current.set(activeId, howl)
-    }
-  }, [activeId, activeUrl])
-  // 音乐切换与歌曲状态切换
+  }, [])
   useEffect(() => {
-    const howl = getCurrentHowl()
-    console.log(howl)
-    if (playerInstance.status === 'playing') {
-      // 播放状态是播放 && howl实例处于非播放放态 -> 播放实例
-      if (howl?.playing() !== true) {
-        howl?.play()
-      }
-    } else {
-      // 播放状态是暂停 && howl实例处于播放放态 -> 暂停实例
-      if (howl?.playing() === true) {
-        howl?.pause()
-      }
-    }
-  }, [playerInstance.status])
+    if (playlists.length === 0) return
+    playerRef.current.setPlaylist(playlists, 0, playerInstance.autoplay)
+  }, [playlists, playerInstance.autoplay])
   return (
     <div className="w-full h-full relative">
       <div className="absolute w-full top-0 left-0">
-        <ProgressBar key="ProgressBar" percent={playerInstance.progress} onChange={updateProgress} />
+        <ProgressBar key="ProgressBar" percent={playerInstance.progress} onChange={changeProgress} />
       </div>
       <div className="flex space-x-6 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
         <button>
@@ -132,7 +75,7 @@ const PlayBar = memo(() => {
         <button>
           <i className="iconfont icon-previous text-primary text-base" />
         </button>
-        <button onClick={switchPlayStatus}>
+        <button onClick={changeStatus}>
           {DynamicIcon}
         </button>
         <button>
@@ -142,7 +85,7 @@ const PlayBar = memo(() => {
           <i className="iconfont icon-share text-ct" />
         </button>
       </div>
-      <div className="flex space-x-6 absolute right-6 top-1/2 -translate-y-1/2">
+      <div className="flex items-center space-x-6 absolute right-6 h-full">
         <PlayTypeIcon key="PlayTypeIcon" />
         <i className="iconfont icon-playlist text-ct text-base cursor-pointer" />
         <VolumeController key="VolumeController" />

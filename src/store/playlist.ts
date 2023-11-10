@@ -1,21 +1,31 @@
 import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit'
-import { getPlaylistDetail, getSongUrl } from '@/api'
-import {
-  PlayType,
-  type PlayerType,
-  type PlayerInstance,
-  type Playlists
-} from './playlistType'
+import { getPlaylistDetail } from '@/api'
+import { type PlayData, PlayType } from '@/core/player'
 
 export interface PlaylistState {
   // 播放列表（不含链接）
-  playlists: Playlists
+  playlists: PlayData[]
   // 播放索引
   playIndex: number
   // 播放器设置
-  playerType: PlayerType
+  playerType: {
+    // 循环类型
+    type: PlayType
+    // 静音
+    mute: boolean
+    // 音量
+    volume: number
+  }
   // 播放实例
-  playerInstance: PlayerInstance
+  playerInstance: {
+    autoplay: boolean
+    // 播放状态
+    status: MediaSessionPlaybackState
+    // 时长
+    duration: number
+    // 播放进度
+    progress: number
+  }
 }
 
 const initialState: PlaylistState = {
@@ -27,32 +37,21 @@ const initialState: PlaylistState = {
     volume: 60
   },
   playerInstance: {
+    autoplay: false,
     status: 'none',
     duration: 0,
     progress: 0
   }
 }
 
-export const fetchPlaylistDetail = createAsyncThunk('playlist/fetchPlaylistDetail', async ({ id, autoplay }: { id: number, autoplay: boolean }) => {
+export const fetchPlaylistDetail = createAsyncThunk('playlist/fetchPlaylistDetail', async (id: number) => {
   const res = await getPlaylistDetail(id)
-  const playlists: Playlists = res.playlist.tracks.map(item => ({
+  return res.playlist.tracks.map(item => ({
     id: item.id,
     name: item.name,
     artists: item.ar,
-    album: item.al,
-    url: '',
-    time: 0
+    album: item.al
   }))
-  // 自动播放-获取第一首曲目的url和duration信息
-  if (autoplay && playlists.length > 0) {
-    const urls: SongRes = await getSongUrl(playlists[0].id)
-    if (urls.data?.length > 0) {
-      const { url, time } = urls.data[0]
-      playlists[0].url = url
-      playlists[0].time = time
-    }
-  }
-  return playlists
 })
 
 const playlistSlice = createSlice({
@@ -70,6 +69,10 @@ const playlistSlice = createSlice({
     setVolume (state, action: PayloadAction<number>) {
       console.log(action)
       state.playerType.volume = action.payload
+    },
+    setAutoplay (state, action: PayloadAction<boolean>) {
+      console.log(action)
+      state.playerInstance.autoplay = action.payload
     },
     setPlayStatus (state, action: PayloadAction<MediaSessionPlaybackState>) {
       console.log(action)
@@ -91,4 +94,6 @@ const playlistSlice = createSlice({
 })
 
 export const playlistReducer = playlistSlice.reducer
-export const { setPlayType, setMute, setVolume, setPlayStatus, setDuration, setProgress } = playlistSlice.actions
+export const {
+  setPlayType, setMute, setVolume, setAutoplay, setPlayStatus, setDuration, setProgress
+} = playlistSlice.actions

@@ -1,8 +1,8 @@
-import { memo, useMemo, useRef, useCallback } from 'react'
+import { memo, useMemo, useRef, useCallback, useEffect } from 'react'
+import player from '@/core/player'
 import { useAppSelector, useAppDispatch } from '@/hooks'
 import { setMute, setVolume } from '@/store/playlist'
 import ProgressBar from '@/components/core/progressBar'
-import { debounce } from 'throttle-debounce'
 
 // 音量控制器，封装原生进度条组件实现
 const VolumeController = memo(() => {
@@ -21,11 +21,9 @@ const VolumeController = memo(() => {
     }
   }, [playerType.mute, playerType.volume])
   // 进度条设置音量
-  const debounceVolume = useCallback(debounce(500, (newPercent: number) => {
-    dispatch(setVolume(newPercent))
-  }), [])
   const changeVolume = useCallback((newPercent: number) => {
-    debounceVolume(newPercent)
+    console.log(newPercent)
+    dispatch(setVolume(newPercent))
   }, [playerType.volume])
   // 音量图标
   const soundIcon = useMemo(() => {
@@ -41,13 +39,23 @@ const VolumeController = memo(() => {
       return 'icon-volume_zero'
     }
   }, [playerType.mute, playerType.volume])
+  // 生命周期内仅维持一份player实例
+  const playerRef = useRef(player)
+  // 音频静音副作用
+  useEffect(() => {
+    playerRef.current.setMute(playerType.mute)
+  }, [playerType.mute])
+  // 音量副作用
+  useEffect(() => {
+    playerRef.current.setVolume(playerType.volume)
+  }, [playerType.volume])
   return (
     <div className="group/volume relative w-5 h-5 flex justify-center items-center">
       <i
         className={`iconfont ${soundIcon} cursor-pointer`}
         onClick={switchMute}
       ></i>
-      <div className="hidden group-hover/volume:inline-block p-4 absolute -top-2 left-2/4 -translate-x-1/2 -translate-y-full bg-white shadow-md rounded">
+      <div className="hidden group-hover/volume:inline-block group-active/volume:inline-block p-4 absolute -top-2 left-2/4 -translate-x-1/2 -translate-y-full bg-white shadow-md rounded">
         <div className="h-20">
           <ProgressBar
             percent={playerType.volume}

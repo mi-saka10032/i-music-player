@@ -1,4 +1,4 @@
-import { StrictMode } from 'react'
+// import { StrictMode } from 'react'
 import ReactDOM from 'react-dom/client'
 import { Provider } from 'react-redux'
 import App from './App'
@@ -9,11 +9,11 @@ import './request'
 
 const root: HTMLElement = document.getElementById('root')!
 ReactDOM.createRoot(root).render(
-  <StrictMode>
-    <Provider store={store}>
-      <App />
-    </Provider>
-  </StrictMode>
+  // <StrictMode>
+  <Provider store={store}>
+    <App />
+  </Provider>
+  // </StrictMode>
 )
 
 // 阻止鼠标右键默认事件

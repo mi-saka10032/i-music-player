@@ -10,3 +10,8 @@ export function openUrl (url: string) {
     window.open(url, '_blank')
   }
 }
+
+export function formatImgUrl (url: string, sizes: number | string) {
+  const param = `param=${sizes}y${sizes}`
+  return `${url}${url.includes('?') ? '&' : '?'}${param}`
+}

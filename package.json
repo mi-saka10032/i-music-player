@@ -19,6 +19,7 @@
     "antd": "^5.10.3",
     "axios": "^1.6.0",
     "howler": "^2.2.4",
+    "mitt": "^3.0.1",
     "nprogress": "^0.2.0",
     "overlayscrollbars": "^2.4.3",
     "qrcode": "^1.5.3",

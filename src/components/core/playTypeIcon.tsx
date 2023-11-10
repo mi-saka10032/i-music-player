@@ -1,7 +1,7 @@
-import { memo, useRef, useCallback } from 'react'
+import { memo, useRef, useCallback, useEffect } from 'react'
 import { useAppSelector, useAppDispatch } from '@/hooks'
 import { setPlayType } from '@/store/playlist'
-import { PlayType } from '@/store/playlistType'
+import player, { PlayType } from '@/core/player'
 import LinkedList from '@/utils/linkedList'
 
 const playTypeList: PlayType[] = [
@@ -26,6 +26,12 @@ const PlayTypeIcon = memo(() => {
     // 派发播放类型
     dispatch(setPlayType(type))
   }, [])
+  // 设置播放类型副作用
+  // 生命周期内仅维持一份player实例
+  const playerRef = useRef(player)
+  useEffect(() => {
+    playerRef.current.setRepeatMode(playerType.type)
+  }, [playerType.type])
   return (
     <div className="flex items-center justify-center">
       <i
