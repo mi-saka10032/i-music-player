@@ -215,12 +215,14 @@ export class Player {
   }
 
   /** 播放进度更新 */
+  private requestId: number = 0
   public update () {
     this.step()
     const howl = this.getCurrentHowl()
     if (howl == null) return
+    window.cancelAnimationFrame(this.requestId)
     if (howl.playing() || this.status === 'playing') {
-      requestAnimationFrame(() => { this.update() })
+      this.requestId = window.requestAnimationFrame(() => { this.update() })
     }
   }
 
