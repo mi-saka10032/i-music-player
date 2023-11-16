@@ -16,6 +16,7 @@ const linkedList = new LinkedList(playTypeList)
 const PlayTypeIcon = memo(() => {
   const { playerType } = useAppSelector(state => state.playlist)
   const dispatch = useAppDispatch()
+
   // 播放类型链表
   const chain = useRef(linkedList.head)
   const changePlayType = useCallback(() => {
@@ -26,12 +27,15 @@ const PlayTypeIcon = memo(() => {
     // 派发播放类型
     dispatch(setPlayType(type))
   }, [])
-  // 设置播放类型副作用
+
   // 生命周期内仅维持一份player实例
   const playerRef = useRef(player)
+
+  // 设置播放类型副作用
   useEffect(() => {
     playerRef.current.setRepeatMode(playerType.type)
   }, [playerType.type])
+
   return (
     <div className="flex items-center justify-center">
       <i

@@ -13,16 +13,13 @@ interface ProgressBarProps {
 
 // 原生实现音量进度条组件
 const ProgressBar: FC<ProgressBarProps> = memo(
-  ({
-    vertical = false,
-    round = false,
-    alwaysPoint = false,
-    percent,
-    onInput = () => {},
-    onChange = () => {},
-    barWidth = '2px',
-    pointSize = '12px'
-  }: ProgressBarProps) => {
+  (props: ProgressBarProps) => {
+    const vertical = props.vertical ?? false
+    const round = props.round ?? false
+    const alwaysPoint = props.alwaysPoint ?? false
+    const barWidth = props.barWidth ?? '2px'
+    const pointSize = props.pointSize ?? '12px'
+    const percent = props.percent
     // 进度条div元素
     const progressBarRef = useRef<HTMLDivElement | null>(null)
     // 进度条div元素的矩形元素对象
@@ -30,52 +27,63 @@ const ProgressBar: FC<ProgressBarProps> = memo(
     // 进度值
     const [progress, setProgress] = useState<number>(() => Math.min(100, Math.max(0, percent)))
     // 拖拽判断
-    const [isDragging, setDragging] = useState(false)
+    const isDragging = useRef(false)
 
     useEffect(() => {
-      if (!isDragging) {
+      if (!isDragging.current) {
         setProgress(Math.min(100, Math.max(0, percent)))
       }
-    }, [isDragging, percent])
+    }, [percent])
 
     // mousedown函数，设置Rect对象，开启drag
-    function handleMouseDown () {
+    const handleMouseDown = useCallback(() => {
       if (progressBarRef.current != null) {
         startPoint.current = progressBarRef.current.getBoundingClientRect()
       }
-      setDragging(true)
-    }
+      isDragging.current = true
+    }, [])
 
     // mousemove函数，一般只有drag判断变动时才会重新触发
-    const handleMouseMove = useCallback(
-      (e: MouseEvent) => {
-        if (!isDragging || startPoint.current == null) return
-        let newPercent: number
-        const start = startPoint.current
-        if (vertical) {
-          const offsetY = start.bottom - e.clientY
-          newPercent = (offsetY / start.height) * 100
-        } else {
-          const offsetX = e.clientX - start.left
-          newPercent = (offsetX / start.width) * 100
-        }
-        newPercent = Math.min(
-          100,
-          Math.max(0, Math.round(newPercent * 100) / 100)
-        )
-        setProgress(newPercent)
-        onInput(newPercent)
-      },
-      [vertical, isDragging, onInput]
-    )
+    // onInput 不涉及state值时，无需dep
+    const handleMouseMove = useCallback((e: MouseEvent) => {
+      if (!isDragging.current || startPoint.current == null) return
+      let newPercent: number
+      const start = startPoint.current
+      if (vertical) {
+        const offsetY = start.bottom - e.clientY
+        newPercent = (offsetY / start.height) * 100
+      } else {
+        const offsetX = e.clientX - start.left
+        newPercent = (offsetX / start.width) * 100
+      }
+      newPercent = Math.min(
+        100,
+        Math.max(0, Math.round(newPercent * 100) / 100)
+      )
+      setProgress(newPercent)
+      typeof (props.onInput) === 'function' && props.onInput(newPercent)
+    }, [vertical, props.onInput])
 
     // mouseup函数，关闭drag并回传进度值
-    function handleMouseUp () {
-      if (isDragging) {
-        onChange(progress)
-        setDragging(false)
+    // onChange 不涉及state值时，无需dep
+    const handleMouseUp = useCallback((e: MouseEvent) => {
+      if (!isDragging.current || startPoint.current == null) return
+      isDragging.current = false
+      let newPercent: number
+      const start = startPoint.current
+      if (vertical) {
+        const offsetY = start.bottom - e.clientY
+        newPercent = (offsetY / start.height) * 100
+      } else {
+        const offsetX = e.clientX - start.left
+        newPercent = (offsetX / start.width) * 100
       }
-    }
+      newPercent = Math.min(
+        100,
+        Math.max(0, Math.round(newPercent * 100) / 100)
+      )
+      typeof (props.onChange) === 'function' && props.onChange(newPercent)
+    }, [vertical, props.onChange])
 
     useEffect(() => {
       window.addEventListener('mousemove', handleMouseMove)
@@ -88,7 +96,7 @@ const ProgressBar: FC<ProgressBarProps> = memo(
     }, [handleMouseMove, handleMouseUp])
 
     // mouseClick函数，单次进度值设置
-    function handleClick (e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
+    const handleClick = useCallback((e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
       if (progressBarRef.current == null) return
       const progressBarRect = progressBarRef.current.getBoundingClientRect()
 
@@ -105,9 +113,9 @@ const ProgressBar: FC<ProgressBarProps> = memo(
         Math.max(0, Math.round(newPercent * 100) / 100)
       )
       setProgress(newPercent)
-      onInput(newPercent)
-      onChange(newPercent)
-    }
+      typeof (props.onInput) === 'function' && props.onInput(newPercent)
+      typeof (props.onChange) === 'function' && props.onChange(newPercent)
+    }, [props.onInput, props.onChange])
 
     return (
       <div
