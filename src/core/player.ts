@@ -123,6 +123,7 @@ export class Player {
   /** 获取完整播放信息 */
   get state (): PlayerState {
     return {
+      id: Number(this.current?.id),
       howl: this.current?.howl ?? null,
       status: this.status,
       repeatMode: this.repeatMode,
@@ -220,9 +221,9 @@ export class Player {
     this.step()
     const howl = this.getCurrentHowl()
     if (howl == null) return
-    window.cancelAnimationFrame(this.requestId)
+    window.clearTimeout(this.requestId)
     if (howl.playing() || this.status === 'playing') {
-      this.requestId = window.requestAnimationFrame(() => { this.update() })
+      this.requestId = window.setTimeout(() => { this.update() }, 500)
     }
   }
 
@@ -350,8 +351,13 @@ export class Player {
 
   /** 播放 */
   public play () {
+    if (this.playlist.length === 0) return
     const howl = this.getCurrentHowl()
-    if (howl == null) return
+    if (howl == null) {
+      console.log('无效的音源')
+      this.emit(PlayerEvent.INVALID, this.state)
+      return
+    }
     if (howl.playing()) return
     howl.play()
   }

@@ -6,14 +6,15 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    colors: {
-      black: "#000000",
-      white: "#ffffff",
-      primary: "#d33a31",
-      ct: "#2d2d2d",
-      ctd: "#787878",
-    },
     extend: {
+      colors: {
+        black: "#000000",
+        white: "#ffffff",
+        primary: "#d33a31",
+        ct: "#2d2d2d",
+        ctd: "#787878",
+        lg: "#c7c7c7"
+      },
       backdropBlur: {
         xxs: '1px',
       }

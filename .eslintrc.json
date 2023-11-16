@@ -32,6 +32,7 @@
     "no-return-assign": "off",
     "@typescript-eslint/no-misused-promises": "off",
     "no-async-promise-executor": "off",
-    "prefer-promise-reject-errors": "off"
+    "prefer-promise-reject-errors": "off",
+    "react/prop-types": "off"
   }
 }

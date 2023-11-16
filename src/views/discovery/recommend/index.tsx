@@ -1,7 +1,7 @@
 import { memo, useCallback, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '@/hooks'
-import { fetchPlaylistDetail, setAutoplay } from '@/store/playlist'
+import { fetchPlaylistDetail, setAutoplay, setLoading } from '@/store/playlist'
 import Card from './card'
 import SwiperComponent from '@/components/swiper'
 
@@ -9,10 +9,16 @@ const Recommend = memo(() => {
   const { cookie } = useAppSelector(state => state.user)
   const { banners, personalizedPlaylist, recommendList } = useAppSelector(state => state.cache)
   const dispatch = useAppDispatch()
+
   const getPlaylists = useCallback((id: number, autoplay: boolean) => {
+    // 开启列表栏loading
+    dispatch(setLoading(true))
+    // 使用/不使用自动播放
     dispatch(setAutoplay(autoplay))
+    // 获取歌单列表
     void dispatch(fetchPlaylistDetail(id))
   }, [])
+
   const CurRecommendList = useMemo(() => {
     if (cookie.length > 0) {
       return recommendList.map(item => {

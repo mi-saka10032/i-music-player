@@ -82,6 +82,7 @@ type TracksLists = Array<{
   name: string
   ar: AR[]
   al: AL
+  dt: number
 }>
 
 // 歌单详情Response

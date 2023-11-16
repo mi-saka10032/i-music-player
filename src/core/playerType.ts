@@ -15,6 +15,7 @@ export enum PlayerEvent {
   VOLUME_CHANGE = 'VOLUME_CHANGE',
   MUTE_CHANGE = 'MUTE_CHANGE',
   PROGRESS_CHANGE = 'PROGRESS_CHANGE',
+  INVALID = 'INVALID',
   PLAY = 'PLAY',
   PAUSE = 'PAUSE',
   STOP = 'STOP',
@@ -36,6 +37,7 @@ export interface MittEvents<T> extends Record<EventType, unknown> {
   VOLUME_CHANGE: number
   MUTE_CHANGE: boolean
   PROGRESS_CHANGE: number
+  INVALID: PlayerState
   PLAY: PlayerState
   PAUSE: PlayerState
   STOP: PlayerState
@@ -50,6 +52,7 @@ export interface MittEvents<T> extends Record<EventType, unknown> {
 }
 
 export interface PlayerState {
+  id: number
   howl: Howl | null
   repeatMode: PlayType
   mute: boolean

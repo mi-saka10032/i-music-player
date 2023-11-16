@@ -1,4 +1,5 @@
 import { memo, useCallback, type MouseEvent } from 'react'
+import { playCountTrans } from '@/utils/formatter'
 import PlaySpace from '@/assets/svg/play_space.svg?react'
 import PlaySingle from '@/assets/svg/play_single.svg?react'
 
@@ -9,22 +10,13 @@ interface CardProps {
 
 // 推荐歌单小元素卡片
 const Card = memo(({ info, getPlaylists }: CardProps) => {
-  // 播放次数转换
-  const playCountTrans = useCallback((count: number): string => {
-    const bil = Math.pow(10, 9)
-    const mil = Math.pow(10, 4)
-    if (count > bil) {
-      return Math.round((count / bil)) + '亿'
-    } else if (count > mil) {
-      return Math.round((count / mil)) + '万'
-    } else return String(count)
-  }, [])
   const handleClick = useCallback((e: MouseEvent, id: number, autoplay: boolean) => {
     e.stopPropagation()
     getPlaylists(id, autoplay)
   }, [])
+
   return (
-    <div className="relative box-content w-full pt-[100%] cursor-pointer group" onClick={(e: MouseEvent) => { handleClick(e, info.id, false) }}>
+    <div className="relative box-content w-full pt-[100%] cursor-pointer group">
       <div className="absolute w-full pt-[100%] top-0 left-0">
         <img
           className="absolute w-full h-full top-0 left-0 rounded-md"
