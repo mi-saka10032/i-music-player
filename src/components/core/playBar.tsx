@@ -1,5 +1,5 @@
 import { memo, useCallback, useContext, useEffect, useRef } from 'react'
-import { QueueContext } from '@/layout/queue'
+import { QueueContext } from '@/layout/context/queue'
 import { type Handler } from 'mitt'
 import player, { PlayerEvent, type PlayerState } from '@/core/player'
 import { useAppSelector, useAppDispatch } from '@/hooks'
@@ -82,12 +82,16 @@ const PlayBar = memo(() => {
     if (playlists.length === 0) return
     playerRef.current.setPlaylist(playlists, 0, playerInstance.autoplay)
   }, [playlists, playerInstance.autoplay])
+
   return (
     <div className="w-full h-full relative">
       <div className="absolute w-full top-0 left-0">
         <ProgressBar key="ProgressBar" percent={playerInstance.progress} onChange={changeProgress} />
       </div>
       <div className="flex space-x-6 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+        {/* <button>
+          <i className="iconfont icon-like_full text-primary text-base" />
+        </button> */}
         <button onClick={switchBack}>
           <i className="iconfont icon-previous text-primary text-base" />
         </button>
@@ -97,9 +101,9 @@ const PlayBar = memo(() => {
         <button onClick={switchNext}>
           <i className="iconfont icon-next text-primary text-base"/>
         </button>
-        <button>
+        {/* <button>
           <i className="iconfont icon-share text-ct" />
-        </button>
+        </button> */}
       </div>
       <div className="flex items-center space-x-6 absolute right-6 h-full">
         <PlayTypeIcon key="PlayTypeIcon" />

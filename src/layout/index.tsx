@@ -1,5 +1,5 @@
 import { type MouseEvent, memo, useEffect, useState, useRef, useCallback } from 'react'
-import { QueueContext } from './queue'
+import { QueueContext } from './context/queue'
 import { fetchRecommendData } from '@/store/cache'
 import { useAppDispatch } from '@/hooks'
 import Content from './content'

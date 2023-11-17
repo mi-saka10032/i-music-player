@@ -1,24 +1,25 @@
-import { type FC, memo, useState, useCallback, useRef, useEffect } from 'react'
+import React, { memo, useState, useCallback, useRef, useEffect } from 'react'
 
 interface ProgressBarProps {
   vertical?: boolean
   round?: boolean
   percent: number
-  onInput?: (percent: number) => void
-  onChange?: (percent: number) => void
+  onInput?: (num: number) => void
+  onChange?: (num: number) => void
   barWidth?: string
   pointSize?: string
   alwaysPoint?: boolean
 }
 
 // 原生实现音量进度条组件
-const ProgressBar: FC<ProgressBarProps> = memo(
+const ProgressBar: React.FC<ProgressBarProps> = memo(
   (props: ProgressBarProps) => {
     const vertical = props.vertical ?? false
     const round = props.round ?? false
     const alwaysPoint = props.alwaysPoint ?? false
     const barWidth = props.barWidth ?? '2px'
     const pointSize = props.pointSize ?? '12px'
+    // 进度值仅传递初始化数值，在此之后接收的进度值不再生效
     const percent = props.percent
     // 进度条div元素
     const progressBarRef = useRef<HTMLDivElement | null>(null)
@@ -29,12 +30,6 @@ const ProgressBar: FC<ProgressBarProps> = memo(
     // 拖拽判断
     const isDragging = useRef(false)
 
-    useEffect(() => {
-      if (!isDragging.current) {
-        setProgress(Math.min(100, Math.max(0, percent)))
-      }
-    }, [percent])
-
     // mousedown函数，设置Rect对象，开启drag
     const handleMouseDown = useCallback(() => {
       if (progressBarRef.current != null) {
@@ -43,46 +38,40 @@ const ProgressBar: FC<ProgressBarProps> = memo(
       isDragging.current = true
     }, [])
 
+    // 计算最新进度值
+    const calculateNewPercent = useCallback((e: MouseEvent | React.MouseEvent, rect: DOMRect): number => {
+      let newPercent: number
+      if (vertical) {
+        const offsetY = rect.bottom - e.clientY
+        newPercent = (offsetY / rect.height) * 100
+      } else {
+        const offsetX = e.clientX - rect.left
+        newPercent = (offsetX / rect.width) * 100
+      }
+      return Math.min(100, Math.max(0, Math.round(newPercent * 100) / 100))
+    }, [vertical])
+
     // mousemove函数，一般只有drag判断变动时才会重新触发
     // onInput 不涉及state值时，无需dep
     const handleMouseMove = useCallback((e: MouseEvent) => {
       if (!isDragging.current || startPoint.current == null) return
-      let newPercent: number
-      const start = startPoint.current
-      if (vertical) {
-        const offsetY = start.bottom - e.clientY
-        newPercent = (offsetY / start.height) * 100
-      } else {
-        const offsetX = e.clientX - start.left
-        newPercent = (offsetX / start.width) * 100
-      }
-      newPercent = Math.min(
-        100,
-        Math.max(0, Math.round(newPercent * 100) / 100)
-      )
-      setProgress(newPercent)
+      const newPercent = calculateNewPercent(e, startPoint.current)
+      // 与mouseup的区别
       typeof (props.onInput) === 'function' && props.onInput(newPercent)
+      setProgress(newPercent)
     }, [vertical, props.onInput])
 
     // mouseup函数，关闭drag并回传进度值
     // onChange 不涉及state值时，无需dep
     const handleMouseUp = useCallback((e: MouseEvent) => {
       if (!isDragging.current || startPoint.current == null) return
-      isDragging.current = false
-      let newPercent: number
-      const start = startPoint.current
-      if (vertical) {
-        const offsetY = start.bottom - e.clientY
-        newPercent = (offsetY / start.height) * 100
-      } else {
-        const offsetX = e.clientX - start.left
-        newPercent = (offsetX / start.width) * 100
-      }
-      newPercent = Math.min(
-        100,
-        Math.max(0, Math.round(newPercent * 100) / 100)
-      )
+      const newPercent = calculateNewPercent(e, startPoint.current)
+      // 与mousemove的区别
       typeof (props.onChange) === 'function' && props.onChange(newPercent)
+      setProgress(newPercent)
+      // mouseup执行后需移除drag和rect
+      isDragging.current = false
+      startPoint.current = null
     }, [vertical, props.onChange])
 
     useEffect(() => {
@@ -96,22 +85,10 @@ const ProgressBar: FC<ProgressBarProps> = memo(
     }, [handleMouseMove, handleMouseUp])
 
     // mouseClick函数，单次进度值设置
-    const handleClick = useCallback((e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    const handleClick = useCallback((e: React.MouseEvent) => {
       if (progressBarRef.current == null) return
       const progressBarRect = progressBarRef.current.getBoundingClientRect()
-
-      let newPercent: number
-      if (vertical) {
-        const offsetY = progressBarRect.top + progressBarRect.height - e.clientY
-        newPercent = (offsetY / progressBarRect.height) * 100
-      } else {
-        const offsetX = e.clientX - progressBarRect.left
-        newPercent = (offsetX / progressBarRect.width) * 100
-      }
-      newPercent = Math.min(
-        100,
-        Math.max(0, Math.round(newPercent * 100) / 100)
-      )
+      const newPercent = calculateNewPercent(e, progressBarRect)
       setProgress(newPercent)
       typeof (props.onInput) === 'function' && props.onInput(newPercent)
       typeof (props.onChange) === 'function' && props.onChange(newPercent)
@@ -158,6 +135,10 @@ const ProgressBar: FC<ProgressBarProps> = memo(
         </div>
       </div>
     )
+  },
+  /** 当且仅当 依赖项钩子函数onChange onInput更新时props才自上而下重新渲染 */
+  (prevProps, nextProps) => {
+    return prevProps.onChange === nextProps.onChange && prevProps.onInput === nextProps.onInput
   }
 )
 
