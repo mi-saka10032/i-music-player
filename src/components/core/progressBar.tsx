@@ -19,7 +19,6 @@ const ProgressBar: React.FC<ProgressBarProps> = memo(
     const alwaysPoint = props.alwaysPoint ?? false
     const barWidth = props.barWidth ?? '2px'
     const pointSize = props.pointSize ?? '12px'
-    // 进度值仅传递初始化数值，在此之后接收的进度值不再生效
     const percent = props.percent
     // 进度条div元素
     const progressBarRef = useRef<HTMLDivElement | null>(null)
@@ -30,13 +29,12 @@ const ProgressBar: React.FC<ProgressBarProps> = memo(
     // 拖拽判断
     const isDragging = useRef(false)
 
-    // mousedown函数，设置Rect对象，开启drag
-    const handleMouseDown = useCallback(() => {
-      if (progressBarRef.current != null) {
-        startPoint.current = progressBarRef.current.getBoundingClientRect()
+    // 来自外部的进度值更新
+    useEffect(() => {
+      if (!isDragging.current && progress !== percent) {
+        setProgress(Math.min(100, Math.max(0, percent)))
       }
-      isDragging.current = true
-    }, [])
+    }, [percent, progress])
 
     // 计算最新进度值
     const calculateNewPercent = useCallback((e: MouseEvent | React.MouseEvent, rect: DOMRect): number => {
@@ -50,6 +48,14 @@ const ProgressBar: React.FC<ProgressBarProps> = memo(
       }
       return Math.min(100, Math.max(0, Math.round(newPercent * 100) / 100))
     }, [vertical])
+
+    // mousedown函数，设置Rect对象，开启drag
+    const handleMouseDown = useCallback(() => {
+      if (progressBarRef.current != null) {
+        startPoint.current = progressBarRef.current.getBoundingClientRect()
+      }
+      isDragging.current = true
+    }, [])
 
     // mousemove函数，一般只有drag判断变动时才会重新触发
     // onInput 不涉及state值时，无需dep
@@ -135,10 +141,6 @@ const ProgressBar: React.FC<ProgressBarProps> = memo(
         </div>
       </div>
     )
-  },
-  /** 当且仅当 依赖项钩子函数onChange onInput更新时props才自上而下重新渲染 */
-  (prevProps, nextProps) => {
-    return prevProps.onChange === nextProps.onChange && prevProps.onInput === nextProps.onInput
   }
 )
 
