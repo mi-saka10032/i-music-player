@@ -24,6 +24,7 @@ export enum PlayerEvent {
   CHANGE = 'CHANGE',
   PLAYLIST_CHANGE = 'PLAYLIST_CHANGE',
   INDEX_CHANGE = 'INDEX_CHANGE',
+  ID_CHANGE = 'ID_CHANGE',
   RESET = 'RESET',
   STATUS_CHANGE = 'STATUS_CHANGE',
   DURATION_CHANGE = 'DURATION_CHANGE',
@@ -46,6 +47,7 @@ export interface MittEvents<T> extends Record<EventType, unknown> {
   CHANGE: PlayerState
   PLAYLIST_CHANGE: SongData[]
   INDEX_CHANGE: number
+  ID_CHANGE: number
   RESET: T
   STATUS_CHANGE: MediaSessionPlaybackState
   DURATION_CHANGE: number

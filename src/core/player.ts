@@ -13,8 +13,15 @@ export class Player {
   /** pub/sub 事件订阅 */
 
   /** 当前曲目 */
-  public current: SongData | null = null
+  get current (): SongData {
+    return this._playlist[this._index]
+  }
   /** 当前曲目 */
+
+  /** 获取当前howl实例 */
+  public getCurrentHowl (): Howl | null {
+    return this.current?.howl ?? null
+  }
 
   /** 歌单列表 */
   public _playlist: SongData[] = []
@@ -31,6 +38,7 @@ export class Player {
 
   /** 曲目索引 */
   private _index: number = 0
+  private debounceIndex: number = 0
   get index (): number {
     return this._index
   }
@@ -39,6 +47,8 @@ export class Player {
     if (value === this._index) return
     this._index = value
     this.emit(PlayerEvent.INDEX_CHANGE, value)
+    const id = this.playlist[value]?.id ?? 0
+    this.emit(PlayerEvent.ID_CHANGE, id)
   }
   /** 曲目索引 */
 
@@ -123,8 +133,8 @@ export class Player {
   /** 获取完整播放信息 */
   get state (): PlayerState {
     return {
-      id: Number(this.current?.id),
-      howl: this.current?.howl ?? null,
+      howl: this.getCurrentHowl(),
+      id: this.current.id,
       status: this.status,
       repeatMode: this.repeatMode,
       volume: this.volume,
@@ -172,41 +182,38 @@ export class Player {
 
   /** 切换曲目 */
   public async setIndex (index: number, autoplay: boolean = true) {
+    if (this.index === index) return
     const beforeHowl = this.getCurrentHowl()
     if (beforeHowl != null) {
       this.removeListeners(beforeHowl)
       beforeHowl.stop()
     }
-    this.current = this.playlist[index]
-    if (this.current == null) return
-    if (this.current.howl == null) {
-      const { url, time } = await getSongUrl(this.current.id).then(res => res.data[0])
-      this.current.url = url
-      this.current.time = time
+    this.index = index
+    // 防抖索引，多次切换歌曲但歌曲初始化未完成，将跳过howl的init
+    this.debounceIndex = index
+    if (this.playlist[index] == null) return
+    if (this.playlist[index].howl == null) {
+      const { url, time } = await getSongUrl(this.playlist[index].id).then(res => res.data[0])
+      this.playlist[index].url = url
+      this.playlist[index].time = time
       if (url?.length > 0) {
-        this.current.howl = new Howl({
-          src: [url],
-          html5: true
-        })
+        this.playlist[index].howl = new Howl({ src: [url] })
       }
     }
-    this.index = index
     if ('mediaSession' in window.navigator) {
       window.navigator.mediaSession.metadata = new window.MediaMetadata({
-        title: this.current.name,
-        artist: this.current.artists.map(a => a.name).join(' / '),
-        album: this.current.album.name,
-        artwork: [{ src: `${formatImgUrl(this.current.album.picUrl, 128)}`, sizes: '128x128' }]
+        title: this.playlist[index].name,
+        artist: this.playlist[index].artists.map(a => a.name).join(' / '),
+        album: this.playlist[index].album.name,
+        artwork: [{ src: `${formatImgUrl(this.playlist[index].album.picUrl ?? '', 128)}`, sizes: '128x128' }]
       })
     }
-    const howl = this.current.howl
-    if (howl == null) {
-      return
-    }
+    if (this.debounceIndex !== index) return
+    const howl = this.getCurrentHowl()
+    if (howl == null) return
+    this.status = 'none'
     howl.loop(this.repeatMode === PlayType.single)
     this.initListeners(howl)
-
-    this.status = 'none'
     this.duration = Number(this.current.time) > 0 ? Number(this.current.time) / 1000 : 0
     this.progress = 0
     if (autoplay) {
@@ -302,11 +309,6 @@ export class Player {
     howl.off('seek', this.onSeek)
   }
 
-  /** 获取当前howl实例 */
-  public getCurrentHowl (): Howl | null {
-    return this.current?.howl ?? null
-  }
-
   /** 重置播放器实例 */
   public reset (): void {
     const howl = this.getCurrentHowl()
@@ -314,7 +316,6 @@ export class Player {
       this.removeListeners(howl)
       howl.stop()
     }
-    this.current = null
     this._playlist = []
     this._index = 0
     this._status = 'none'
@@ -354,7 +355,7 @@ export class Player {
     if (this.playlist.length === 0) return
     const howl = this.getCurrentHowl()
     if (howl == null) {
-      console.log('无效的音源')
+      console.warn('invalid audio')
       this.emit(PlayerEvent.INVALID, this.state)
       return
     }
