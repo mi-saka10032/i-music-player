@@ -15,8 +15,7 @@ interface FooterProps {
   progress: number
   playlists: SongData[]
   setShowQueue: React.Dispatch<React.SetStateAction<boolean>>
-  onPlay: () => void
-  onPause: () => void
+  onSwitchPlay: () => void
   onPrev: () => void
   onNext: () => void
   onProgressChange: (progress: number) => void
@@ -39,15 +38,6 @@ const Footer: React.ForwardRefExoticComponent<FooterProps & React.RefAttributes<
       return props.playStatus === 'playing' ? <PauseIcon className="w-12 h-12" /> : <PlayIcon className="w-12 h-12" />
     }, [props.playStatus])
 
-    // 手动地调用实例播放/暂停
-    const changePlayStatus = useCallback(() => {
-      if (props.playStatus === 'playing') {
-        props.onPause()
-      } else {
-        props.onPlay()
-      }
-    }, [props.playStatus, props.onPlay, props.onPause])
-
     useEffect(() => {
       console.log('footer update')
     })
@@ -65,7 +55,7 @@ const Footer: React.ForwardRefExoticComponent<FooterProps & React.RefAttributes<
             <button onClick={props.onPrev}>
               <i className="iconfont icon-previous text-primary text-base" />
             </button>
-            <button onClick={changePlayStatus}>
+            <button onClick={props.onSwitchPlay}>
               { DynamicIcon }
             </button>
             <button onClick={props.onNext}>

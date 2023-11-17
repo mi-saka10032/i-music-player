@@ -1,13 +1,6 @@
 import { memo, useEffect } from 'react'
 import { type PlayType } from '@/core/player'
 
-// const playTypeList: PlayType[] = [
-//   PlayType.loop,
-//   PlayType.single,
-//   PlayType.random,
-//   PlayType.sequential
-// ]
-
 interface PlayTypeIconProps {
   type: PlayType
   onTypeChange: (type: PlayType) => void

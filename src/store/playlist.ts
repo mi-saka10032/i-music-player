@@ -96,7 +96,7 @@ const playlistSlice = createSlice({
     },
     setProgress (state, action: PayloadAction<number>) {
       if (state.playerInstance.progress === action.payload) return
-      console.log(action)
+      // console.log(action)
       state.playerInstance.progress = action.payload
     },
     setLoading (state, action: PayloadAction<boolean>) {

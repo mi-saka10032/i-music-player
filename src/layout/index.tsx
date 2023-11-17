@@ -12,7 +12,7 @@ import {
   setMute,
   setVolume
 } from '@/store/playlist'
-import player, { type PlayType, PlayerEvent, type PlayerState } from '@/core/player'
+import player, { PlayType, PlayerEvent, type PlayerState } from '@/core/player'
 import Header from './header'
 import Content from './content'
 import Footer from './footer'
@@ -22,7 +22,6 @@ import RightQueue from './rightQueue'
 const Layout = memo(() => {
   const {
     playId,
-    playIndex,
     playlists,
     playerType,
     playerInstance,
@@ -32,6 +31,12 @@ const Layout = memo(() => {
 
   // 生命周期内仅维持一份player实例
   const playerRef = useRef(player)
+  const playTypeRef = useRef<PlayType[]>([
+    PlayType.loop,
+    PlayType.single,
+    PlayType.random,
+    PlayType.sequential
+  ])
 
   /** 当鼠标点击在非列表栏或底栏触发时，强制隐藏列表栏 */
   const initialQueueStatus = useRef(false)
@@ -60,7 +65,6 @@ const Layout = memo(() => {
 
   /** HowlPlayer实例监听回调 */
   const handleChangeStatus = useCallback((state: PlayerState) => {
-    dispatch(setPlayId(state.id))
     dispatch(setPlayStatus(state.status))
   }, [])
 
@@ -70,16 +74,17 @@ const Layout = memo(() => {
 
   const handleChangeIndex = useCallback((index: number) => {
     dispatch(setPlayIndex(index))
+    void playerRef.current.setIndex(index)
+  }, [])
+
+  const handleChangeId = useCallback((id: number) => {
+    dispatch(setPlayId(id))
   }, [])
   /** HowlPlayer实例监听回调 */
 
   /** HowlPlayer实例手动执行函数 */
-  const handlePlay = useCallback(() => {
-    playerRef.current.play()
-  }, [])
-
-  const handlePause = useCallback(() => {
-    playerRef.current.pause()
+  const handleSwitchPlay = useCallback(() => {
+    playerRef.current.switchPlay()
   }, [])
 
   const handleChangePrev = useCallback(() => {
@@ -96,8 +101,10 @@ const Layout = memo(() => {
   }, [])
 
   const handleChangePlayType = useCallback((type: PlayType) => {
-    dispatch(setPlayType(type))
-    playerRef.current.setRepeatMode(type)
+    const index = playTypeRef.current.findIndex((item) => item === type)
+    const newType = playTypeRef.current[index + 1] ?? playTypeRef.current[0]
+    dispatch(setPlayType(newType))
+    playerRef.current.setRepeatMode(newType)
   }, [])
 
   const handleChangeMute = useCallback((mute: boolean) => {
@@ -110,12 +117,6 @@ const Layout = memo(() => {
     playerRef.current.setVolume(volume)
   }, [])
   /** HowlPlayer实例手动执行函数 */
-
-  // 仅当playIndex真正变化时才调用，否则对相同index点击会重新加载player
-  useEffect(() => {
-    console.log(playIndex)
-    void playerRef.current.setIndex(playIndex)
-  }, [playIndex])
 
   useEffect(() => {
     if (playlists.length > 0 && playerInstance.autoplay) {
@@ -131,11 +132,13 @@ const Layout = memo(() => {
     playerRef.current.on(PlayerEvent.PAUSE, handleChangeStatus)
     playerRef.current.on(PlayerEvent.STOP, handleChangeStatus)
     playerRef.current.on(PlayerEvent.PROGRESS_CHANGE, handleChangeProgress)
+    playerRef.current.on(PlayerEvent.ID_CHANGE, handleChangeId)
     return () => {
       playerRef.current.off(PlayerEvent.PLAY, handleChangeStatus)
       playerRef.current.off(PlayerEvent.PAUSE, handleChangeStatus)
       playerRef.current.off(PlayerEvent.STOP, handleChangeStatus)
       playerRef.current.off(PlayerEvent.PROGRESS_CHANGE, handleChangeProgress)
+      playerRef.current.off(PlayerEvent.ID_CHANGE, handleChangeId)
     }
   }, [])
   /** 挂载时触发 */
@@ -165,8 +168,7 @@ const Layout = memo(() => {
           progress={playerInstance.progress}
           playlists={playlists}
           setShowQueue={setShowQueue}
-          onPlay={handlePlay}
-          onPause={handlePause}
+          onSwitchPlay={handleSwitchPlay}
           onPrev={handleChangePrev}
           onNext={handleChangeNext}
           onProgressChange={handleProgressTo}
