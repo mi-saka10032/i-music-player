@@ -12,7 +12,7 @@ import {
   setMute,
   setVolume
 } from '@/store/playlist'
-import player, { PlayType, PlayerEvent, type PlayerState } from '@/core/player'
+import player, { PlayType, PlayerEvent } from '@/core/player'
 import Header from './header'
 import Content from './content'
 import Footer from './footer'
@@ -64,8 +64,8 @@ const Layout = memo(() => {
   /** RightQueue Loading */
 
   /** HowlPlayer实例监听回调 */
-  const handleChangeStatus = useCallback((state: PlayerState) => {
-    dispatch(setPlayStatus(state.status))
+  const handleChangeStatus = useCallback((status: MediaSessionPlaybackState) => {
+    dispatch(setPlayStatus(status))
   }, [])
 
   const handleChangeProgress = useCallback((progress: number) => {
@@ -128,15 +128,11 @@ const Layout = memo(() => {
   useEffect(() => {
     // 获取轮播列表和每日推荐
     void dispatch(fetchRecommendData())
-    playerRef.current.on(PlayerEvent.PLAY, handleChangeStatus)
-    playerRef.current.on(PlayerEvent.PAUSE, handleChangeStatus)
-    playerRef.current.on(PlayerEvent.STOP, handleChangeStatus)
+    playerRef.current.on(PlayerEvent.STATUS_CHANGE, handleChangeStatus)
     playerRef.current.on(PlayerEvent.PROGRESS_CHANGE, handleChangeProgress)
     playerRef.current.on(PlayerEvent.ID_CHANGE, handleChangeId)
     return () => {
-      playerRef.current.off(PlayerEvent.PLAY, handleChangeStatus)
-      playerRef.current.off(PlayerEvent.PAUSE, handleChangeStatus)
-      playerRef.current.off(PlayerEvent.STOP, handleChangeStatus)
+      playerRef.current.off(PlayerEvent.STATUS_CHANGE, handleChangeStatus)
       playerRef.current.off(PlayerEvent.PROGRESS_CHANGE, handleChangeProgress)
       playerRef.current.off(PlayerEvent.ID_CHANGE, handleChangeId)
     }

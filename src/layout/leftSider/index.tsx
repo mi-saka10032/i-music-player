@@ -72,10 +72,6 @@ const LeftSider = memo(() => {
     }
   }, [])
 
-  useEffect(() => {
-    console.log('sider update')
-  })
-
   return (
     <div className="pt-[50px] bg-[#ededed]">
       <Popover

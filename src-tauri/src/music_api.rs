@@ -464,7 +464,7 @@ pub(crate) fn index_daily_sigin(options: Options) -> FormatParams {
 }
 
 // #[get("/digitalAlbum/purchased")]
-pub(crate) fn index_digitalAlbum_purchased(options: Options) -> FormatParams {
+pub(crate) fn index_digital_album_purchased(options: Options) -> FormatParams {
     let url = "https://music.163.com/api/digitalAlbum/purchased";
 
     let query_string = QueryParams::from(options.params);

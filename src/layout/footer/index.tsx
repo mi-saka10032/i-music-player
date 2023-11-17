@@ -1,4 +1,4 @@
-import { memo, forwardRef, useCallback, useMemo, useRef, useEffect } from 'react'
+import { memo, forwardRef, useCallback, useMemo, useRef } from 'react'
 import { type PlayType, type SongData } from '@/core/player'
 import ProgressBar from './playBar/progressBar'
 import PlayTypeIcon from './playBar/playTypeIcon'
@@ -37,10 +37,6 @@ const Footer: React.ForwardRefExoticComponent<FooterProps & React.RefAttributes<
     const DynamicIcon = useMemo<JSX.Element>(() => {
       return props.playStatus === 'playing' ? <PauseIcon className="w-12 h-12" /> : <PlayIcon className="w-12 h-12" />
     }, [props.playStatus])
-
-    useEffect(() => {
-      console.log('footer update')
-    })
 
     return (
       <div ref={ref} className="relative z-20 w-full h-full col-start-1 col-end-3 bg-white">

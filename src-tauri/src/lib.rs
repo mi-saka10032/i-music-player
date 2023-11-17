@@ -61,7 +61,7 @@ fn get_params(options: Options) -> FormatParams {
         "/comment/playlist" => music_api::index_comment_playlist(options),
         "/comment" => music_api::index_comment(options),
         "/daily_signin" => music_api::index_daily_sigin(options),
-        "/digitalAlbum/purchased" => music_api::index_digitalAlbum_purchased(options),
+        "/digitalAlbum/purchased" => music_api::index_digital_album_purchased(options),
         "/dj/banner" => music_api::index_dj_banner(options),
         "/dj/category/excludehot" => music_api::index_dj_category_excludehot(options),
         "/dj/category/recommend" => music_api::index_dj_category_recommend(options),

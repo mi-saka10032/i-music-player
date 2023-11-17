@@ -1,4 +1,4 @@
-import { memo, useMemo, useRef, useCallback, useEffect } from 'react'
+import { memo, useMemo, useRef, useCallback } from 'react'
 import ProgressBar from '@/layout/footer/playBar/progressBar'
 
 interface VolumeControllerProps {
@@ -40,10 +40,6 @@ const VolumeController = memo((props: VolumeControllerProps) => {
       return 'icon-volume_zero'
     }
   }, [mute, volume])
-
-  useEffect(() => {
-    console.log('volume update')
-  })
 
   return (
     <div className="group/volume relative w-5 h-5 flex justify-center items-center">

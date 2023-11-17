@@ -48,10 +48,6 @@ const RightQueue: React.ForwardRefExoticComponent<RightQueueProps & React.RefAtt
         }
       }, [props.playlists])
 
-      useEffect(() => {
-        console.log('right queue update')
-      })
-
       return (
         <div ref={ref} className={`fixed top-0 right-[-30rem] z-10 transition-all duration-500 flex flex-col w-[30rem] h-full ${props.className}`}>
           <div className="h-[50px]"></div>

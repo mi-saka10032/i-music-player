@@ -1,4 +1,4 @@
-import { memo, useEffect } from 'react'
+import { memo } from 'react'
 import { type PlayType } from '@/core/player'
 
 interface PlayTypeIconProps {
@@ -8,9 +8,6 @@ interface PlayTypeIconProps {
 
 // 播放类型组件
 const PlayTypeIcon = memo((props: PlayTypeIconProps) => {
-  useEffect(() => {
-    console.log('playtype update')
-  })
   return (
     <div className="flex items-center justify-center">
       <i
