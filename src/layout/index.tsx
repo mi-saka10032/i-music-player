@@ -31,6 +31,7 @@ const Layout = memo(() => {
 
   // 生命周期内仅维持一份player实例
   const playerRef = useRef(player)
+  // 播放类型数组
   const playTypeRef = useRef<PlayType[]>([
     PlayType.loop,
     PlayType.single,
@@ -72,11 +73,6 @@ const Layout = memo(() => {
     dispatch(setProgress(progress))
   }, [])
 
-  const handleChangeIndex = useCallback((index: number) => {
-    dispatch(setPlayIndex(index))
-    void playerRef.current.setIndex(index)
-  }, [])
-
   const handleChangeId = useCallback((id: number) => {
     dispatch(setPlayId(id))
   }, [])
@@ -93,6 +89,11 @@ const Layout = memo(() => {
 
   const handleChangeNext = useCallback(() => {
     playerRef.current.next()
+  }, [])
+
+  const handleChangeIndex = useCallback((index: number) => {
+    dispatch(setPlayIndex(index))
+    void playerRef.current.setIndex(index)
   }, [])
 
   const handleProgressTo = useCallback((progress: number) => {
@@ -140,13 +141,7 @@ const Layout = memo(() => {
   /** 挂载时触发 */
 
   return (
-    <GlobalContext.Provider
-      value={{
-        showQueue,
-        setShowQueue,
-        player: playerRef.current
-      }}
-    >
+    <GlobalContext.Provider value={{ player: playerRef.current }}>
       <div
         className='relative grid grid-cols-[200px_1fr] grid-rows-[1fr_60px] w-full h-full m-0 p-0 overflow-hidden'
         onClick={handleContainerClick}
