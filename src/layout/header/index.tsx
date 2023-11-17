@@ -1,6 +1,6 @@
 import { type PropsWithChildren, memo } from 'react'
 import RouteStackControl from '@/components/route-stack-control'
-import NavBar from '@/components/nav-bar'
+import NavBar from '@/layout/header/navBar'
 import SettingsBar from './settings-bar'
 
 const Header = memo(({ children }: PropsWithChildren) => {

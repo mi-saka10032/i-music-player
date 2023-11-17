@@ -11,8 +11,8 @@ interface ProgressBarProps {
   alwaysPoint?: boolean
 }
 
-// 原生实现音量进度条组件
-const ProgressBar: React.FC<ProgressBarProps> = memo(
+// 原生实现进度条组件
+const ProgressBar = memo(
   (props: ProgressBarProps) => {
     const vertical = props.vertical ?? false
     const round = props.round ?? false

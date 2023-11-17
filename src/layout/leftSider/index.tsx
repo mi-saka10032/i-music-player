@@ -11,7 +11,8 @@ const links = [
   { to: '/my', title: '我喜欢的音乐', icon: 'like' }
 ]
 
-const Sider = memo(() => {
+/** 左侧边栏组件 */
+const LeftSider = memo(() => {
   const { accountInfo, cookie } = useAppSelector((state) => state.user)
   const dispatch = useAppDispatch()
   // 登录状态判断
@@ -71,6 +72,10 @@ const Sider = memo(() => {
     }
   }, [])
 
+  useEffect(() => {
+    console.log('sider update')
+  })
+
   return (
     <div className="pt-[50px] bg-[#ededed]">
       <Popover
@@ -121,5 +126,5 @@ const Sider = memo(() => {
   )
 })
 
-Sider.displayName = 'Sider'
-export default Sider
+LeftSider.displayName = 'LeftSider'
+export default LeftSider

@@ -1,73 +1,56 @@
-import {
-  type ForwardRefExoticComponent, type RefAttributes, forwardRef, memo, useCallback, useEffect, useMemo, useRef, FC
-} from 'react'
-import { type Handler } from 'mitt'
+import { forwardRef, memo, useMemo, useCallback, useEffect } from 'react'
 import { Divider, List, Row, Col, type SpinProps } from 'antd'
 import OverlayScrollbarsComponent from '@/components/overlayscrollbars'
-// import InfiniteScroll from 'react-infinite-scroll-component'
-import { useAppSelector, useAppDispatch } from '@/hooks'
-import { setLoading, setPlayId } from '@/store/playlist'
-import player, { PlayerEvent, type PlayerState } from '@/core/player'
+import { type SongData } from '@/core/player'
 import { durationTrans } from '@/utils/formatter'
 import PlaySingleIcon from '@/assets/svg/play_single.svg?react'
 import PauseSingleIcon from '@/assets/svg/pause_single.svg?react'
 
-interface PlayQueueProps {
+interface RightQueueProps {
   className: string
+  activeId: number
+  playStatus: MediaSessionPlaybackState
+  loading: boolean
+  playlists: SongData[]
+  onLoaded: (isLoading: boolean) => void
+  onIndexChange: (index: number) => void
 }
 
-const PlayQueue: ForwardRefExoticComponent<PlayQueueProps & RefAttributes<HTMLDivElement>> = memo(
+const RightQueue: React.ForwardRefExoticComponent<RightQueueProps & React.RefAttributes<HTMLDivElement>> = memo(
   forwardRef(
     (props, ref) => {
-      const { playId, playlists, playerInstance, playlistLoading } = useAppSelector(state => state.playlist)
-      const dispatch = useAppDispatch()
-      const playerRef = useRef(player)
-
       const CoreIcon = useMemo(() => {
-        return playerInstance.status === 'paused' ? <PauseSingleIcon className="w-3.5 h-3.5" /> : <PlaySingleIcon className="w-3 h-3" />
-      }, [playerInstance.status])
+        return props.playStatus === 'paused' ? <PauseSingleIcon className="w-3.5 h-3.5" /> : <PlaySingleIcon className="w-3 h-3" />
+      }, [props.playStatus])
 
       const artistNames = useCallback((artists: AR[]): string => {
         return artists.map(item => item.name).join('/')
       }, [])
 
-      const EmptyText = useMemo(() => {
-        return <p className="mt-24">你还没有添加任何歌曲！</p>
-      }, [])
-
-      const loading = useMemo((): SpinProps | boolean => {
-        if (playlistLoading) {
+      const loadingInstance = useMemo((): SpinProps | boolean => {
+        if (props.loading) {
           return {
             spinning: true,
             wrapperClassName: 'h-full'
           }
         } else return false
-      }, [playlistLoading])
-      useEffect(() => {
-        if (playlists.length > 0) {
-          dispatch(setLoading(false))
-        }
-      }, [playlists])
+      }, [props.loading])
 
       // 字体特殊高亮类名
       const highlightIdClass = useCallback((itemId: number, defaultColor: string): string => {
-        return 'text-ellipsis text-sm ' + (itemId === playId ? 'text-red-500 ' : defaultColor + 'group-hover:text-black ')
-      }, [playId])
+        return 'text-ellipsis text-sm ' + (itemId === props.activeId ? 'text-red-500 ' : defaultColor + 'group-hover:text-black ')
+      }, [props.activeId])
 
-      //
-      const switchSongIndex = useCallback((index: number) => {
-        playerRef.current.setIndex(index)
-      }, [])
-
-      const setActiveId: Handler<PlayerState> = useCallback((state) => {
-        dispatch(setPlayId(state.id))
-      }, [])
+      // 播放列表依赖更新完毕后，关闭loading
       useEffect(() => {
-        playerRef.current.on(PlayerEvent.PLAY, setActiveId)
-        return () => {
-          playerRef.current.off(PlayerEvent.PLAY, setActiveId)
+        if (props.playlists.length > 0) {
+          props.onLoaded(false)
         }
-      }, [])
+      }, [props.playlists])
+
+      useEffect(() => {
+        console.log('right queue update')
+      })
 
       return (
         <div ref={ref} className={`fixed top-0 right-[-30rem] z-10 transition-all duration-500 flex flex-col w-[30rem] h-full ${props.className}`}>
@@ -76,29 +59,29 @@ const PlayQueue: ForwardRefExoticComponent<PlayQueueProps & RefAttributes<HTMLDi
             <div className="px-5">
               <h2 className="py-5 text-xl font-semibold">当前播放</h2>
               <div className="flex items-center">
-                <p className="text-sm text-ctd">总{playlists.length}首</p>
+                <p className="text-sm text-ctd">总{props.playlists.length}首</p>
               </div>
               <Divider className="mt-4 mb-0" />
             </div>
           </div>
-          <div id="playQueueContainer" className="flex-1 flex bg-white overflow-hidden">
+          <div className="flex-1 flex bg-white overflow-hidden">
             <OverlayScrollbarsComponent>
               <List
                 className="h-auto"
                 size="small"
                 split={false}
-                loading={loading}
-                dataSource={playlists}
+                loading={loadingInstance}
+                dataSource={props.playlists}
                 locale={{
-                  emptyText: EmptyText
+                  emptyText: <p className="mt-24">你还没有添加任何歌曲！</p>
                 }}
                 renderItem={(item, index) => (
                   <List.Item
                     key={item.id}
                     className={`relative group ${index % 2 !== 0 ? 'bg-[#fdfdfd] hover:bg-[#f3f3f3]' : ' bg-[#f6f6f6] hover:bg-[#f2f2f2] '}`}
-                    onClick={() => { switchSongIndex(index) }}
+                    onDoubleClick={() => { props.onIndexChange(index) }}
                   >
-                    <div className={`${item.id === playId ? 'block' : 'hidden'} absolute left-0.5 top-1/2 -translate-y-[50%]`}>
+                    <div className={`${item.id === props.activeId ? 'block' : 'hidden'} absolute left-0.5 top-1/2 -translate-y-[50%]`}>
                       { CoreIcon }
                     </div>
                     <Row
@@ -141,5 +124,5 @@ const PlayQueue: ForwardRefExoticComponent<PlayQueueProps & RefAttributes<HTMLDi
   )
 )
 
-PlayQueue.displayName = 'PlayQueue'
-export default PlayQueue
+RightQueue.displayName = 'RightQueue'
+export default RightQueue

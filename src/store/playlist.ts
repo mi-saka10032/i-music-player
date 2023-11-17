@@ -101,6 +101,7 @@ const playlistSlice = createSlice({
     },
     setLoading (state, action: PayloadAction<boolean>) {
       if (state.playlistLoading === action.payload) return
+      console.log(action)
       state.playlistLoading = action.payload
     },
     setPlayId (state, action: PayloadAction<number>) {
@@ -116,6 +117,7 @@ const playlistSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder.addCase(fetchPlaylistDetail.fulfilled, (state, { payload }) => {
+      console.log('set playlists')
       state.playlists = payload
     })
   }

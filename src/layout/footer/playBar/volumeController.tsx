@@ -1,60 +1,49 @@
 import { memo, useMemo, useRef, useCallback, useEffect } from 'react'
-import player from '@/core/player'
-import { useAppSelector, useAppDispatch } from '@/hooks'
-import { setMute, setVolume } from '@/store/playlist'
-import ProgressBar from '@/components/core/progressBar'
+import ProgressBar from '@/layout/footer/playBar/progressBar'
+
+interface VolumeControllerProps {
+  mute: boolean
+  volume: number
+  onMuteChange: (mute: boolean) => void
+  onVolumeChange: (progress: number) => void
+}
 
 // 音量控制器，封装原生进度条组件实现
-const VolumeController = memo(() => {
-  const { playerType } = useAppSelector(state => state.playlist)
-  const dispatch = useAppDispatch()
+const VolumeController = memo((props: VolumeControllerProps) => {
+  const { mute, volume } = props
 
   // 静音前音量缓存
-  const lastVolume = useRef(playerType.volume)
+  const lastVolume = useRef(volume)
 
   // 静音切换
   const switchMute = useCallback(() => {
-    dispatch(setMute(!playerType.mute))
-    if (playerType.mute) {
-      dispatch(setVolume(lastVolume.current))
+    if (mute) {
+      props.onVolumeChange(lastVolume.current)
     } else {
-      dispatch(setVolume(0))
-      lastVolume.current = playerType.volume ?? 10
+      props.onVolumeChange(0)
+      lastVolume.current = volume ?? 10
     }
-  }, [playerType.mute, playerType.volume])
-
-  // 进度条设置音量
-  const changeVolume = useCallback((newPercent: number) => {
-    dispatch(setVolume(newPercent))
-  }, [])
+    props.onMuteChange(!mute)
+  }, [mute, volume])
 
   // 音量图标
   const soundIcon = useMemo(() => {
-    if (playerType.mute) {
+    if (mute) {
       return 'icon-volume_cross'
-    } else if (playerType.volume >= 80) {
+    } else if (volume >= 80) {
       return 'icon-volume_high'
-    } else if (playerType.volume >= 40) {
+    } else if (volume >= 40) {
       return 'icon-volume-middle'
-    } else if (playerType.volume > 0) {
+    } else if (volume > 0) {
       return 'icon-volume-low'
     } else {
       return 'icon-volume_zero'
     }
-  }, [playerType.mute, playerType.volume])
+  }, [mute, volume])
 
-  // 生命周期内仅维持一份player实例
-  const playerRef = useRef(player)
-
-  // 音频静音副作用
   useEffect(() => {
-    playerRef.current.setMute(playerType.mute)
-  }, [playerType.mute])
-
-  // 音量副作用
-  useEffect(() => {
-    playerRef.current.setVolume(playerType.volume)
-  }, [playerType.volume])
+    console.log('volume update')
+  })
 
   return (
     <div className="group/volume relative w-5 h-5 flex justify-center items-center">
@@ -65,8 +54,8 @@ const VolumeController = memo(() => {
       <div className="hidden group-hover/volume:inline-block group-active/volume:inline-block p-4 absolute -top-2 left-2/4 -translate-x-1/2 -translate-y-full bg-white shadow-md rounded">
         <div className="h-20">
           <ProgressBar
-            percent={playerType.volume}
-            onInput={changeVolume}
+            percent={volume}
+            onInput={props.onVolumeChange}
             barWidth="4px"
             pointSize="10px"
             alwaysPoint
