@@ -1,4 +1,4 @@
-import { memo, forwardRef, useCallback, useMemo, useRef } from 'react'
+import { memo, forwardRef, useCallback, useMemo } from 'react'
 import { type PlayType, type SongData } from '@/core/player'
 import ProgressBar from './playBar/progressBar'
 import PlayTypeIcon from './playBar/playTypeIcon'
@@ -7,7 +7,7 @@ import PlayIcon from '@/assets/svg/play.svg?react'
 import PauseIcon from '@/assets/svg/pause.svg?react'
 
 interface FooterProps {
-  initialQueue: boolean
+  queueStatusRef: React.MutableRefObject<boolean>
   playStatus: MediaSessionPlaybackState
   type: PlayType
   mute: boolean
@@ -27,10 +27,9 @@ interface FooterProps {
 const Footer: React.ForwardRefExoticComponent<FooterProps & React.RefAttributes<HTMLDivElement>> = memo(
   forwardRef((props, ref) => {
     // 切换RightQueue显示/隐藏
-    const queueStatus = useRef(props.initialQueue)
     const switchQueueStatus = useCallback(() => {
-      queueStatus.current = !queueStatus.current
-      props.setShowQueue(queueStatus.current)
+      props.queueStatusRef.current = !props.queueStatusRef.current
+      props.setShowQueue(props.queueStatusRef.current)
     }, [])
 
     // 播放/暂停图标切换

@@ -7,8 +7,9 @@ import PlaySingleIcon from '@/assets/svg/play_single.svg?react'
 import PauseSingleIcon from '@/assets/svg/pause_single.svg?react'
 
 interface RightQueueProps {
-  className: string
+  showQueue: boolean
   activeId: number
+  activeIndex: number
   playStatus: MediaSessionPlaybackState
   loading: boolean
   playlists: SongData[]
@@ -19,14 +20,22 @@ interface RightQueueProps {
 const RightQueue: React.ForwardRefExoticComponent<RightQueueProps & React.RefAttributes<HTMLDivElement>> = memo(
   forwardRef(
     (props, ref) => {
+      // 切换显示/隐藏的class类名
+      const switchQueueStatus = useMemo<string>(() => {
+        return props.showQueue ? '-translate-x-[30rem] opacity-100' : 'opacity-0'
+      }, [props.showQueue])
+
+      // 列表左侧播放/暂停小图标展示
       const CoreIcon = useMemo(() => {
         return props.playStatus === 'paused' ? <PauseSingleIcon className="w-3.5 h-3.5" /> : <PlaySingleIcon className="w-3 h-3" />
       }, [props.playStatus])
 
+      // 歌手数据结构转换
       const artistNames = useCallback((artists: AR[]): string => {
         return artists.map(item => item.name).join('/')
       }, [])
 
+      // loading实例
       const loadingInstance = useMemo((): SpinProps | boolean => {
         if (props.loading) {
           return {
@@ -48,8 +57,20 @@ const RightQueue: React.ForwardRefExoticComponent<RightQueueProps & React.RefAtt
         }
       }, [props.playlists])
 
+      // 切换显示时，存在播放列表，对当前播放的歌曲位置进行滚动条复位
+      useEffect(() => {
+        return () => {
+          if (!props.showQueue && props.activeIndex > 0) {
+            const items = document.querySelectorAll('.playlist-item')
+            if (items.length - 1 > props.activeIndex) {
+              items[props.activeIndex].scrollIntoView({ block: 'center' })
+            }
+          }
+        }
+      }, [props.showQueue, props.activeIndex])
+
       return (
-        <div ref={ref} className={`fixed top-0 right-[-30rem] z-10 transition-all duration-500 flex flex-col w-[30rem] h-full ${props.className}`}>
+        <div ref={ref} className={`fixed top-0 right-[-30rem] z-10 transition-all duration-500 flex flex-col w-[30rem] h-full ${switchQueueStatus}`}>
           <div className="h-[50px]"></div>
           <div className="bg-white shadow-xl">
             <div className="px-5">
@@ -74,7 +95,7 @@ const RightQueue: React.ForwardRefExoticComponent<RightQueueProps & React.RefAtt
                 renderItem={(item, index) => (
                   <List.Item
                     key={item.id}
-                    className={`relative group ${index % 2 !== 0 ? 'bg-[#fdfdfd] hover:bg-[#f3f3f3]' : ' bg-[#f6f6f6] hover:bg-[#f2f2f2] '}`}
+                    className={`relative playlist-item group ${index % 2 !== 0 ? 'bg-[#fdfdfd] hover:bg-[#f3f3f3]' : ' bg-[#f6f6f6] hover:bg-[#f2f2f2] '}`}
                     onDoubleClick={() => { props.onIndexChange(index) }}
                   >
                     <div className={`${item.id === props.activeId ? 'block' : 'hidden'} absolute left-0.5 top-1/2 -translate-y-[50%]`}>

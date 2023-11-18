@@ -22,6 +22,7 @@ import RightQueue from './rightQueue'
 const Layout = memo(() => {
   const {
     playId,
+    playIndex,
     playlists,
     playerType,
     playerInstance,
@@ -40,20 +41,20 @@ const Layout = memo(() => {
   ])
 
   /** 当鼠标点击在非列表栏或底栏触发时，强制隐藏列表栏 */
-  const initialQueueStatus = useRef(false)
-  const [showQueue, setShowQueue] = useState(initialQueueStatus.current)
   const footerRef = useRef<HTMLDivElement>(null)
   const queueRef = useRef<HTMLDivElement>(null)
+  // 列表栏的显示隐藏状态ref，传递给footer做修改，以避免footer不必要的更新
+  const queueStatusRef = useRef(false)
+  // 列表栏的显示隐藏状态state，传递给queue控制queue的显示/隐藏
+  const [showQueue, setShowQueue] = useState(queueStatusRef.current)
 
   const handleContainerClick = useCallback((e: MouseEvent) => {
-    if (footerRef.current == null || queueRef.current == null) {
-      return
-    }
     const target = e.target as HTMLElement
-    if (!(footerRef.current?.contains(target) || queueRef.current?.contains(target))) {
-      if (showQueue) {
-        setShowQueue(() => false)
-      }
+    const footer = footerRef.current as HTMLElement
+    const queue = queueRef.current as HTMLElement
+    if (!(footer.contains(target) || queue.contains(target)) && showQueue) {
+      queueStatusRef.current = false
+      setShowQueue(queueStatusRef.current)
     }
   }, [showQueue])
   /** 当鼠标点击在非列表栏或底栏触发时，强制隐藏列表栏 */
@@ -65,16 +66,34 @@ const Layout = memo(() => {
   /** RightQueue Loading */
 
   /** HowlPlayer实例监听回调 */
-  const handleChangeStatus = useCallback((status: MediaSessionPlaybackState) => {
+  const handleDispatchStatus = useCallback((status: MediaSessionPlaybackState) => {
     dispatch(setPlayStatus(status))
   }, [])
 
-  const handleChangeProgress = useCallback((progress: number) => {
+  const handleDispatchProgress = useCallback((progress: number) => {
     dispatch(setProgress(progress))
   }, [])
 
-  const handleChangeId = useCallback((id: number) => {
+  const handleDispatchId = useCallback((id: number) => {
     dispatch(setPlayId(id))
+  }, [])
+
+  const handleDispatchIndex = useCallback((index: number) => {
+    dispatch(setPlayIndex(index))
+  }, [])
+
+  const handleDispatchType = useCallback((type: PlayType) => {
+    const index = playTypeRef.current.findIndex((item) => item === type)
+    const newType = playTypeRef.current[index + 1] ?? playTypeRef.current[0]
+    dispatch(setPlayType(newType))
+  }, [])
+
+  const handleDispatchMute = useCallback((mute: boolean) => {
+    dispatch(setMute(mute))
+  }, [])
+
+  const handleDispatchVolume = useCallback((volume: number) => {
+    dispatch(setVolume(volume))
   }, [])
   /** HowlPlayer实例监听回调 */
 
@@ -92,32 +111,26 @@ const Layout = memo(() => {
   }, [])
 
   const handleChangeIndex = useCallback((index: number) => {
-    dispatch(setPlayIndex(index))
     void playerRef.current.setIndex(index)
   }, [])
 
   const handleProgressTo = useCallback((progress: number) => {
-    handleChangeProgress(progress)
+    handleDispatchProgress(progress)
     playerRef.current.progressTo(progress)
   }, [])
-
-  const handleChangePlayType = useCallback((type: PlayType) => {
-    const index = playTypeRef.current.findIndex((item) => item === type)
-    const newType = playTypeRef.current[index + 1] ?? playTypeRef.current[0]
-    dispatch(setPlayType(newType))
-    playerRef.current.setRepeatMode(newType)
-  }, [])
-
-  const handleChangeMute = useCallback((mute: boolean) => {
-    dispatch(setMute(mute))
-    playerRef.current.setMute(mute)
-  }, [])
-
-  const handleChangeVolume = useCallback((volume: number) => {
-    dispatch(setVolume(volume))
-    playerRef.current.setVolume(volume)
-  }, [])
   /** HowlPlayer实例手动执行函数 */
+
+  useEffect(() => {
+    playerRef.current.setRepeatMode(playerType.type)
+  }, [playerType.type])
+
+  useEffect(() => {
+    playerRef.current.setMute(playerType.mute)
+  }, [playerType.mute])
+
+  useEffect(() => {
+    playerRef.current.setVolume(playerType.volume)
+  }, [playerType.volume])
 
   useEffect(() => {
     if (playlists.length > 0 && playerInstance.autoplay) {
@@ -129,13 +142,15 @@ const Layout = memo(() => {
   useEffect(() => {
     // 获取轮播列表和每日推荐
     void dispatch(fetchRecommendData())
-    playerRef.current.on(PlayerEvent.STATUS_CHANGE, handleChangeStatus)
-    playerRef.current.on(PlayerEvent.PROGRESS_CHANGE, handleChangeProgress)
-    playerRef.current.on(PlayerEvent.ID_CHANGE, handleChangeId)
+    playerRef.current.on(PlayerEvent.STATUS_CHANGE, handleDispatchStatus)
+    playerRef.current.on(PlayerEvent.PROGRESS_CHANGE, handleDispatchProgress)
+    playerRef.current.on(PlayerEvent.ID_CHANGE, handleDispatchId)
+    playerRef.current.on(PlayerEvent.INDEX_CHANGE, handleDispatchIndex)
     return () => {
-      playerRef.current.off(PlayerEvent.STATUS_CHANGE, handleChangeStatus)
-      playerRef.current.off(PlayerEvent.PROGRESS_CHANGE, handleChangeProgress)
-      playerRef.current.off(PlayerEvent.ID_CHANGE, handleChangeId)
+      playerRef.current.off(PlayerEvent.STATUS_CHANGE, handleDispatchStatus)
+      playerRef.current.off(PlayerEvent.PROGRESS_CHANGE, handleDispatchProgress)
+      playerRef.current.off(PlayerEvent.ID_CHANGE, handleDispatchId)
+      playerRef.current.off(PlayerEvent.INDEX_CHANGE, handleDispatchIndex)
     }
   }, [])
   /** 挂载时触发 */
@@ -151,7 +166,7 @@ const Layout = memo(() => {
         <Content />
         <Footer
           ref={footerRef}
-          initialQueue={initialQueueStatus.current}
+          queueStatusRef={queueStatusRef}
           playStatus={playerInstance.status}
           type={playerType.type}
           mute={playerType.mute}
@@ -163,14 +178,15 @@ const Layout = memo(() => {
           onPrev={handleChangePrev}
           onNext={handleChangeNext}
           onProgressChange={handleProgressTo}
-          onTypeChange={handleChangePlayType}
-          onMuteChange={handleChangeMute}
-          onVolumeChange={handleChangeVolume}
+          onTypeChange={handleDispatchType}
+          onMuteChange={handleDispatchMute}
+          onVolumeChange={handleDispatchVolume}
         />
         <RightQueue
           ref={queueRef}
-          className={ showQueue ? '-translate-x-[30rem] opacity-100' : 'opacity-0' }
+          showQueue={showQueue}
           activeId={playId}
+          activeIndex={playIndex}
           playlists={playlists}
           playStatus={playerInstance.status}
           loading={playlistLoading}
