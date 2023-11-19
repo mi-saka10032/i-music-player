@@ -17,6 +17,17 @@ interface RightQueueProps {
   onIndexChange: (index: number) => void
 }
 
+interface localPlayQueue {
+  id: number
+  name: string
+  artistsName: string
+  duration: string
+  zebraClass: string
+  songNameClass: string
+  artistClass: string
+  durationClass: string
+}
+
 const RightQueue: React.ForwardRefExoticComponent<RightQueueProps & React.RefAttributes<HTMLDivElement>> = memo(
   forwardRef(
     (props, ref) => {
@@ -30,11 +41,6 @@ const RightQueue: React.ForwardRefExoticComponent<RightQueueProps & React.RefAtt
         return props.playStatus === 'paused' ? <PauseSingleIcon className="w-3.5 h-3.5" /> : <PlaySingleIcon className="w-3 h-3" />
       }, [props.playStatus])
 
-      // 歌手数据结构转换
-      const artistNames = useCallback((artists: AR[]): string => {
-        return artists.map(item => item.name).join('/')
-      }, [])
-
       // loading实例
       const loadingInstance = useMemo((): SpinProps | boolean => {
         if (props.loading) {
@@ -45,10 +51,25 @@ const RightQueue: React.ForwardRefExoticComponent<RightQueueProps & React.RefAtt
         } else return false
       }, [props.loading])
 
-      // 字体特殊高亮类名
-      const highlightIdClass = useCallback((itemId: number, defaultColor: string): string => {
-        return 'text-ellipsis text-sm ' + (itemId === props.activeId ? 'text-red-500 ' : defaultColor + 'group-hover:text-black ')
-      }, [props.activeId])
+      const localPlayQueue = useMemo<localPlayQueue[]>(() => {
+        const getArtistNames = (artists: AR[]): string => {
+          return artists.map(item => item.name).join(' / ')
+        }
+        // 字体特殊高亮类名
+        const highlightIdClass = (itemId: number, defaultColor: string): string => {
+          return 'text-ellipsis text-sm ' + (itemId === props.activeId ? 'text-red-500 ' : defaultColor + 'group-hover:text-black ')
+        }
+        return props.playlists.map((item, index) => ({
+          id: item.id,
+          name: item.name,
+          artistsName: getArtistNames(item.artists),
+          duration: durationTrans(item.time ?? 0),
+          zebraClass: index % 2 !== 0 ? 'bg-[#fdfdfd] hover:bg-[#f3f3f3]' : ' bg-[#f6f6f6] hover:bg-[#f2f2f2] ',
+          songNameClass: highlightIdClass(item.id, 'text-black '),
+          artistClass: highlightIdClass(item.id, 'text-neutral-500 '),
+          durationClass: highlightIdClass(item.id, 'text-teal-400 ')
+        }))
+      }, [props.playlists, props.activeId])
 
       // 播放列表依赖更新完毕后，关闭loading
       useEffect(() => {
@@ -59,7 +80,7 @@ const RightQueue: React.ForwardRefExoticComponent<RightQueueProps & React.RefAtt
 
       // 切换显示时，存在播放列表，对当前播放的歌曲位置进行滚动条复位
       useEffect(() => {
-        if (props.showQueue && props.activeIndex > 0) {
+        if (props.showQueue) {
           const items = document.querySelectorAll('.playlist-item')
           if (items.length - 1 > props.activeIndex) {
             items[props.activeIndex].scrollIntoView({ block: 'center' })
@@ -74,7 +95,7 @@ const RightQueue: React.ForwardRefExoticComponent<RightQueueProps & React.RefAtt
             <div className="px-5">
               <h2 className="py-5 text-xl font-semibold">当前播放</h2>
               <div className="flex items-center">
-                <p className="text-sm text-ctd">总{props.playlists.length}首</p>
+                <p className="text-sm text-ctd">总{localPlayQueue.length}首</p>
               </div>
               <Divider className="mt-4 mb-0" />
             </div>
@@ -86,19 +107,28 @@ const RightQueue: React.ForwardRefExoticComponent<RightQueueProps & React.RefAtt
                 size="small"
                 split={false}
                 loading={loadingInstance}
-                dataSource={props.playlists}
+                dataSource={localPlayQueue}
                 locale={{
                   emptyText: <p className="mt-24">你还没有添加任何歌曲！</p>
                 }}
                 renderItem={(item, index) => (
                   <List.Item
                     key={item.id}
-                    className={`relative playlist-item group ${index % 2 !== 0 ? 'bg-[#fdfdfd] hover:bg-[#f3f3f3]' : ' bg-[#f6f6f6] hover:bg-[#f2f2f2] '}`}
+                    className={`relative playlist-item group ${item.zebraClass}`}
                     onDoubleClick={() => { props.onIndexChange(index) }}
                   >
-                    <div className={`${item.id === props.activeId ? 'block' : 'hidden'} absolute left-0.5 top-1/2 -translate-y-[50%]`}>
-                      { CoreIcon }
-                    </div>
+                    {
+                      item.id === props.activeId
+                        ? (
+                          <div
+                            key={`icon:${item.id}`}
+                            className={'absolute left-0.5 top-1/2 -translate-y-[50%]'}
+                          >
+                            { CoreIcon }
+                          </div>
+                          )
+                        : null
+                    }
                     <Row
                       className="w-full"
                       justify={'space-between'}
@@ -109,22 +139,22 @@ const RightQueue: React.ForwardRefExoticComponent<RightQueueProps & React.RefAtt
                       <Col
                         title={item.name}
                         span={14}
-                        className={highlightIdClass(item.id, 'text-black ')}
+                        className={item.songNameClass}
                       >
                         {item.name}
                       </Col>
                       <Col
-                        title={artistNames(item.artists)}
+                        title={item.artistsName}
                         span={6}
-                        className={highlightIdClass(item.id, 'text-neutral-500 ')}
+                        className={item.artistClass}
                       >
-                        {artistNames(item.artists)}
+                        {item.artistsName}
                       </Col>
                       <Col
                         span={4}
-                        className={`${highlightIdClass(item.id, 'text-teal-400 ')} text-teal-400 group-hover:text-black`}
+                        className={item.durationClass}
                       >
-                        {durationTrans(item.time ?? 0)}
+                        {item.duration}
                       </Col>
                     </Row>
                   </List.Item>
