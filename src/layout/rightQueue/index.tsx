@@ -22,7 +22,7 @@ const RightQueue: React.ForwardRefExoticComponent<RightQueueProps & React.RefAtt
     (props, ref) => {
       // 切换显示/隐藏的class类名
       const switchQueueStatus = useMemo<string>(() => {
-        return props.showQueue ? '-translate-x-[30rem] opacity-100' : 'opacity-0'
+        return props.showQueue ? '' : 'hidden'
       }, [props.showQueue])
 
       // 列表左侧播放/暂停小图标展示
@@ -70,7 +70,7 @@ const RightQueue: React.ForwardRefExoticComponent<RightQueueProps & React.RefAtt
       }, [props.showQueue, props.activeIndex])
 
       return (
-        <div ref={ref} className={`fixed top-0 right-[-30rem] z-10 transition-all duration-500 flex flex-col w-[30rem] h-full ${switchQueueStatus}`}>
+        <div ref={ref} className={`fixed top-0 right-0 z-10 flex flex-col w-[30rem] h-full ${switchQueueStatus}`}>
           <div className="h-[50px]"></div>
           <div className="bg-white shadow-xl">
             <div className="px-5">

@@ -103,14 +103,17 @@ const Layout = memo(() => {
   }, [])
 
   const handleChangePrev = useCallback(() => {
+    dispatch(setProgress(0))
     playerRef.current.back()
   }, [])
 
   const handleChangeNext = useCallback(() => {
+    dispatch(setProgress(0))
     playerRef.current.next()
   }, [])
 
   const handleChangeIndex = useCallback((index: number) => {
+    dispatch(setProgress(0))
     void playerRef.current.setIndex(index)
   }, [])
 
@@ -136,11 +139,13 @@ const Layout = memo(() => {
     playerRef.current.setVolume(playerType.volume)
   }, [playerType.volume])
 
+  const lastPlaylists = useRef<SongData[]>([])
   useEffect(() => {
-    if (playlists.length > 0 && playerInstance.autoplay) {
-      playerRef.current.setPlaylist(playlists, 0, playerInstance.autoplay)
+    if (playlists.length > 0 && playlists !== lastPlaylists.current) {
+      lastPlaylists.current = playlists
+      playerRef.current.setPlaylist(playlists, playIndex, playerInstance.autoplay)
     }
-  }, [playlists, playerInstance.autoplay])
+  }, [playlists, playIndex, playerInstance.autoplay])
 
   /** 挂载时触发 */
   useEffect(() => {

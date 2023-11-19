@@ -44,8 +44,8 @@ const Thumbnail = memo((props: ThumbnailProps) => {
           <img src={picUrl} className="w-12 h-12 rounded-lg" />
           <div className="ml-3 text-[#333]">
             <div className="flex items-center text-base">
-              <span className="max-w-36 text-ellipsis" title={songName}>{songName}</span>
-              <span className="max-w-36 text-ellipsis text-sm ml-2" title={artistsName}>{artistsName}</span>
+              <span className="max-w-[10rem] text-ellipsis" title={songName}>{songName}</span>
+              <span className="max-w-[8rem] text-ellipsis text-sm ml-2" title={artistsName}>{artistsName}</span>
             </div>
             {
               Number(props.thumbnailItem?.time) > 0

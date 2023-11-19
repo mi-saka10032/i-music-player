@@ -3,6 +3,7 @@ import mitt, { type Emitter } from 'mitt'
 import { PlayType, type SongData, PlayerEvent, type PlayerState, type MittEvents } from './playerType.ts'
 import { getSongUrl } from '@/api'
 import { formatImgUrl } from '@/utils/url.ts'
+import { P } from "node_modules/@tauri-apps/api/event-41a9edf5";
 
 export class Player {
   /** pub/sub 事件订阅 */
@@ -198,6 +199,9 @@ export class Player {
       this.playlist[index].time = time
       if (url?.length > 0) {
         this.playlist[index].howl = new Howl({ src: [url] })
+      } else {
+        console.warn('invalid audio')
+        this.emit(PlayerEvent.INVALID, this.state)
       }
     }
     if ('mediaSession' in window.navigator) {
