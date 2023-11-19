@@ -104,7 +104,7 @@ const Layout = memo(() => {
 
   const handleChangePrev = useCallback(() => {
     dispatch(setProgress(0))
-    playerRef.current.back()
+    playerRef.current.prev()
   }, [])
 
   const handleChangeNext = useCallback(() => {

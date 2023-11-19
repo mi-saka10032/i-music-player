@@ -59,12 +59,10 @@ const RightQueue: React.ForwardRefExoticComponent<RightQueueProps & React.RefAtt
 
       // 切换显示时，存在播放列表，对当前播放的歌曲位置进行滚动条复位
       useEffect(() => {
-        return () => {
-          if (!props.showQueue && props.activeIndex > 0) {
-            const items = document.querySelectorAll('.playlist-item')
-            if (items.length - 1 > props.activeIndex) {
-              items[props.activeIndex].scrollIntoView({ block: 'center' })
-            }
+        if (props.showQueue && props.activeIndex > 0) {
+          const items = document.querySelectorAll('.playlist-item')
+          if (items.length - 1 > props.activeIndex) {
+            items[props.activeIndex].scrollIntoView({ block: 'center' })
           }
         }
       }, [props.showQueue, props.activeIndex])

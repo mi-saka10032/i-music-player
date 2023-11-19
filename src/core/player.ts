@@ -3,7 +3,6 @@ import mitt, { type Emitter } from 'mitt'
 import { PlayType, type SongData, PlayerEvent, type PlayerState, type MittEvents } from './playerType.ts'
 import { getSongUrl } from '@/api'
 import { formatImgUrl } from '@/utils/url.ts'
-import { P } from "node_modules/@tauri-apps/api/event-41a9edf5";
 
 export class Player {
   /** pub/sub 事件订阅 */
@@ -157,7 +156,7 @@ export class Player {
       mediaSession.setActionHandler('nexttrack', () => { this.next() })
       mediaSession.setActionHandler('pause', () => { this.pause() })
       mediaSession.setActionHandler('play', () => { this.play() })
-      mediaSession.setActionHandler('previoustrack', () => { this.back() })
+      mediaSession.setActionHandler('previoustrack', () => { this.prev() })
       mediaSession.setActionHandler('seekto', details => { this.seekTo(details.seekTime) })
       mediaSession.setActionHandler('stop', () => { this.stop() })
     }
@@ -287,7 +286,11 @@ export class Player {
       default:
         break
     }
+    this.status = 'none'
     this.emit(PlayerEvent.END, this.state)
+    if ('mediaSession' in window.navigator) {
+      window.navigator.mediaSession.playbackState = this.status
+    }
   }
 
   /** seek 监听回调 */
@@ -342,16 +345,32 @@ export class Player {
     }
   }
 
+  private randomIndex (): number {
+    let random: number
+    do {
+      random = Math.floor(Math.random() * this.playlist.length)
+    } while (random === this.index)
+    return random
+  }
+
+  private nextIndex (): number {
+    return this.index < this.playlist.length - 1 ? this.index + 1 : 0
+  }
+
+  private prevIndex (): number {
+    return this.index > 0 ? this.index - 1 : this.playlist.length - 1
+  }
+
   /** 下一首 */
   public next (): void {
-    const nextIndex = this.index < this.playlist.length - 1 ? this.index + 1 : 0
-    void this.setIndex(nextIndex, true)
+    const index = this.repeatMode === 'random' ? this.randomIndex() : this.nextIndex()
+    void this.setIndex(index, true)
   }
 
   /** 上一首 */
-  public back (): void {
-    const backIndex = this.index > 0 ? this.index - 1 : this.playlist.length - 1
-    void this.setIndex(backIndex, true)
+  public prev (): void {
+    const index = this.repeatMode === 'random' ? this.randomIndex() : this.prevIndex()
+    void this.setIndex(index, true)
   }
 
   /** 播放 */
