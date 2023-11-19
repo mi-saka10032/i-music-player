@@ -1,4 +1,4 @@
-import { type MouseEvent, memo, useEffect, useState, useRef, useCallback } from 'react'
+import { type MouseEvent, memo, useEffect, useState, useRef, useCallback, useMemo } from 'react'
 import GlobalContext from './context'
 import { useAppSelector, useAppDispatch } from '@/hooks'
 import { fetchRecommendData } from '@/store/cache'
@@ -12,7 +12,7 @@ import {
   setMute,
   setVolume
 } from '@/store/playlist'
-import player, { PlayType, PlayerEvent } from '@/core/player'
+import player, { PlayType, PlayerEvent, type SongData } from '@/core/player'
 import Header from './header'
 import Content from './content'
 import Footer from './footer'
@@ -120,6 +120,10 @@ const Layout = memo(() => {
   }, [])
   /** HowlPlayer实例手动执行函数 */
 
+  const thumbnailItem = useMemo<SongData | null>(() => {
+    return playlists[playIndex] ?? null
+  }, [playlists, playIndex])
+
   useEffect(() => {
     playerRef.current.setRepeatMode(playerType.type)
   }, [playerType.type])
@@ -172,7 +176,7 @@ const Layout = memo(() => {
           mute={playerType.mute}
           volume={playerType.volume}
           progress={playerInstance.progress}
-          playlists={playlists}
+          thumbnailItem={thumbnailItem}
           setShowQueue={setShowQueue}
           onSwitchPlay={handleSwitchPlay}
           onPrev={handleChangePrev}

@@ -5,6 +5,7 @@ import PlayTypeIcon from './playBar/playTypeIcon'
 import VolumeController from './playBar/volumeController'
 import PlayIcon from '@/assets/svg/play.svg?react'
 import PauseIcon from '@/assets/svg/pause.svg?react'
+import Thumbnail from './thumbnail'
 
 interface FooterProps {
   queueStatusRef: React.MutableRefObject<boolean>
@@ -13,7 +14,7 @@ interface FooterProps {
   mute: boolean
   volume: number
   progress: number
-  playlists: SongData[]
+  thumbnailItem: SongData | null
   setShowQueue: React.Dispatch<React.SetStateAction<boolean>>
   onSwitchPlay: () => void
   onPrev: () => void
@@ -40,6 +41,9 @@ const Footer: React.ForwardRefExoticComponent<FooterProps & React.RefAttributes<
     return (
       <div ref={ref} className="relative z-20 w-full h-full col-start-1 col-end-3 bg-white">
         <div className="w-full h-full relative">
+          <div className="absolute left-2 top-1/2 -translate-y-1/2">
+            <Thumbnail thumbnailItem={props.thumbnailItem} />
+          </div>
           <div className="absolute w-full top-0 left-0">
             <ProgressBar key="ProgressBar" percent={props.progress} onChange={props.onProgressChange} />
           </div>
