@@ -1,7 +1,10 @@
 import { memo, useEffect, useMemo, useState } from 'react'
 import { type SongData } from '@/core/playerType'
+import { durationTrans } from '@/utils/formatter'
+
 interface ThumbnailProps {
   thumbnailItem: SongData | null
+  progress: number
 }
 
 const Thumbnail = memo((props: ThumbnailProps) => {
@@ -20,6 +23,16 @@ const Thumbnail = memo((props: ThumbnailProps) => {
     return artists.map(item => item.name).join(' / ')
   }, [props.thumbnailItem])
 
+  const duration = useMemo<string>(() => {
+    const time = props.thumbnailItem?.time ?? 0
+    return durationTrans(time)
+  }, [props.thumbnailItem])
+
+  const currentTime = useMemo<string>(() => {
+    const time = props.thumbnailItem?.time ?? 0
+    return durationTrans(time * props.progress / 100)
+  }, [props.thumbnailItem, props.progress])
+
   useEffect(() => {
     setShow(props.thumbnailItem != null)
   }, [props.thumbnailItem])
@@ -30,8 +43,21 @@ const Thumbnail = memo((props: ThumbnailProps) => {
         <div className="flex items-center">
           <img src={picUrl} className="w-12 h-12 rounded-lg" />
           <div className="ml-3 text-[#333]">
-            <p className="w-40 text-ellipsis text-base" title={songName}>{songName}</p>
-            <p className="text-sm" title={artistsName}>{artistsName}</p>
+            <div className="flex items-center text-base">
+              <span className="max-w-36 text-ellipsis" title={songName}>{songName}</span>
+              <span className="max-w-36 text-ellipsis text-sm ml-2" title={artistsName}>{artistsName}</span>
+            </div>
+            {
+              Number(props.thumbnailItem?.time) > 0
+                ? (
+                  <div className="text-base text-[#cecece]">
+                    <span>{currentTime}</span>
+                    <span> / </span>
+                    <span>{duration}</span>
+                  </div>
+                  )
+                : null
+            }
           </div>
         </div>
         )

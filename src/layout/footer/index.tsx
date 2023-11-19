@@ -1,4 +1,4 @@
-import { memo, forwardRef, useCallback, useMemo } from 'react'
+import { memo, forwardRef, useCallback, useMemo, useRef } from 'react'
 import { type PlayType, type SongData } from '@/core/player'
 import ProgressBar from './playBar/progressBar'
 import PlayTypeIcon from './playBar/playTypeIcon'
@@ -38,14 +38,28 @@ const Footer: React.ForwardRefExoticComponent<FooterProps & React.RefAttributes<
       return props.playStatus === 'playing' ? <PauseIcon className="w-12 h-12" /> : <PlayIcon className="w-12 h-12" />
     }, [props.playStatus])
 
+    const curProgress = useRef(0)
+    const shareProgress = useCallback((newPercent: number) => {
+      curProgress.current = newPercent
+    }, [])
+
     return (
       <div ref={ref} className="relative z-20 w-full h-full col-start-1 col-end-3 bg-white">
         <div className="w-full h-full relative">
           <div className="absolute left-2 top-1/2 -translate-y-1/2">
-            <Thumbnail thumbnailItem={props.thumbnailItem} />
+            <Thumbnail
+              key="Thumbnail"
+              thumbnailItem={props.thumbnailItem}
+              progress={curProgress.current}
+            />
           </div>
           <div className="absolute w-full top-0 left-0">
-            <ProgressBar key="ProgressBar" percent={props.progress} onChange={props.onProgressChange} />
+            <ProgressBar
+              key="ProgressBar"
+              percent={props.progress}
+              onShare={shareProgress}
+              onChange={props.onProgressChange}
+            />
           </div>
           <div className="flex space-x-6 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
             {/* <button>

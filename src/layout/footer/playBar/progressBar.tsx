@@ -6,6 +6,7 @@ interface ProgressBarProps {
   percent: number
   onInput?: (num: number) => void
   onChange?: (num: number) => void
+  onShare?: (num: number) => void
   barWidth?: string
   pointSize?: string
   alwaysPoint?: boolean
@@ -35,6 +36,10 @@ const ProgressBar = memo(
         setProgress(Math.min(100, Math.max(0, percent)))
       }
     }, [percent, progress])
+
+    useEffect(() => {
+      typeof (props.onShare) === 'function' && props.onShare(progress)
+    }, [progress, props.onShare])
 
     // 计算最新进度值
     const calculateNewPercent = useCallback((e: MouseEvent | React.MouseEvent, rect: DOMRect): number => {
