@@ -23,6 +23,11 @@ const store = configureStore({
   reducer: (state: any, action: { type: string, payload: InitialState }) => {
     if (action.type === INITIAL_STATE_LOADED) {
       console.log('INITIAL DB↓')
+      // 初始化的播放状态必须是none 禁自动播放
+      if (action.payload.playlist != null) {
+        action.payload.playlist.playerInstance.autoplay = false
+        action.payload.playlist.playerInstance.status = 'none'
+      }
       console.log(action.payload)
       return action.payload
     } else {
