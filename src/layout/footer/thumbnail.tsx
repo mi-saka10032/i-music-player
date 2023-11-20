@@ -1,13 +1,22 @@
-import { memo, useEffect, useMemo, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useState } from 'react'
+import Arrow from '@/assets/svg/arrow.svg?react'
 import { type SongData } from '@/core/playerType'
 import { durationTrans } from '@/utils/formatter'
 
 interface ThumbnailProps {
   thumbnailItem: SongData | null
   progress: number
+  detailRef: React.MutableRefObject<boolean>
+  setShowDetail: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 const Thumbnail = memo((props: ThumbnailProps) => {
+  // 切换Detail显示/隐藏
+  const switchDetailStatus = useCallback(() => {
+    props.detailRef.current = !props.detailRef.current
+    props.setShowDetail(props.detailRef.current)
+  }, [])
+
   const [isShow, setShow] = useState(false)
 
   const picUrl = useMemo<string>(() => {
@@ -41,18 +50,26 @@ const Thumbnail = memo((props: ThumbnailProps) => {
     isShow
       ? (
         <div className="flex items-center">
-          <img src={picUrl} className="w-12 h-12 rounded-lg" />
-          <div className="ml-3 text-[#333]">
+          <div
+            className="relative group cursor-pointer"
+            title="展开音乐详情页"
+            onClick={switchDetailStatus}
+          >
+            <img src={picUrl} className="w-12 h-12 rounded-lg group-hover:blur-[2px]"/>
+            <Arrow className="absolute hidden left-0 top-0 w-full h-1/2 fill-white group-hover:block" />
+            <Arrow className="absolute hidden left-0 bottom-0 w-full h-1/2 fill-white group-hover:block rotate-180" />
+          </div>
+          <div className="ml-3">
             <div className="flex items-center text-base">
-              <span className="max-w-[10rem] text-ellipsis" title={songName}>{songName}</span>
-              <span className="max-w-[8rem] text-ellipsis text-sm ml-2" title={artistsName}>{artistsName}</span>
+              <span className="max-w-[10rem] text-ellipsis text-[#333]" title={songName}>{songName}</span>
+              <span className="max-w-[8rem] text-ellipsis text-sm ml-2 text-neutral-500" title={artistsName}>{artistsName}</span>
             </div>
             {
               Number(props.thumbnailItem?.time) > 0
                 ? (
-                  <div className="text-base text-[#cecece]">
+                  <div className="flex items-center text-base text-[#cecece]">
                     <span>{currentTime}</span>
-                    <span> / </span>
+                    <span className="mx-1">/</span>
                     <span>{duration}</span>
                   </div>
                   )

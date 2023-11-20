@@ -4,16 +4,14 @@ import { Outlet } from 'react-router-dom'
 
 const Content = memo(() => {
   return (
-    <div className="flex w-full h-full overflow-hidden">
-      <OverlayScrollbarsComponent>
-        <div className="h-[50px]"></div>
-        <div>
-          <div className="max-w-[1096px] mx-auto break-all">
-            <Outlet />
-          </div>
+    <OverlayScrollbarsComponent>
+      <div className="h-[50px]"></div>
+      <div>
+        <div className="max-w-[1096px] mx-auto break-all">
+          <Outlet />
         </div>
-      </OverlayScrollbarsComponent>
-    </div>
+      </div>
+    </OverlayScrollbarsComponent>
   )
 })
 

@@ -18,6 +18,7 @@ import Content from './content'
 import Footer from './footer'
 import LeftSider from './leftSider'
 import RightQueue from './rightQueue'
+import Detail from './detail'
 
 const Layout = memo(() => {
   const {
@@ -57,7 +58,24 @@ const Layout = memo(() => {
       setShowQueue(queueStatusRef.current)
     }
   }, [showQueue])
+
+  // 切换显示/隐藏的class类名
+  const switchQueueStatus = useMemo<string>(() => {
+    return showQueue ? '' : 'hidden'
+  }, [showQueue])
   /** 当鼠标点击在非列表栏或底栏触发时，强制隐藏列表栏 */
+
+  /** 音乐详情页的显示/隐藏 */
+  // 列表栏的显示隐藏状态ref，传递给footer做修改，以避免footer不必要的更新
+  const detailRef = useRef(false)
+  // 详情页的显示隐藏状态state，传递给detail控制detail的显示/隐藏以及header的隐藏/显示
+  const [showDetail, setShowDetail] = useState(detailRef.current)
+
+  // 切换显示/隐藏的class类名
+  const switchDetailClass = useMemo<string>(() => {
+    return showDetail ? 'opacity-1' : 'translate-y-full opacity-0'
+  }, [showDetail])
+  /** 音乐详情页的显示/隐藏 */
 
   /** RightQueue Loading */
   const handleSwitchLoading = useCallback((isLoading: boolean) => {
@@ -170,38 +188,55 @@ const Layout = memo(() => {
         className='relative grid grid-cols-[200px_1fr] grid-rows-[1fr_60px] w-full h-full m-0 p-0 overflow-hidden'
         onClick={handleContainerClick}
       >
-        <Header />
-        <LeftSider />
-        <Content />
-        <Footer
-          ref={footerRef}
-          queueStatusRef={queueStatusRef}
-          playStatus={playerInstance.status}
-          type={playerType.type}
-          mute={playerType.mute}
-          volume={playerType.volume}
-          progress={playerInstance.progress}
-          thumbnailItem={thumbnailItem}
-          setShowQueue={setShowQueue}
-          onSwitchPlay={handleSwitchPlay}
-          onPrev={handleChangePrev}
-          onNext={handleChangeNext}
-          onProgressChange={handleProgressTo}
-          onTypeChange={handleDispatchType}
-          onMuteChange={handleDispatchMute}
-          onVolumeChange={handleDispatchVolume}
+        <div className="flex absolute z-20 top-[0] left-[0] w-full h-[50px] ">
+          <Header
+            detailRef={detailRef}
+            showDetail={showDetail}
+            setShowDetail={setShowDetail}
+          />
+        </div>
+        <div className="pt-[50px] bg-[#ededed]">
+          <LeftSider />
+        </div>
+        <div className="flex w-full h-full overflow-hidden">
+          <Content />
+        </div>
+        <div ref={footerRef} className="relative z-40 w-full h-full col-start-1 col-end-3 bg-white">
+          <Footer
+            queueStatusRef={queueStatusRef}
+            detailRef={detailRef}
+            playStatus={playerInstance.status}
+            type={playerType.type}
+            mute={playerType.mute}
+            volume={playerType.volume}
+            progress={playerInstance.progress}
+            thumbnailItem={thumbnailItem}
+            setShowQueue={setShowQueue}
+            setShowDetail={setShowDetail}
+            onSwitchPlay={handleSwitchPlay}
+            onPrev={handleChangePrev}
+            onNext={handleChangeNext}
+            onProgressChange={handleProgressTo}
+            onTypeChange={handleDispatchType}
+            onMuteChange={handleDispatchMute}
+            onVolumeChange={handleDispatchVolume}
         />
-        <RightQueue
-          ref={queueRef}
-          showQueue={showQueue}
-          activeId={playId}
-          activeIndex={playIndex}
-          playlists={playlists}
-          playStatus={playerInstance.status}
-          loading={playlistLoading}
-          onLoaded={handleSwitchLoading}
-          onIndexChange={handleChangeIndex}
-        />
+        </div>
+        <div ref={queueRef} className={`fixed top-0 right-0 z-10 flex flex-col w-[30rem] h-full ${switchQueueStatus}`}>
+          <RightQueue
+            showQueue={showQueue}
+            activeId={playId}
+            activeIndex={playIndex}
+            playlists={playlists}
+            playStatus={playerInstance.status}
+            loading={playlistLoading}
+            onLoaded={handleSwitchLoading}
+            onIndexChange={handleChangeIndex}
+          />
+        </div>
+        <div className={`fixed z-30 w-full h-full left-0 top-[50px] transition-all duration-500 bg-[#f8f8f8] ${switchDetailClass}`}>
+          <Detail />
+        </div>
       </div>
     </GlobalContext.Provider>
   )

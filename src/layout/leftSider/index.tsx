@@ -73,7 +73,7 @@ const LeftSider = memo(() => {
   }, [])
 
   return (
-    <div className="pt-[50px] bg-[#ededed]">
+    <>
       <Popover
         content={<Button danger type="text" size="small" onClick={exit}>退出登录</Button>}
         trigger="click"
@@ -86,7 +86,7 @@ const LeftSider = memo(() => {
             <img
               className="w-12 h-12 bg-[#e0e0e0] rounded-full shadow-inner"
               src={userInfo.avatarUrl}
-          />
+            />
             <div className="max-w-[150px] pl-3 pr-2 leading-4 font-[500] truncate">
               {userInfo.nickname}
             </div>
@@ -118,7 +118,7 @@ const LeftSider = memo(() => {
           })
         }
       </ul>
-    </div>
+    </>
   )
 })
 
