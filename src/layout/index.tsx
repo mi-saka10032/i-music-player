@@ -10,7 +10,8 @@ import {
   setProgress,
   setPlayType,
   setMute,
-  setVolume
+  setVolume,
+  clearPlaylists
 } from '@/store/playlist'
 import player, { PlayType, PlayerEvent, type SongData } from '@/core/player'
 import Header from './header'
@@ -27,7 +28,9 @@ const Layout = memo(() => {
     playlists,
     playerType,
     playerInstance,
-    playlistLoading
+    playlistLoading,
+    playlistId,
+    playlistName
   } = useAppSelector(state => state.playlist)
   const dispatch = useAppDispatch()
 
@@ -139,9 +142,14 @@ const Layout = memo(() => {
     handleDispatchProgress(progress)
     playerRef.current.progressTo(progress)
   }, [])
+
+  const handleClearPlaylist = useCallback(() => {
+    playerRef.current.reset()
+    dispatch(clearPlaylists())
+  }, [])
   /** HowlPlayer实例手动执行函数 */
 
-  const thumbnailItem = useMemo<SongData | null>(() => {
+  const songDetail = useMemo<SongData | null>(() => {
     return playlists[playIndex] ?? null
   }, [playlists, playIndex])
 
@@ -210,7 +218,7 @@ const Layout = memo(() => {
             mute={playerType.mute}
             volume={playerType.volume}
             progress={playerInstance.progress}
-            thumbnailItem={thumbnailItem}
+            thumbnailItem={songDetail}
             setShowQueue={setShowQueue}
             setShowDetail={setShowDetail}
             onSwitchPlay={handleSwitchPlay}
@@ -232,6 +240,7 @@ const Layout = memo(() => {
             loading={playlistLoading}
             onLoaded={handleSwitchLoading}
             onIndexChange={handleChangeIndex}
+            clearPlaylist={handleClearPlaylist}
           />
         </div>
         <div className={`fixed z-30 w-full h-full left-0 top-[50px] transition-all duration-500 bg-[#f8f8f8] ${switchDetailClass}`}>
