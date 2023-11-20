@@ -1,10 +1,10 @@
 import { type MouseEvent, memo, useEffect, useState, useRef, useCallback, useMemo } from 'react'
+import { message } from 'antd'
 import GlobalContext from './context'
 import { useAppSelector, useAppDispatch } from '@/hooks'
 import { fetchRecommendData } from '@/store/cache'
 import {
   setPlayId,
-  setLoading,
   setPlayStatus,
   setPlayIndex,
   setProgress,
@@ -43,6 +43,8 @@ const Layout = memo(() => {
     PlayType.random,
     PlayType.sequential
   ])
+  // 无效音频的提示信息API
+  const [messageApi, contextHolder] = message.useMessage()
 
   /** 当鼠标点击在非列表栏或底栏触发时，强制隐藏列表栏 */
   const footerRef = useRef<HTMLDivElement>(null)
@@ -64,7 +66,7 @@ const Layout = memo(() => {
 
   // 切换显示/隐藏的class类名
   const switchQueueStatus = useMemo<string>(() => {
-    return showQueue ? '' : 'hidden'
+    return showQueue ? 'opacity-1' : 'translate-x-[30rem] opacity-0'
   }, [showQueue])
   /** 当鼠标点击在非列表栏或底栏触发时，强制隐藏列表栏 */
 
@@ -79,12 +81,6 @@ const Layout = memo(() => {
     return showDetail ? 'opacity-1' : 'translate-y-full opacity-0'
   }, [showDetail])
   /** 音乐详情页的显示/隐藏 */
-
-  /** RightQueue Loading */
-  const handleSwitchLoading = useCallback((isLoading: boolean) => {
-    dispatch(setLoading(isLoading))
-  }, [])
-  /** RightQueue Loading */
 
   /** HowlPlayer实例监听回调 */
   const handleDispatchStatus = useCallback((status: MediaSessionPlaybackState) => {
@@ -116,12 +112,23 @@ const Layout = memo(() => {
   const handleDispatchVolume = useCallback((volume: number) => {
     dispatch(setVolume(volume))
   }, [])
+
+  const showInvalidTips = useCallback(() => {
+    dispatch(setPlayStatus('none'))
+    void messageApi.open({
+      type: 'error',
+      content: '音乐已失效或没有版权'
+    })
+  }, [])
   /** HowlPlayer实例监听回调 */
 
   /** HowlPlayer实例手动执行函数 */
   const handleSwitchPlay = useCallback(() => {
+    if (playerInstance.progress !== playerRef.current.progress) {
+      playerRef.current.progressTo(playerInstance.progress)
+    }
     playerRef.current.switchPlay()
-  }, [])
+  }, [playerInstance.progress])
 
   const handleChangePrev = useCallback(() => {
     dispatch(setProgress(0))
@@ -149,10 +156,12 @@ const Layout = memo(() => {
   }, [])
   /** HowlPlayer实例手动执行函数 */
 
+  // 音乐详情数据
   const songDetail = useMemo<SongData | null>(() => {
     return playlists[playIndex] ?? null
   }, [playlists, playIndex])
 
+  /** store数据变化的系列副作用 */
   useEffect(() => {
     playerRef.current.setRepeatMode(playerType.type)
   }, [playerType.type])
@@ -172,6 +181,7 @@ const Layout = memo(() => {
       playerRef.current.setPlaylist(playlists, playIndex, playerInstance.autoplay)
     }
   }, [playlists, playIndex, playerInstance.autoplay])
+  /** store数据变化的系列副作用 */
 
   /** 挂载时触发 */
   useEffect(() => {
@@ -181,11 +191,13 @@ const Layout = memo(() => {
     playerRef.current.on(PlayerEvent.PROGRESS_CHANGE, handleDispatchProgress)
     playerRef.current.on(PlayerEvent.ID_CHANGE, handleDispatchId)
     playerRef.current.on(PlayerEvent.INDEX_CHANGE, handleDispatchIndex)
+    playerRef.current.on(PlayerEvent.INVALID, showInvalidTips)
     return () => {
       playerRef.current.off(PlayerEvent.STATUS_CHANGE, handleDispatchStatus)
       playerRef.current.off(PlayerEvent.PROGRESS_CHANGE, handleDispatchProgress)
       playerRef.current.off(PlayerEvent.ID_CHANGE, handleDispatchId)
       playerRef.current.off(PlayerEvent.INDEX_CHANGE, handleDispatchIndex)
+      playerRef.current.off(PlayerEvent.INVALID, showInvalidTips)
     }
   }, [])
   /** 挂载时触发 */
@@ -230,7 +242,10 @@ const Layout = memo(() => {
             onVolumeChange={handleDispatchVolume}
         />
         </div>
-        <div ref={queueRef} className={`fixed top-0 right-0 z-10 flex flex-col w-[30rem] h-full ${switchQueueStatus}`}>
+        <div
+          ref={queueRef}
+          className={`fixed top-0 right-0 z-10 flex flex-col w-[30rem] h-full transition-all duration-500 ${switchQueueStatus}`}
+        >
           <RightQueue
             showQueue={showQueue}
             activeId={playId}
@@ -238,7 +253,6 @@ const Layout = memo(() => {
             playlists={playlists}
             playStatus={playerInstance.status}
             loading={playlistLoading}
-            onLoaded={handleSwitchLoading}
             onIndexChange={handleChangeIndex}
             clearPlaylist={handleClearPlaylist}
           />
@@ -246,6 +260,7 @@ const Layout = memo(() => {
         <div className={`fixed z-30 w-full h-full left-0 top-[50px] transition-all duration-500 bg-[#f8f8f8] ${switchDetailClass}`}>
           <Detail />
         </div>
+        {contextHolder}
       </div>
     </GlobalContext.Provider>
   )

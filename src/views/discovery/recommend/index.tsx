@@ -1,7 +1,7 @@
 import { memo, useCallback, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '@/hooks'
-import { fetchPlaylistDetail, setAutoplay, setLoading, setPlayIndex, setProgress } from '@/store/playlist'
+import { fetchPlaylistDetail, setLoading, setAutoplay } from '@/store/playlist'
 import Card from './card'
 import SwiperComponent from '@/components/swiper'
 
@@ -10,15 +10,11 @@ const Recommend = memo(() => {
   const { banners, personalizedPlaylist, recommendList } = useAppSelector(state => state.cache)
   const dispatch = useAppDispatch()
 
-  const getPlaylists = useCallback((id: number, autoplay: boolean) => {
+  const getPlaylists = useCallback((id: number) => {
     // 开启列表栏loading
     dispatch(setLoading(true))
-    // 清理进度条
-    dispatch(setProgress(0))
-    // 默认从第一首歌开始
-    dispatch(setPlayIndex(0))
-    // 使用/不使用自动播放
-    dispatch(setAutoplay(autoplay))
+    // 使用自动播放
+    dispatch(setAutoplay(true))
     // 获取歌单列表
     void dispatch(fetchPlaylistDetail(id))
   }, [])

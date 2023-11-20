@@ -193,13 +193,18 @@ export class Player {
     this.debounceIndex = index
     if (this.playlist[index] == null) return
     if (this.playlist[index].howl == null) {
-      const { url, time } = await getSongUrl(this.playlist[index].id).then(res => res.data[0])
-      this.playlist[index].url = url
-      this.playlist[index].time = time
-      if (url?.length > 0) {
-        this.playlist[index].howl = new Howl({ src: [url] })
-      } else {
-        console.warn('invalid audio')
+      try {
+        const { url, time } = await getSongUrl(this.playlist[index].id).then(res => res.data[0])
+        this.playlist[index].url = url
+        this.playlist[index].time = time
+        if (url?.length > 0) {
+          this.playlist[index].howl = new Howl({ src: [url] })
+        } else {
+          console.warn('invalid audio')
+          this.emit(PlayerEvent.INVALID, this.state)
+        }
+      } catch (error) {
+        console.warn(error)
         this.emit(PlayerEvent.INVALID, this.state)
       }
     }

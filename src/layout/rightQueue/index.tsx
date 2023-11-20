@@ -16,7 +16,6 @@ interface RightQueueProps {
   playStatus: MediaSessionPlaybackState
   loading: boolean
   playlists: SongData[]
-  onLoaded: (isLoading: boolean) => void
   onIndexChange: (index: number) => void
   clearPlaylist: () => void
 }
@@ -43,7 +42,7 @@ const RightQueue = memo((props: RightQueueProps) => {
   const LoadingInstance = memo(({ className }: { className: string }) => {
     return (
       <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 ${className}`}>
-        <LoadingIcon className="animate-spin w-12 h-12" />
+        <LoadingIcon className="animate-spin w-8 h-8" />
       </div>
     )
   })
@@ -140,20 +139,13 @@ const RightQueue = memo((props: RightQueueProps) => {
   FixedRow.displayName = 'FixedRow'
   /** 固定行可见区域列表组件 */
 
-  // 播放列表依赖更新完毕后，关闭loading
-  useEffect(() => {
-    if (props.playlists.length > 0) {
-      props.onLoaded(false)
-    }
-  }, [props.playlists])
-
   // container元素区域的resize动态调整高度，与相应的FixedSizeList动态高度调整
   useEffect(() => {
     const resizeObserver = new window.ResizeObserver(entries => {
       for (const entry of entries) {
         const { height } = entry.contentRect
         // 处理垂直方向的固定列表高度变化
-        setFixedListHeight(height)
+        height > 0 && setFixedListHeight(height)
       }
     })
     const container = document.getElementById('container') as HTMLDivElement

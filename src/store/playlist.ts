@@ -149,6 +149,8 @@ const playlistSlice = createSlice({
     clearPlaylists (state, action: PayloadAction) {
       console.log(action)
       state.playlists = []
+      state.playlistId = 0
+      state.playlistName = ''
       state.playIndex = 0
       state.playId = 0
       state.playerInstance = {
@@ -157,17 +159,25 @@ const playlistSlice = createSlice({
         duration: 0,
         progress: 0
       }
-      state.playlistId = 0
-      state.playlistName = ''
       state.playlistLoading = false
     }
   },
   extraReducers: (builder) => {
     builder.addCase(fetchPlaylistDetail.fulfilled, (state, { payload }) => {
       console.log('set playlists', payload)
+      // 切换playlist时，旧参数需清理
+      state.playlists = payload.playlists
       state.playlistId = payload.playlistId
       state.playlistName = payload.playlistName
-      state.playlists = payload.playlists
+      state.playIndex = 0
+      state.playId = 0
+      state.playerInstance = {
+        autoplay: state.playerInstance.autoplay,
+        status: 'none',
+        duration: 0,
+        progress: 0
+      }
+      state.playlistLoading = false
     })
   }
 })

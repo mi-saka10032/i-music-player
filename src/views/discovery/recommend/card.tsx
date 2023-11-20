@@ -5,14 +5,14 @@ import PlaySingle from '@/assets/svg/play_single.svg?react'
 
 interface CardProps {
   info: PersonalLists[number]
-  getPlaylists: (id: number, autoplay: boolean) => void
+  getPlaylists: (id: number) => void
 }
 
 // 推荐歌单小元素卡片
 const Card = memo(({ info, getPlaylists }: CardProps) => {
-  const handleClick = useCallback((e: MouseEvent, id: number, autoplay: boolean) => {
+  const handleClick = useCallback((e: MouseEvent, id: number) => {
     e.stopPropagation()
-    getPlaylists(id, autoplay)
+    getPlaylists(id)
   }, [])
 
   return (
@@ -34,7 +34,7 @@ const Card = memo(({ info, getPlaylists }: CardProps) => {
         }
         <div
           className="absolute bottom-2.5 right-2.5 flex justify-center items-center w-9 h-9 rounded-full bg-[#eaeaea] opacity-0 group-hover:opacity-100 duration-500"
-          onClick={(e: MouseEvent) => { handleClick(e, info.id, true) }}
+          onClick={(e: MouseEvent) => { handleClick(e, info.id) }}
         >
           <PlaySingle className="w-4 h-4" />
         </div>
