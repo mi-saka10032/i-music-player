@@ -7,6 +7,7 @@ import { durationTrans } from '@/utils/formatter'
 import LoadingIcon from '@/assets/svg/loading.svg?react'
 import PlaySingleIcon from '@/assets/svg/play_single.svg?react'
 import PauseSingleIcon from '@/assets/svg/pause_single.svg?react'
+import './index.css'
 
 interface RightQueueProps {
   showQueue: boolean
@@ -195,14 +196,14 @@ const RightQueue = memo((props: RightQueueProps) => {
         <LoadingInstance className={props.loading ? '' : 'hidden'} />
         <div className={`mt-40 text-base text-ctd text-center ${!props.loading && localPlayQueue.length === 0 ? '' : 'hidden'}`}>你还没有添加任何歌曲！</div>
         <FixedSizeList
-          className={!props.loading && localPlayQueue.length > 0 ? '' : 'hidden'}
+          className={`${!props.loading && localPlayQueue.length > 0 ? '' : 'hidden'} fixed_scroll`}
           ref={fixedListRef}
           width={fixedListWidth.current}
           height={fixedListHeight}
           itemCount={localPlayQueue.length}
           itemData={localPlayQueue}
           itemSize={fixedItemHeight.current}
-                      >
+        >
           { FixedRow }
         </FixedSizeList>
       </div>
