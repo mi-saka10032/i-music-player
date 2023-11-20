@@ -7,7 +7,6 @@ import { durationTrans } from '@/utils/formatter'
 import LoadingIcon from '@/assets/svg/loading.svg?react'
 import PlaySingleIcon from '@/assets/svg/play_single.svg?react'
 import PauseSingleIcon from '@/assets/svg/pause_single.svg?react'
-import './index.css'
 
 interface RightQueueProps {
   showQueue: boolean
@@ -41,7 +40,7 @@ const RightQueue = memo((props: RightQueueProps) => {
   /** loading实例 */
   const LoadingInstance = memo(({ className }: { className: string }) => {
     return (
-      <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 ${className}`}>
+      <div className={`absolute-middle-full ${className}`}>
         <LoadingIcon className="animate-spin w-8 h-8" />
       </div>
     )
@@ -188,7 +187,7 @@ const RightQueue = memo((props: RightQueueProps) => {
         <LoadingInstance className={props.loading ? '' : 'hidden'} />
         <div className={`mt-40 text-base text-ctd text-center ${!props.loading && localPlayQueue.length === 0 ? '' : 'hidden'}`}>你还没有添加任何歌曲！</div>
         <FixedSizeList
-          className={`${!props.loading && localPlayQueue.length > 0 ? '' : 'hidden'} fixed_scroll`}
+          className={`${!props.loading && localPlayQueue.length > 0 ? '' : 'hidden'} custom-scroll`}
           ref={fixedListRef}
           width={fixedListWidth.current}
           height={fixedListHeight}

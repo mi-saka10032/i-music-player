@@ -258,7 +258,13 @@ const Layout = memo(() => {
           />
         </div>
         <div className={`fixed z-30 w-full h-full left-0 top-[50px] transition-all duration-500 bg-[#f8f8f8] ${switchDetailClass}`}>
-          <Detail />
+          <Detail
+            detailRef={detailRef}
+            setShowDetail={setShowDetail}
+            playlistId={playlistId}
+            playlistName={playlistName}
+            songItem={songDetail}
+          />
         </div>
         {contextHolder}
       </div>

@@ -64,7 +64,7 @@ const Footer = memo((props: FooterProps) => {
             onChange={props.onProgressChange}
           />
         </div>
-        <div className="flex space-x-6 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+        <div className="flex space-x-6 absolute-middle-full">
           {/* <button>
             <i className="iconfont icon-like_full text-primary text-base" />
           </button> */}

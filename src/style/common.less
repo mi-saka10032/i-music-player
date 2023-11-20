@@ -19,3 +19,41 @@
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
 }
+
+.absolute-middle {
+  &-x {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  &-y {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  &-full {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+}
+
+.custom-scroll {
+  &::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: #8f8f8f;
+    border-radius: 10px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background-color: #fff;
+    border-radius: 10px;
+  }
+}

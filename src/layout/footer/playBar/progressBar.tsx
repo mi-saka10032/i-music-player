@@ -124,7 +124,7 @@ const ProgressBar = memo(
           }}
         ></div>
         <div
-          className="group/progress absolute top-2/4 left-2/4 -translate-x-1/2 -translate-y-1/2 cursor-pointer"
+          className="group/progress absolute-middle-full cursor-pointer"
           style={{
             width: vertical ? pointSize : '100%',
             height: vertical ? '100%' : pointSize
