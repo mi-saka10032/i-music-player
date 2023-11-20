@@ -28,6 +28,11 @@ export interface PlaylistState {
     // 播放进度
     progress: number
   }
+  // 歌单id
+  playlistId: number
+  // 歌单name
+  playlistName: string
+  // 歌单loading
   playlistLoading: boolean
 }
 
@@ -46,18 +51,30 @@ const initialState: PlaylistState = {
     duration: 0,
     progress: 0
   },
+  playlistId: 0,
+  playlistName: '',
   playlistLoading: false
 }
 
-export const fetchPlaylistDetail = createAsyncThunk('playlist/fetchPlaylistDetail', async (id: number): Promise<SongData[]> => {
+interface FetchPlaylistDetailRes {
+  playlistId: number
+  playlistName: string
+  playlists: SongData[]
+}
+
+export const fetchPlaylistDetail = createAsyncThunk('playlist/fetchPlaylistDetail', async (id: number): Promise<FetchPlaylistDetailRes> => {
   const result = await getPlaylistDetail(id)
-  return result.playlist.tracks.map(item => ({
-    id: item.id,
-    name: item.name,
-    artists: item.ar,
-    album: item.al,
-    time: item.dt
-  }))
+  return {
+    playlistId: result.playlist.id,
+    playlistName: result.playlist.name,
+    playlists: result.playlist.tracks.map(item => ({
+      id: item.id,
+      name: item.name,
+      artists: item.ar,
+      album: item.al,
+      time: item.dt
+    }))
+  }
 })
 
 const playlistSlice = createSlice({
@@ -113,12 +130,44 @@ const playlistSlice = createSlice({
       if (state.playIndex === action.payload) return
       console.log(action)
       state.playIndex = action.payload
+    },
+    setPlaylists (state, action: PayloadAction<SongData[]>) {
+      if (state.playlists === action.payload || action.payload?.length === 0) return
+      console.log(action)
+      state.playlists = action.payload
+    },
+    setPlaylistId (state, action: PayloadAction<number>) {
+      if (state.playlistId === action.payload) return
+      console.log(action)
+      state.playlistId = action.payload
+    },
+    setPlaylistName (state, action: PayloadAction<string>) {
+      if (state.playlistName === action.payload) return
+      console.log(action)
+      state.playlistName = action.payload
+    },
+    clearPlaylists (state, action: PayloadAction) {
+      console.log(action)
+      state.playlists = []
+      state.playIndex = 0
+      state.playId = 0
+      state.playerInstance = {
+        autoplay: false,
+        status: 'none',
+        duration: 0,
+        progress: 0
+      }
+      state.playlistId = 0
+      state.playlistName = ''
+      state.playlistLoading = false
     }
   },
   extraReducers: (builder) => {
     builder.addCase(fetchPlaylistDetail.fulfilled, (state, { payload }) => {
-      console.log('set playlists')
-      state.playlists = payload
+      console.log('set playlists', payload)
+      state.playlistId = payload.playlistId
+      state.playlistName = payload.playlistName
+      state.playlists = payload.playlists
     })
   }
 })
@@ -134,5 +183,9 @@ export const {
   setProgress,
   setLoading,
   setPlayId,
-  setPlayIndex
+  setPlayIndex,
+  setPlaylists,
+  setPlaylistId,
+  setPlaylistName,
+  clearPlaylists
 } = playlistSlice.actions

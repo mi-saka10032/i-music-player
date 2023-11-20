@@ -1,3 +1,5 @@
+declare module '*.png'
+
 // Netease响应值结构
 interface CommonRes {
   code: number
@@ -88,6 +90,8 @@ type TracksLists = Array<{
 // 歌单详情Response
 interface PlayListDetailRes extends CommonRes {
   playlist: {
+    id: number
+    name: string
     tracks: TracksLists
   }
 }
