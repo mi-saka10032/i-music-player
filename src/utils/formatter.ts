@@ -23,3 +23,10 @@ export function playCountTrans (count: number): string {
     return Math.round((count / Math.pow(10, 4))) + '万'
   } else return String(count)
 }
+
+// 静态歌词转换
+export function staticLyricTrans (str: string): string[] {
+  const arr = str.split('\n').map(line => line.trim())
+  arr.push('')
+  return arr
+}

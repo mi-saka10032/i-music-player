@@ -15,6 +15,7 @@
     "reduxjs",
     "seekto",
     "Sider",
+    "Singal",
     "Swiper",
     "tailwindcss",
     "tauri",
@@ -22,5 +23,7 @@
     "unikey",
     "unlisten",
     "unminimize"
-  ]
+  ],
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true
 }

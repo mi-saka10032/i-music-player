@@ -100,6 +100,13 @@ interface PlayListDetailRes extends CommonRes {
 interface SongRes extends CommonRes {
   data: Song[]
 }
+
+// 歌词详情Response
+interface LyricRes extends CommonRes {
+  lrc: {
+    lyric: string
+  }
+}
 /** ---------- 歌单与歌曲 ---------- */
 
 /** ---------- 登录状态与用户信息 ---------- */

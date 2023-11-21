@@ -208,7 +208,7 @@ const Layout = memo(() => {
         className='relative grid grid-cols-[200px_1fr] grid-rows-[1fr_60px] w-full h-full m-0 p-0 overflow-hidden'
         onClick={handleContainerClick}
       >
-        <div className="flex absolute z-20 top-[0] left-[0] w-full h-[50px] ">
+        <div className="flex absolute z-40 top-[0] left-[0] w-full h-[50px] ">
           <Header
             detailRef={detailRef}
             showDetail={showDetail}
@@ -244,7 +244,7 @@ const Layout = memo(() => {
         </div>
         <div
           ref={queueRef}
-          className={`fixed top-0 right-0 z-10 flex flex-col w-[30rem] h-full transition-all duration-500 ${switchQueueStatus}`}
+          className={`fixed top-0 right-0 z-30 flex flex-col w-[30rem] h-full transition-all duration-500 ${switchQueueStatus}`}
         >
           <RightQueue
             showQueue={showQueue}
@@ -257,13 +257,18 @@ const Layout = memo(() => {
             clearPlaylist={handleClearPlaylist}
           />
         </div>
-        <div className={`fixed z-30 w-full h-full left-0 top-[50px] transition-all duration-500 bg-[#f8f8f8] ${switchDetailClass}`}>
+        <div
+          className={`fixed z-20 flex flex-col w-full left-0 top-[50px] transition-all duration-500 bg-[#f8f8f8] ${switchDetailClass}`}
+          style={{ height: 'calc(100vh - 50px)' }}
+        >
           <Detail
             detailRef={detailRef}
             setShowDetail={setShowDetail}
             playlistId={playlistId}
             playlistName={playlistName}
             songItem={songDetail}
+            playStatus={playerInstance.status}
+            progress={playerInstance.progress}
           />
         </div>
         {contextHolder}

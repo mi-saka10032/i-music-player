@@ -33,6 +33,14 @@
   top: 50%;
   transform: translate(-50%, -50%);
 }
+.custom-scroll {
+  /* WebKit browsers */
+  /* Firefox */
+  /* Edge */
+  -ms-overflow-style: none;
+  scrollbar-width: 6px;
+  scrollbar-color: #8f8f8f #fff;
+}
 .custom-scroll::-webkit-scrollbar {
   width: 6px;
   height: 6px;

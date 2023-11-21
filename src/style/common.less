@@ -42,6 +42,7 @@
 }
 
 .custom-scroll {
+  /* WebKit browsers */
   &::-webkit-scrollbar {
     width: 6px;
     height: 6px;
@@ -56,4 +57,13 @@
     background-color: #fff;
     border-radius: 10px;
   }
+
+  /* Firefox */
+  scrollbar-width: 6px;
+  scrollbar-color: #8f8f8f #fff;
+
+  /* Edge */
+  -ms-overflow-style: none;
+  scrollbar-width: 6px;
+  scrollbar-color: #8f8f8f #fff;
 }
