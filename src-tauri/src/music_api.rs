@@ -77,7 +77,7 @@ pub(crate) fn index_album_sub(options: Options) -> FormatParams {
         if sub == 1 { "sub" } else { "unsub" }
     );
 
-    let cookies = get_cookie_string(options.cookie);
+    // let cookies = get_cookie_string(options.cookie);
     let query_params = json_object!({
         "id": query_string.value("id").unwrap()
     });
@@ -116,7 +116,7 @@ pub(crate) fn index_artist_album(options: Options) -> FormatParams {
         query_string.value("id").unwrap_or("0")
     );
 
-    let cookies = get_cookie_string(options.cookie);
+    // let cookies = get_cookie_string(options.cookie);
     let query_params = json_object!({
         "limit": query_string.value("limit").unwrap_or("30"),
         "offset": query_string.value("offset").unwrap_or("0"),
@@ -268,7 +268,7 @@ pub(crate) fn index_check_music(options: Options) -> FormatParams {
     let url = "https://music.163.com/weapi/song/enhance/player/url";
 
     let query_string = QueryParams::from(options.params);
-    let ids = "[".to_owned() + query_string.value("id").unwrap() + "]";
+    // let ids = "[".to_owned() + query_string.value("id").unwrap() + "]";
     let query_params = json_object!({
         "ids": query_string.value("id").unwrap(),
         "br": query_string.value("br").unwrap_or("999000"),
@@ -1343,7 +1343,7 @@ pub(crate) fn index_playlist_update(options: Options) -> FormatParams {
 pub(crate) fn index_playmode_intelligence_list(options: Options) -> FormatParams {
     let url = "http://music.163.com/weapi/playmode/intelligence/list";
     let query = QueryParams::from(options.params);
-    let ids = "[".to_owned() + query.value("trakcs").unwrap() + "]";
+    // let ids = "[".to_owned() + query.value("trakcs").unwrap() + "]";
     let query_params = json_object!({
         "songId": query.value("id").unwrap(),
         "type": "fromPlayOne",
@@ -1716,7 +1716,7 @@ pub(crate) fn index_top_artist(options: Options) -> FormatParams {
 pub(crate) fn index_top_list(options: Options) -> FormatParams {
     let url = "https://music.163.com/weapi/v3/playlist/detail";
     let query = QueryParams::from(options.params);
-    static top_list: [&str; 37] = [
+    static TOP_LIST: [&str; 37] = [
         "3779629",    //云音乐新歌榜
         "3778678",    //云音乐热歌榜
         "2884035",    //云音乐原创榜
@@ -1756,7 +1756,7 @@ pub(crate) fn index_top_list(options: Options) -> FormatParams {
         "3001890046", //云音乐ACG VOCALOID榜
     ];
     let query_params = json_object!({
-        "id": top_list[query.value("idx").unwrap_or("0").parse::<usize>().unwrap()],
+        "id": TOP_LIST[query.value("idx").unwrap_or("0").parse::<usize>().unwrap()],
         "n": "10000",
     });
     let cookies = get_cookie_string(options.cookie);

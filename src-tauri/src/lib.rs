@@ -30,7 +30,9 @@ pub struct FormatParams {
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
-fn greet(message: String) {}
+fn greet(message: String) {
+    println!("{}", message);
+}
 
 #[tauri::command]
 fn get_params(options: Options) -> FormatParams {
