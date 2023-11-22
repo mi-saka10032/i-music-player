@@ -15,7 +15,7 @@ const Recommend = memo(() => {
     dispatch(setLoading(true))
     // 使用自动播放
     dispatch(setAutoplay(true))
-    // 获取歌单列表
+    // 立刻获取完整歌单列表
     void dispatch(fetchPlaylistDetail(id))
   }, [])
 

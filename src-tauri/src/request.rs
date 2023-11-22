@@ -1,6 +1,6 @@
 use lazy_static::lazy_static;
 use regex::Regex;
-use serde_json;
+use serde_json::json;
 use std::collections::HashMap;
 use urlqstring::QueryParams;
 
@@ -94,6 +94,11 @@ const USER_AGENT_LIST: [&str; 14] = [
 //     "3001890046", //云音乐ACG VOCALOID榜
 // ];
 
+// 复杂类型接口的参数关联url，需要切换serde_json做转换
+pub const COMPLEX_TYPE_PARAMS_URL: [&str; 1] = [
+    "/song/detail",  //  歌曲
+];
+
 pub(crate) fn generate_response(
     url: &str,
     method: &str,
@@ -155,14 +160,40 @@ fn handle_request(
 
             let mut _params = query_params;
             _params.insert("csrf_token", csrf_token);
-            Crypto::weapi(&QueryParams::from_map(_params).json())
+
+            let text;
+            if COMPLEX_TYPE_PARAMS_URL.iter().any(|&s| url.contains(s)) {
+                // 使用serde_json进行转化
+                let mut map: HashMap<String, serde_json::Value> = HashMap::new();
+                for (key, value) in _params {
+                    map.insert(key.to_string(), json!(value));
+                }
+                text = serde_json::to_string(&map).unwrap();
+            } else {
+                // 使用QueryParams::from_map(_params).json()
+                text = QueryParams::from_map(_params).json();
+            }
+            Crypto::weapi(&text)
         }
         &"linuxapi" => {
+            let text;
+            if COMPLEX_TYPE_PARAMS_URL.iter().any(|&s| url.contains(s)) {
+                // 使用serde_json进行转化
+                let mut map: HashMap<String, serde_json::Value> = HashMap::new();
+                for (key, value) in query_params {
+                    map.insert(key.to_string(), json!(value));
+                }
+                text = serde_json::to_string(&map).unwrap();
+            } else {
+                // 使用QueryParams::from_map(_params).json()
+                text = QueryParams::from_map(query_params).json();
+            }
+
             let data = format!(
                 r#"{{"method":"{}","url":"{}","params":{}}}"#,
                 method,
                 url.replace("weapi", "api"),
-                QueryParams::from_map(query_params).json()
+                text
             );
             url = "https://music.163.com/api/linux/forward";
             Crypto::linuxapi(&data)

@@ -1663,11 +1663,8 @@ pub(crate) fn index_simi_user(options: Options) -> FormatParams {
 pub(crate) fn index_song_detail(options: Options) -> FormatParams {
     let url = "https://music.163.com/weapi/v3/song/detail";
     let query = QueryParams::from(options.params);
-    let c = &format!(r#""[{{"id":{}}}]""#, query.value("ids").unwrap());
-    let ids = &format!(r#""[{}]""#, query.value("ids").unwrap());
     let query_params = json_object!({
-        "c": &c[..],
-        "ids": &ids[..],
+        "c": query.value("ids").unwrap(),
     });
     let cookies = get_cookie_string(options.cookie);
     request_handler(url, "weapi", query_params, &cookies)

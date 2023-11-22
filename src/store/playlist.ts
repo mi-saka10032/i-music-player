@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit'
-import { getPlaylistDetail } from '@/api'
+import { getPlaylistDetail, getSongDetail } from '@/api'
 import { type SongData, PlayType } from '@/core/player'
 
 export interface PlaylistState {
@@ -64,10 +64,13 @@ interface FetchPlaylistDetailRes {
 
 export const fetchPlaylistDetail = createAsyncThunk('playlist/fetchPlaylistDetail', async (id: number): Promise<FetchPlaylistDetailRes> => {
   const result = await getPlaylistDetail(id)
+  // 遍历trackIds获取完整id，再拉取一次全量歌曲信息
+  const allIds = result.playlist.trackIds.map(item => item.id)
+  const completeResult = await getSongDetail(allIds)
   return {
     playlistId: result.playlist.id,
     playlistName: result.playlist.name,
-    playlists: result.playlist.tracks.map(item => ({
+    playlists: completeResult.songs.map(item => ({
       id: item.id,
       name: item.name,
       artists: item.ar,
