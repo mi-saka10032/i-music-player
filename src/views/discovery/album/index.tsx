@@ -5,5 +5,4 @@ const Album = memo(() => {
 })
 
 Album.displayName = 'Album'
-export const Component = Album
 export default Album

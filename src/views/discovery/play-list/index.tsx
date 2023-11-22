@@ -5,5 +5,4 @@ const PlayList = memo(() => {
 })
 
 PlayList.displayName = 'PlayList'
-export const Component = PlayList
 export default PlayList

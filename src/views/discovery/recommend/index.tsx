@@ -46,4 +46,4 @@ const Recommend = memo(() => {
 })
 
 Recommend.displayName = 'Recommend'
-export const Component = Recommend
+export default Recommend

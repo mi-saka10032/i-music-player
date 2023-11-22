@@ -56,5 +56,4 @@ const Detail = memo(() => {
 })
 
 Detail.displayName = 'Detail'
-export const Component = Detail
 export default Detail

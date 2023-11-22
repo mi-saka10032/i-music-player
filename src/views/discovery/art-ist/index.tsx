@@ -7,5 +7,4 @@ const ArtList = memo(() => {
 })
 
 ArtList.displayName = 'ArtList'
-export const Component = ArtList
 export default ArtList

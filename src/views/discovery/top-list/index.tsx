@@ -5,5 +5,4 @@ const TopList = memo(() => {
 })
 
 TopList.displayName = 'TopList'
-export const Component = TopList
 export default TopList

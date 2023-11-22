@@ -5,5 +5,4 @@ const Mine = memo(() => {
 })
 
 Mine.displayName = 'Mine'
-export const Component = Mine
 export default Mine

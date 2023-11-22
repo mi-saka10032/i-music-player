@@ -1,5 +1,15 @@
+import { lazy } from 'react'
 import { createBrowserRouter, Navigate } from 'react-router-dom'
 import Layout from '@/layout'
+import LazyImportComponent from '@/components/lazyImportComponent'
+
+const Recommend = lazy(async () => await import('@/views/discovery/recommend'))
+const Playlist = lazy(async () => await import('@/views/discovery/play-list'))
+const Toplist = lazy(async () => await import('@/views/discovery/top-list'))
+const Artist = lazy(async () => await import('@/views/discovery/art-ist'))
+const Album = lazy(async () => await import('@/views/discovery/album'))
+const Detail = lazy(async () => await import('@/views/detail'))
+const Mine = lazy(async () => await import('@/views/mine'))
 
 const router = createBrowserRouter([
   {
@@ -16,36 +26,36 @@ const router = createBrowserRouter([
           {
             index: true,
             // 首页推荐
-            lazy: async () => await import('@/views/discovery/recommend')
+            element: <LazyImportComponent lazyChildren={Recommend} />
           },
           {
             path: 'playlist',
-            lazy: async () => await import('@/views/discovery/play-list')
+            element: <LazyImportComponent lazyChildren={Playlist} />
           },
           {
             path: 'toplist',
-            lazy: async () => await import('@/views/discovery/top-list')
+            element: <LazyImportComponent lazyChildren={Toplist} />
           },
           {
             path: 'artist',
-            lazy: async () => await import('@/views/discovery/art-ist')
+            element: <LazyImportComponent lazyChildren={Artist} />
           },
           {
             path: 'album',
-            lazy: async () => await import('@/views/discovery/album')
+            element: <LazyImportComponent lazyChildren={Album} />
           }
         ]
       },
       {
         path: 'detail/:id',
-        lazy: async () => await import('@/views/detail')
+        element: <LazyImportComponent lazyChildren={Detail} />
       },
       {
         path: 'mine',
         children: [
           {
             index: true,
-            lazy: async () => await import('@/views/mine')
+            element: <LazyImportComponent lazyChildren={Mine} />
           }
         ]
       }
