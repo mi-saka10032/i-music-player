@@ -2,6 +2,7 @@ export interface WrapPromise<T> {
   read: () => T | Error | undefined
 }
 
+// Promise包裹函数，用来和Suspense联动
 export function wrapPromise <T> (promise: Promise<T>): WrapPromise<T> {
   let status = 'pending'
   let result: T | Error

@@ -160,19 +160,19 @@ const Detail = memo((props: DetailProps) => {
                   >
                     <Col span={9} className="flex items-center text-sm">
                       <span>专辑：</span>
-                      <span className="flex-1 text-ellipsis text-[#507daf] hover:text-[#155fb3] cursor-pointer">
+                      <span className="flex-1 text-ellipsis super_link">
                         {props.songItem.album.name}
                       </span>
                     </Col>
                     <Col span={8} className="text-ellipsis text-sm">
                       <span>歌手：</span>
-                      <span className="flex-1 text-ellipsis text-[#507daf] hover:text-[#155fb3] cursor-pointer">
+                      <span className="flex-1 text-ellipsis super_link">
                         {artistsName}
                       </span>
                     </Col>
                     <Col span={7} className="text-ellipsis text-sm">
                       <span>来源：</span>
-                      <span className="flex-1 text-ellipsis text-[#507daf] hover:text-[#155fb3] cursor-pointer">
+                      <span className="flex-1 text-ellipsis super_link">
                         {props.playlistName}
                       </span>
                     </Col>

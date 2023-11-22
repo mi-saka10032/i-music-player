@@ -53,3 +53,10 @@
   background-color: #fff;
   border-radius: 10px;
 }
+.super_link {
+  color: #507daf;
+  cursor: pointer;
+}
+.super_link:hover {
+  color: #155fb3;
+}

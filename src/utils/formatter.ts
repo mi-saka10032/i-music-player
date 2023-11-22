@@ -30,3 +30,26 @@ export function staticLyricTrans (str: string): string[] {
   arr.push('')
   return arr
 }
+
+export function millSecondsTransDate (time: number, format: string = 'yyyy-MM-dd') {
+  const t = new Date(time)
+  const tf = function (i: number) { return (i < 10 ? '0' : '') + i }
+  return format.replace(/yyyy|MM|dd|HH|mm|ss/g, function (a) {
+    switch (a) {
+      case 'yyyy':
+        return tf(t.getFullYear())
+      case 'MM':
+        return tf(t.getMonth() + 1)
+      case 'dd':
+        return tf(t.getDate())
+      case 'HH':
+        return tf(t.getHours())
+      case 'mm':
+        return tf(t.getMinutes())
+      case 'ss':
+        return tf(t.getSeconds())
+      default:
+        return ''
+    }
+  })
+}
