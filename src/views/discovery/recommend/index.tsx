@@ -1,5 +1,5 @@
 import { memo, useCallback, useMemo } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '@/hooks'
 import { fetchPlaylistDetail, setLoading, setAutoplay } from '@/store/playlist'
 import Card from './card'
@@ -9,6 +9,7 @@ const Recommend = memo(() => {
   const { cookie } = useAppSelector(state => state.user)
   const { banners, personalizedPlaylist, recommendList } = useAppSelector(state => state.cache)
   const dispatch = useAppDispatch()
+  const navigate = useNavigate()
 
   const getPlaylists = useCallback((id: number) => {
     // 开启列表栏loading
@@ -19,14 +20,32 @@ const Recommend = memo(() => {
     void dispatch(fetchPlaylistDetail(id))
   }, [])
 
+  const gotoDetail = useCallback((id: number) => {
+    navigate(`/detail/${id}`)
+  }, [])
+
   const CurRecommendList = useMemo(() => {
     if (cookie.length > 0) {
       return recommendList.map(item => {
         const playList: PersonalLists[number] = { ...item, playCount: item.playcount }
-        return (<Card key={item.id} info={playList} getPlaylists={getPlaylists} />)
+        return (
+          <Card
+            key={item.id}
+            info={playList}
+            getPlaylists={getPlaylists}
+            gotoDetail={gotoDetail}
+           />
+        )
       })
     } else {
-      return personalizedPlaylist.map(item => (<Card key={item.id} info={item} getPlaylists={getPlaylists} />))
+      return personalizedPlaylist.map(item => (
+        <Card
+          key={item.id}
+          info={item}
+          getPlaylists={getPlaylists}
+          gotoDetail={gotoDetail}
+        />
+      ))
     }
   }, [cookie, personalizedPlaylist, recommendList])
 

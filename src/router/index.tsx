@@ -2,6 +2,7 @@ import { lazy } from 'react'
 import { createBrowserRouter, Navigate } from 'react-router-dom'
 import Layout from '@/layout'
 import LazyImportComponent from '@/components/lazyImportComponent'
+import ErrorBoundary from '@/components/errorBoundary'
 
 const Recommend = lazy(async () => await import('@/views/discovery/recommend'))
 const Playlist = lazy(async () => await import('@/views/discovery/play-list'))
@@ -14,7 +15,11 @@ const Mine = lazy(async () => await import('@/views/mine'))
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <Layout />,
+    element: (
+      <ErrorBoundary>
+        <Layout />
+      </ErrorBoundary>
+    ),
     children: [
       {
         index: true,

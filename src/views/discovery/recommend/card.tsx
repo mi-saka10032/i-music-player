@@ -1,5 +1,4 @@
 import { memo, useCallback, type MouseEvent } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { playCountTrans } from '@/utils/formatter'
 import PlaySpace from '@/assets/svg/play_space.svg?react'
 import PlaySingle from '@/assets/svg/play_single.svg?react'
@@ -7,19 +6,14 @@ import PlaySingle from '@/assets/svg/play_single.svg?react'
 interface CardProps {
   info: PersonalLists[number]
   getPlaylists: (id: number) => void
+  gotoDetail: (id: number) => void
 }
 
 // 推荐歌单小元素卡片
-const Card = memo(({ info, getPlaylists }: CardProps) => {
-  const navigate = useNavigate()
-
+const Card = memo(({ info, getPlaylists, gotoDetail }: CardProps) => {
   const handleClick = useCallback((e: MouseEvent, id: number) => {
     e.stopPropagation()
     getPlaylists(id)
-  }, [])
-
-  const gotoDetail = useCallback((id: number) => {
-    navigate(`/detail/${id}`)
   }, [])
 
   return (
