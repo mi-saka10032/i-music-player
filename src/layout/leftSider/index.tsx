@@ -8,7 +8,7 @@ import { useAppSelector, useAppDispatch } from '@/hooks'
 
 const links = [
   { to: '/discovery', title: '发现音乐', icon: 'music' },
-  { to: '/my', title: '我喜欢的音乐', icon: 'like' }
+  { to: '/mine', title: '我喜欢的音乐', icon: 'like' }
 ]
 
 /** 左侧边栏组件 */

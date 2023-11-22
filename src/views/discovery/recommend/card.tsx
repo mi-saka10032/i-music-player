@@ -1,4 +1,5 @@
 import { memo, useCallback, type MouseEvent } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { playCountTrans } from '@/utils/formatter'
 import PlaySpace from '@/assets/svg/play_space.svg?react'
 import PlaySingle from '@/assets/svg/play_single.svg?react'
@@ -10,13 +11,19 @@ interface CardProps {
 
 // 推荐歌单小元素卡片
 const Card = memo(({ info, getPlaylists }: CardProps) => {
+  const navigate = useNavigate()
+
   const handleClick = useCallback((e: MouseEvent, id: number) => {
     e.stopPropagation()
     getPlaylists(id)
   }, [])
 
+  const gotoDetail = useCallback((id: number) => {
+    navigate(`/detail/${id}`)
+  }, [])
+
   return (
-    <div className="relative box-content w-full pt-[100%] cursor-pointer group">
+    <div className="relative box-content w-full pt-[100%] cursor-pointer group" onClick={() => { gotoDetail(info.id) }}>
       <div className="absolute w-full pt-[100%] top-0 left-0">
         <img
           className="absolute w-full h-full top-0 left-0 rounded-md"

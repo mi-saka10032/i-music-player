@@ -67,25 +67,27 @@ type TrackIdsLists = Array<{
   id: number
 }>
 
+interface PlayListDetail {
+  id: number
+  name: string
+  tracks: TracksLists
+  trackIds: TrackIdsLists
+  coverImgUrl: string
+  createTime: number
+  creator: {
+    userId: number
+    nickname: string
+    avatarUrl: string
+  }
+  subscribedCount: number
+  shareCount: number
+  tags: string[]
+  playCount: number
+}
+
 // 歌单详情Response
 interface PlayListDetailRes extends CommonRes {
-  playlist: {
-    id: number
-    name: string
-    tracks: TracksLists
-    trackIds: TrackIdsLists
-    coverImgUrl: string
-    createTime: number
-    creator: {
-      userId: number
-      nickname: string
-      avatarUrl: string
-    }
-    subscribedCount: number
-    shareCount: number
-    tags: string[]
-    playCount: number
-  }
+  playlist: PlayListDetail
 }
 
 // 单曲链接详情Response

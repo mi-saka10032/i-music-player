@@ -33,6 +33,7 @@
     "@typescript-eslint/no-misused-promises": "off",
     "no-async-promise-executor": "off",
     "prefer-promise-reject-errors": "off",
-    "react/prop-types": "off"
+    "react/prop-types": "off",
+    "@typescript-eslint/no-throw-literal": "off"
   }
 }

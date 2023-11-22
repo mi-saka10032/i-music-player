@@ -3,42 +3,51 @@ import Layout from '@/layout'
 
 const router = createBrowserRouter([
   {
-    path: '',
-    element: <Navigate to="/discovery" replace={true} />
-  },
-  {
-    path: '/discovery',
+    path: '/',
     element: <Layout />,
     children: [
       {
         index: true,
-        lazy: async () => await import('@/views/discovery/recommend')
+        element: <Navigate to="discovery" replace={true} />
       },
       {
-        path: 'playlist',
-        lazy: async () => await import('@/views/discovery/play-list')
+        path: 'discovery',
+        children: [
+          {
+            index: true,
+            // 首页推荐
+            lazy: async () => await import('@/views/discovery/recommend')
+          },
+          {
+            path: 'playlist',
+            lazy: async () => await import('@/views/discovery/play-list')
+          },
+          {
+            path: 'toplist',
+            lazy: async () => await import('@/views/discovery/top-list')
+          },
+          {
+            path: 'artist',
+            lazy: async () => await import('@/views/discovery/art-ist')
+          },
+          {
+            path: 'album',
+            lazy: async () => await import('@/views/discovery/album')
+          }
+        ]
       },
       {
-        path: 'toplist',
-        lazy: async () => await import('@/views/discovery/top-list')
+        path: 'detail/:id',
+        lazy: async () => await import('@/views/detail')
       },
       {
-        path: 'artist',
-        lazy: async () => await import('@/views/discovery/art-ist')
-      },
-      {
-        path: 'album',
-        lazy: async () => await import('@/views/discovery/album')
-      }
-    ]
-  },
-  {
-    path: '/my',
-    element: <Layout />,
-    children: [
-      {
-        index: true,
-        lazy: async () => await import('@/views/my')
+        path: 'mine',
+        children: [
+          {
+            index: true,
+            lazy: async () => await import('@/views/mine')
+          }
+        ]
       }
     ]
   },
