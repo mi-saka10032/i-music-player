@@ -192,7 +192,7 @@ const Detail = memo((props: DetailProps) => {
                                 recoverAutoScrollInterval={2000}
                               />
                               )
-                            : <div className={`flex-1 overflow-auto ${styles.hidden_scroll}`}>
+                            : <div className={`flex-1 pt-12 overflow-auto ${styles.hidden_scroll}`}>
                               { staticLineRender(lrc) }
                             </div>
                         )

@@ -1,24 +1,16 @@
 import { memo, useCallback, useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { useAppDispatch, useAppSelector } from '@/hooks'
-import { fetchPlaylistDetail, setLoading, setAutoplay } from '@/store/playlist'
+import { useAppSelector, playNow } from '@/hooks'
 import Card from './card'
 import SwiperComponent from '@/components/swiper'
 
 const Recommend = memo(() => {
-  const { cookie } = useAppSelector(state => state.user)
-  const { banners, personalizedPlaylist, recommendList } = useAppSelector(state => state.cache)
-  const dispatch = useAppDispatch()
   const navigate = useNavigate()
 
-  const getPlaylists = useCallback((id: number) => {
-    // 开启列表栏loading
-    dispatch(setLoading(true))
-    // 使用自动播放
-    dispatch(setAutoplay(true))
-    // 立刻获取完整歌单列表
-    void dispatch(fetchPlaylistDetail(id))
-  }, [])
+  const { cookie } = useAppSelector(state => state.user)
+  const { banners, personalizedPlaylist, recommendList } = useAppSelector(state => state.cache)
+
+  const getPlaylists = playNow()
 
   const gotoDetail = useCallback((id: number) => {
     navigate(`/detail/${id}`)

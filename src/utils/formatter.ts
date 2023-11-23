@@ -53,3 +53,22 @@ export function millSecondsTransDate (time: number, format: string = 'yyyy-MM-dd
     }
   })
 }
+
+// 生成斑马纹底色class
+export function generateZebraClass (index: number) {
+  return index % 2 !== 0 ? 'bg-[#f6f6f6] hover:bg-[#f2f2f2] ' : 'bg-[#fdfdfd] hover:bg-[#f3f3f3] '
+}
+
+// 歌手数组转换
+export function artistsArrayTrans (ar: AR[]) {
+  return ar.map(item => item.name).join(' / ')
+}
+
+// 歌曲序号转换
+export function serializeNumberTrans (index: number): string {
+  index = index + 1
+  if (index > 1000) return index + '+'
+  if (index >= 10) return index + ''
+  if (index > 0) return '0' + index
+  return ''
+}

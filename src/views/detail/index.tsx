@@ -1,6 +1,7 @@
 import { memo, useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { getPlaylistDetail } from '@/api'
+import { playNow } from '@/hooks'
 import { millSecondsTransDate, playCountTrans } from '@/utils/formatter'
 import { detailCoverStyle, DetailFallback } from '@/components/detailFallback'
 import {
@@ -13,6 +14,8 @@ import MusicDetailTab from './detailTab'
 
 const MusicDetail = memo(() => {
   const { id } = useParams<{ id: string }>()
+
+  const getPlaylists = playNow()
 
   const [loading, setLoading] = useState(false)
   const [playlistCount, setPlaylistCount] = useState(0)
@@ -81,7 +84,7 @@ const MusicDetail = memo(() => {
                 <div className="flex-1 space-y-4">
                   <header className="flex items-center">
                     <span className="p-1 text-sm leading-none text-[#ed4141] border border-[#ed4141] rounded">歌单</span>
-                    <h1 className="ml-2.5 text-2xl font-semibold text-[#333]">{playlistHeader.name}</h1>
+                    <h1 className="ml-2.5 text-2xl font-semibold leading-none text-[#333]">{playlistHeader.name}</h1>
                   </header>
                   <section className="flex items-center space-x-2 text-sm">
                     <img src={playlistHeader.creator.avatarUrl} className="w-8 h-8 rounded-full super_link" />
@@ -91,7 +94,7 @@ const MusicDetail = memo(() => {
                     </span>
                   </section>
                   <nav className="flex items-center space-x-2 text-sm">
-                    <PlayAllButton />
+                    <PlayAllButton onPlayAll={() => { getPlaylists(id) }} />
                     <CollectButton subscribedCount={playlistHeader.subscribedCount ?? 0} />
                     <ShareButton shareCount={playlistHeader.shareCount ?? 0} />
                     <DownloadButton />

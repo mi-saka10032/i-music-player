@@ -26,9 +26,6 @@ dependencies:
   nprogress:
     specifier: ^0.2.0
     version: 0.2.0
-  overlayscrollbars:
-    specifier: ^2.4.3
-    version: 2.4.3
   qrcode:
     specifier: ^1.5.3
     version: 1.5.3
@@ -56,15 +53,15 @@ dependencies:
   react-window:
     specifier: ^1.8.9
     version: 1.8.9(react-dom@18.2.0)(react@18.2.0)
-  react-window-infinite-loader:
-    specifier: ^1.0.9
-    version: 1.0.9(react-dom@18.2.0)(react@18.2.0)
   swiper:
     specifier: ^11.0.3
     version: 11.0.3
   tauri-plugin-sql-api:
     specifier: github:tauri-apps/tauri-plugin-sql#v1
     version: github.com/tauri-apps/tauri-plugin-sql/3604825a4eded2be6cfa248aa0de9614a900cc2d
+  throttle-debounce:
+    specifier: ^5.0.0
+    version: 5.0.0
 
 devDependencies:
   '@tauri-apps/cli':
@@ -94,6 +91,9 @@ devDependencies:
   '@types/react-window':
     specifier: ^1.8.8
     version: 1.8.8
+  '@types/throttle-debounce':
+    specifier: ^5.0.2
+    version: 5.0.2
   '@typescript-eslint/eslint-plugin':
     specifier: ^6.4.0
     version: 6.9.0(@typescript-eslint/parser@6.9.0)(eslint@8.52.0)(typescript@5.0.2)
@@ -1239,6 +1239,10 @@ packages:
 
   /@types/semver@7.5.4:
     resolution: {integrity: sha512-MMzuxN3GdFwskAnb6fz0orFvhfqi752yjaXylr0Rp4oDg5H0Zn1IuyRhDVvYOwAXoJirx2xuS16I3WjxnAIHiQ==}
+    dev: true
+
+  /@types/throttle-debounce@5.0.2:
+    resolution: {integrity: sha512-pDzSNulqooSKvSNcksnV72nk8p7gRqN8As71Sp28nov1IgmPKWbOEIwAWvBME5pPTtaXJAvG3O4oc76HlQ4kqQ==}
     dev: true
 
   /@types/use-sync-external-store@0.0.3:
@@ -3489,10 +3493,6 @@ packages:
       type-check: 0.4.0
     dev: true
 
-  /overlayscrollbars@2.4.3:
-    resolution: {integrity: sha512-DG//Rd7AVVEvaVtBcjg+NlfT9IWbBWw2vO7+zFVLz86AVHQA3KcaAd/WByFtUMNwzTW2DDOqgb/bXQOw6OZLMw==}
-    dev: false
-
   /p-limit@2.3.0:
     resolution: {integrity: sha512-//88mFWSJx8lxCzwdAABTJL2MyWB12+eIY7MDL2SqLmAkeKU9qxRvWuSyTjm3FUmpBEMuFfckAIqEaVGUDxb6w==}
     engines: {node: '>=6'}
@@ -4402,17 +4402,6 @@ packages:
     peerDependencies:
       react: ^15.3.0 || ^16.0.0-alpha || ^17.0.0 || ^18.0.0-rc
       react-dom: ^15.3.0 || ^16.0.0-alpha || ^17.0.0 || ^18.0.0-rc
-    dependencies:
-      react: 18.2.0
-      react-dom: 18.2.0(react@18.2.0)
-    dev: false
-
-  /react-window-infinite-loader@1.0.9(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-5Hg89IdU4Vrp0RT8kZYKeTIxWZYhNkVXeI1HbKo01Vm/Z7qztDvXljwx16sMzsa9yapRJQW3ODZfMUw38SOWHw==}
-    engines: {node: '>8.0.0'}
-    peerDependencies:
-      react: ^15.3.0 || ^16.0.0-alpha || ^17.0.0 || ^18.0.0
-      react-dom: ^15.3.0 || ^16.0.0-alpha || ^17.0.0 || ^18.0.0
     dependencies:
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
