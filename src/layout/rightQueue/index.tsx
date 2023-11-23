@@ -1,10 +1,11 @@
-import { memo, useMemo, useEffect, useRef, useState } from 'react'
+import { memo, useMemo, useEffect, useRef } from 'react'
 import { Divider, Row, Col, Button } from 'antd'
 // import OverlayScrollbarsComponent from '@/components/overlayscrollbars'
-import { FixedSizeList } from 'react-window'
+import AutoSizer from 'react-virtualized-auto-sizer'
+import { type Align, FixedSizeList } from 'react-window'
 import { type SongData } from '@/core/player'
-import { durationTrans } from '@/utils/formatter'
-import LoadingIcon from '@/assets/svg/loading.svg?react'
+import LoadingInstance from '@/components/loadingInstance'
+import { type LocalPlayQueue, usePlayQueue } from '@/hooks/usePlayQueue'
 import PlaySingleIcon from '@/assets/svg/play_single.svg?react'
 import PauseSingleIcon from '@/assets/svg/pause_single.svg?react'
 
@@ -19,17 +20,6 @@ interface RightQueueProps {
   clearPlaylist: () => void
 }
 
-interface localPlayQueue {
-  id: number
-  name: string
-  artistsName: string
-  duration: string
-  zebraClass: string
-  songNameClass: string
-  artistClass: string
-  durationClass: string
-}
-
 const RightQueue = memo((props: RightQueueProps) => {
   /** 列表左侧播放/暂停小图标展示 */
   const CoreIcon = useMemo(() => {
@@ -37,134 +27,81 @@ const RightQueue = memo((props: RightQueueProps) => {
   }, [props.playStatus])
   /** 列表左侧播放/暂停小图标展示 */
 
-  /** loading实例 */
-  const LoadingInstance = memo(({ className }: { className: string }) => {
-    return (
-      <div className={`absolute-middle-full ${className}`}>
-        <LoadingIcon className="animate-spin w-8 h-8" />
-      </div>
-    )
-  })
-  LoadingInstance.displayName = 'LoadingInstance'
-  /** loading实例 */
-
   /** 本地转化播放列表数据字段 */
-  const localPlayQueue = useMemo<localPlayQueue[]>(() => {
-    const getArtistNames = (artists: AR[]): string => {
-      return artists.map(item => item.name).join(' / ')
-    }
-    // 字体特殊高亮类名
-    const highlightIdClass = (itemId: number, defaultColor: string): string => {
-      return 'text-ellipsis text-sm ' + (itemId === props.activeId ? 'text-red-500 ' : defaultColor + 'group-hover:text-black ')
-    }
-    return props.playlists.map((item, index) => ({
-      id: item.id,
-      name: item.name,
-      artistsName: getArtistNames(item.artists),
-      duration: durationTrans(item.time ?? 0),
-      zebraClass: index % 2 !== 0 ? 'bg-[#f6f6f6] hover:bg-[#f2f2f2] ' : 'bg-[#fdfdfd] hover:bg-[#f3f3f3] ',
-      songNameClass: highlightIdClass(item.id, 'text-black '),
-      artistClass: highlightIdClass(item.id, 'text-neutral-500 '),
-      durationClass: highlightIdClass(item.id, 'text-teal-400 ')
-    }))
-  }, [props.playlists, props.activeId])
+  const localPlayQueue = usePlayQueue(props.playlists, props.activeId)
   /** 本地转化播放列表数据字段 */
 
   /** 固定行可见区域列表组件 */
-  // 固定列表宽度
-  const fixedListWidth = useRef('100%')
   // 固定元素高度
   const fixedItemHeight = useRef(36)
-  // 固定列表高度(高度受 ResizeObserver 影响，需要作为state传递)
-  const [fixedListHeight, setFixedListHeight] = useState(0)
 
   // 固定行渲染列表Ref
   const fixedListRef = useRef<FixedSizeList>(null)
   // 固定行渲染元素
-  const FixedRow = memo(({ index, style, data }: { index: number, style: React.CSSProperties, data: localPlayQueue[] }) => {
+  const FixedRow = memo(({ index, style, data }: { index: number, style: React.CSSProperties, data: LocalPlayQueue[] }) => {
     const item = data[index]
     return item != null
       ? (
-        <div
+        <Row
           key={item.id}
+          className={`relative w-full px-[16px] py-[8px] group ${item.zebraClass}`}
           style={style}
-          className={`relative playlist-item group ${item.zebraClass} px-[16px] py-[8px]`}
+          justify={'space-between'}
+          align={'middle'}
+          gutter={16}
+          wrap={false}
           onDoubleClick={() => { props.onIndexChange(index) }}
-          >
+        >
           {
             item.id === props.activeId
               ? (
                 <div
                   key={`icon:${item.id}`}
-                  className={'absolute left-0.5 top-1/2 -translate-y-[50%]'}
-                      >
+                  className={'absolute-middle-y left-3'}
+                >
                   { CoreIcon }
                 </div>
                 )
               : null
           }
-          <Row
-            className="w-full"
-            justify={'space-between'}
-            align={'middle'}
-            gutter={16}
-            wrap={false}
-            >
-            <Col
-              title={item.name}
-              span={14}
-              className={item.songNameClass}
-              >
-              {item.name}
-            </Col>
-            <Col
-              title={item.artistsName}
-              span={6}
-              className={item.artistClass}
-              >
-              {item.artistsName}
-            </Col>
-            <Col
-              span={4}
-              className={item.durationClass}
-              >
-              {item.duration}
-            </Col>
-          </Row>
-        </div>
+          <Col
+            title={item.name}
+            span={14}
+            className={item.songNameClass}
+          >
+            {item.name}
+          </Col>
+          <Col
+            title={item.artistsName}
+            span={6}
+            className={item.artistClass}
+          >
+            {item.artistsName}
+          </Col>
+          <Col
+            span={4}
+            className={item.durationClass}
+          >
+            {item.duration}
+          </Col>
+        </Row>
         )
       : null
   })
   FixedRow.displayName = 'FixedRow'
   /** 固定行可见区域列表组件 */
 
-  // container元素区域的resize动态调整高度，与相应的FixedSizeList动态高度调整
-  useEffect(() => {
-    const resizeObserver = new window.ResizeObserver(entries => {
-      for (const entry of entries) {
-        const { height } = entry.contentRect
-        // 处理垂直方向的固定列表高度变化
-        height > 0 && setFixedListHeight(height)
-      }
-    })
-    const container = document.getElementById('container') as HTMLDivElement
-    resizeObserver.observe(container)
-    return () => {
-      resizeObserver.unobserve(container)
-    }
-  }, [])
-
   // 切换显示时，存在播放列表，对当前播放的歌曲位置进行滚动条复位
   useEffect(() => {
     if (
       props.showQueue &&
       localPlayQueue.length > 0 &&
-      fixedListHeight > 0 &&
       localPlayQueue.length > props.activeIndex
     ) {
-      fixedListRef.current?.scrollToItem(props.activeIndex, 'center')
+      const align: Align = localPlayQueue.length >= 30 ? 'center' : 'start'
+      fixedListRef.current?.scrollToItem(props.activeIndex, align)
     }
-  }, [props.showQueue, localPlayQueue, props.activeIndex, fixedListHeight])
+  }, [props.showQueue, localPlayQueue, props.activeIndex])
 
   return (
     <>
@@ -184,19 +121,23 @@ const RightQueue = memo((props: RightQueueProps) => {
         <Divider className="mt-4 mb-0" />
       </div>
       <div id="container" className="relative flex-1 min-h-[460px] bg-white">
-        <LoadingInstance className={props.loading ? '' : 'hidden'} />
+        <LoadingInstance loading={props.loading} />
         <div className={`mt-40 text-base text-ctd text-center ${!props.loading && localPlayQueue.length === 0 ? '' : 'hidden'}`}>你还没有添加任何歌曲！</div>
-        <FixedSizeList
-          className={`${!props.loading && localPlayQueue.length > 0 ? '' : 'hidden'} custom-scroll`}
-          ref={fixedListRef}
-          width={fixedListWidth.current}
-          height={fixedListHeight}
-          itemCount={localPlayQueue.length}
-          itemData={localPlayQueue}
-          itemSize={fixedItemHeight.current}
-        >
-          { FixedRow }
-        </FixedSizeList>
+        <AutoSizer>
+          {({ width, height }: { width: number, height: number }) => (
+            <FixedSizeList
+              className={!props.loading && localPlayQueue.length > 0 ? '' : 'hidden'}
+              ref={fixedListRef}
+              width={width}
+              height={height}
+              itemCount={localPlayQueue.length}
+              itemData={localPlayQueue}
+              itemSize={fixedItemHeight.current}
+            >
+              { FixedRow }
+            </FixedSizeList>
+          )}
+        </AutoSizer>
       </div>
       <div className="h-[60px]"></div>
     </>

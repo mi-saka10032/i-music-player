@@ -32,3 +32,31 @@ body,
   padding: 0;
   overflow: hidden;
 }
+
+* {
+
+  /* WebKit browsers */
+  &::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: #8f8f8f;
+    border-radius: 10px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background-color: #fff;
+    border-radius: 10px;
+  }
+
+  /* Firefox */
+  scrollbar-width: 6px;
+  scrollbar-color: #8f8f8f #fff;
+
+  /* Edge */
+  -ms-overflow-style: none;
+  scrollbar-width: 6px;
+  scrollbar-color: #8f8f8f #fff;
+}

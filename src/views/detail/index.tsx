@@ -1,15 +1,21 @@
-import { memo, useCallback, useEffect, useMemo, useState } from 'react'
+import { memo, useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { detailCoverStyle, DetailFallback } from '@/components/detailFallback'
 import { getPlaylistDetail } from '@/api'
-import { millSecondsTransDate } from '@/utils/formatter'
-import PlayWhiteIcon from '@/assets/svg/play_white.svg?react'
-import PlusWhiteIcon from '@/assets/svg/plus_white.svg?react'
+import { millSecondsTransDate, playCountTrans } from '@/utils/formatter'
+import { detailCoverStyle, DetailFallback } from '@/components/detailFallback'
+import {
+  PlayAllButton,
+  CollectButton,
+  ShareButton,
+  DownloadButton
+} from '@/components/detailButton'
+import MusicDetailTab from './detailTab'
 
-const Detail = memo(() => {
+const MusicDetail = memo(() => {
   const { id } = useParams<{ id: string }>()
 
   const [loading, setLoading] = useState(false)
+  const [playlistCount, setPlaylistCount] = useState(0)
   const [playlistHeader, setPlaylistHeader] = useState<PlayListDetail>({
     id: 0,
     name: '',
@@ -25,20 +31,12 @@ const Detail = memo(() => {
     subscribedCount: 0,
     shareCount: 0,
     tags: [],
-    playCount: 0
+    playCount: 0,
+    description: ''
   })
 
-  // 播放按钮三色切换 拥有三种红色 2-深色 1-浅色 0-最浅
-  const [playEnter, setPlayInter] = useState(0x0000)
-  const [collectEnter, setCollectEnter] = useState(0x0000)
-  const switchTripleBG = useMemo<[string, string]>(() => {
-    const res = playEnter | collectEnter
-    if (res === 0x0010) return ['bg-[#cd3232]', 'bg-[#d83535]']
-    else if (res === 0x0001) return ['bg-[#d83535]', 'bg-[#cd3232]']
-    else return ['', '']
-  }, [playEnter, collectEnter])
-
   useEffect(() => {
+    setLoading(true)
     getPlaylistDetail(Number(id))
       .then(res => {
         const playlist = res.playlist
@@ -57,63 +55,85 @@ const Detail = memo(() => {
           subscribedCount: playlist.subscribedCount,
           shareCount: playlist.shareCount,
           tags: playlist.tags,
-          playCount: playlist.playCount
+          playCount: playlist.playCount,
+          description: playlist.description,
+          trackIds: playlist.trackIds
         }))
-        setLoading(true)
+        setPlaylistCount(playlist.trackIds?.length ?? 0)
       })
       .catch(err => {
         console.log(err)
+      })
+      .finally(() => {
         setLoading(false)
       })
   }, [])
 
   return (
-    <div className="pt-8 pl-8">
+    <div className="pt-8">
       {
         loading
-          ? (
-            <div className="flex">
-              <img src={playlistHeader?.coverImgUrl} style={detailCoverStyle} />
-              <div className="flex-1 space-y-2">
-                <header className="flex items-center">
-                  <span className="p-1 text-sm leading-none text-[#ed4141] border border-[#ed4141] rounded">歌单</span>
-                  <h1 className="ml-2.5 text-2xl font-sans font-semibold text-[#333]">{playlistHeader.name}</h1>
-                </header>
-                <section className="flex items-center space-x-2 text-xs">
-                  <img src={playlistHeader.creator.avatarUrl} className="w-8 h-8 rounded-full super_link" />
-                  <span className="max-w-[10rem] text-ellipsis super_link">{playlistHeader.creator.nickname}</span>
-                  <span className="text-gray-600">
-                    <span>{millSecondsTransDate(playlistHeader.createTime ?? 0)} </span><span>创建</span>
-                  </span>
-                </section>
-                <nav className="flex items-center space-x-2 text-base">
-                  <button className="relative flex items-center h-10 rounded-[1.25rem] text-white bg-[#ec4141]">
-                    <nav
-                      className={`pl-4 pr-2.5 flex items-center h-full rounded-l-[1.25rem] ${switchTripleBG[0]}`}
-                      onMouseEnter={() => { setPlayInter(0x0010) }}
-                      onMouseLeave={() => { setPlayInter(0x0000) }}
-                    >
-                      <PlayWhiteIcon className="w-6 h-6" />
-                      <span className="ml-1.5">播放全部</span>
-                    </nav>
-                    <span className="absolute top-0 right-12 w-[1px] h-full bg-[#ee5454]"></span>
-                    <nav
-                      className={`pr-4 pl-2.5 flex items-center h-full rounded-r-[1.25rem] ${switchTripleBG[1]}`}
-                      onMouseEnter={() => { setCollectEnter(0x0001) }}
-                      onMouseLeave={() => { setCollectEnter(0x0000) }}
-                    >
-                      <PlusWhiteIcon className="w-6 h-6" />
-                    </nav>
-                  </button>
-                </nav>
+          ? <DetailFallback />
+          : (
+            <>
+              <div className="flex px-8 mb-8 w-full font-sans">
+                <img src={playlistHeader?.coverImgUrl} style={detailCoverStyle} />
+                <div className="flex-1 space-y-4">
+                  <header className="flex items-center">
+                    <span className="p-1 text-sm leading-none text-[#ed4141] border border-[#ed4141] rounded">歌单</span>
+                    <h1 className="ml-2.5 text-2xl font-semibold text-[#333]">{playlistHeader.name}</h1>
+                  </header>
+                  <section className="flex items-center space-x-2 text-sm">
+                    <img src={playlistHeader.creator.avatarUrl} className="w-8 h-8 rounded-full super_link" />
+                    <span className="max-w-[10rem] text-ellipsis super_link">{playlistHeader.creator.nickname}</span>
+                    <span className="text-gray-600">
+                      <span>{millSecondsTransDate(playlistHeader.createTime ?? 0)} </span><span>创建</span>
+                    </span>
+                  </section>
+                  <nav className="flex items-center space-x-2 text-sm">
+                    <PlayAllButton />
+                    <CollectButton subscribedCount={playlistHeader.subscribedCount ?? 0} />
+                    <ShareButton shareCount={playlistHeader.shareCount ?? 0} />
+                    <DownloadButton />
+                  </nav>
+                  <article className="flex flex-col space-y-2 text-sm">
+                    <div className="flex items-center">
+                      <label className="flex justify-between items-center mr-1 w-14 text-[#363636]">
+                        <span>标</span><span>签：</span>
+                      </label>
+                      {
+                      playlistHeader.tags.map((tag, index) => (
+                        <span key={index}>
+                          <span className="super_link">{tag}</span>
+                          {
+                              index !== playlistHeader.tags.length - 1 ? <span className="mx-1">/</span> : null
+                          }
+                        </span>
+                      ))
+                    }
+                    </div>
+                    <div className="flex items-center">
+                      <label className="mr-1 w-14 text-[#363636]">歌曲数:</label>
+                      <span className="text-[#666]">{playlistCount}</span>
+                      <label className="mr-1 ml-5 w-14 text-[#363636]">播放数:</label>
+                      <span className="text-[#666]">{playCountTrans(playlistHeader.playCount ?? 0)}</span>
+                    </div>
+                    <div className="flex items-center">
+                      <label className="flex justify-between items-center mr-1 w-14 text-[#363636]">
+                        <span>简</span><span>介：</span>
+                      </label>
+                      <p className="max-w-md truncate mr-5 text-[#666]" title={playlistHeader.description}>{playlistHeader.description}</p>
+                    </div>
+                  </article>
+                </div>
               </div>
-            </div>
+              <MusicDetailTab trackIds={playlistHeader.trackIds} />
+            </>
             )
-          : <DetailFallback />
       }
     </div>
   )
 })
 
-Detail.displayName = 'Detail'
-export default Detail
+MusicDetail.displayName = 'Detail'
+export default MusicDetail

@@ -1,17 +1,6 @@
 import React from 'react'
 import ErrorBoundary from '../errorBoundary'
-import LoadingIcon from '@/assets/svg/loading.svg?react'
-
-// 全局加载
-const GlobalLoading = React.memo(() => {
-  return (
-    <div className="absolute-middle-full flex items-center">
-      <LoadingIcon className="animate-spin w-8 h-8" />
-      <span className="ml-5 text-base text-gray-500">载入中...</span>
-    </div>
-  )
-})
-GlobalLoading.displayName = 'GlobalLoading'
+import LoadingInstance from '../loadingInstance'
 
 // 懒加载容器
 export const LazyImportComponent = React.memo((props: {
@@ -19,7 +8,7 @@ export const LazyImportComponent = React.memo((props: {
 }) => {
   return (
     <ErrorBoundary>
-      <React.Suspense fallback={<GlobalLoading />}>
+      <React.Suspense fallback={<LoadingInstance loading={true} />}>
         <props.lazyChildren />
       </React.Suspense>
     </ErrorBoundary>

@@ -18,9 +18,9 @@ export function durationTrans (millSeconds: number): string {
 // 播放次数转换
 export function playCountTrans (count: number): string {
   if (count > Math.pow(10, 9)) {
-    return Math.round((count / Math.pow(10, 9))) + '亿'
+    return Math.floor((count / Math.pow(10, 9))) + '亿'
   } else if (count > Math.pow(10, 4)) {
-    return Math.round((count / Math.pow(10, 4))) + '万'
+    return Math.floor((count / Math.pow(10, 4))) + '万'
   } else return String(count)
 }
 

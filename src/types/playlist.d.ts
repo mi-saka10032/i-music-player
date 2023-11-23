@@ -83,6 +83,7 @@ interface PlayListDetail {
   shareCount: number
   tags: string[]
   playCount: number
+  description: string
 }
 
 // 歌单详情Response

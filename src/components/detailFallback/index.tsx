@@ -9,7 +9,9 @@ const detailCoverStyle: CSSProperties = {
 }
 
 const DetailFallback = memo(() => (
-  <Skeleton.Image active={true} style={detailCoverStyle} />
+  <div className="pl-8">
+    <Skeleton.Image active={true} style={detailCoverStyle} />
+  </div>
 ))
 
 DetailFallback.displayName = 'DetailFallback'

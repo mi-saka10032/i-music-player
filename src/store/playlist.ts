@@ -66,11 +66,11 @@ export const fetchPlaylistDetail = createAsyncThunk('playlist/fetchPlaylistDetai
   const result = await getPlaylistDetail(id)
   // 遍历trackIds获取完整id，再拉取一次全量歌曲信息
   const allIds = result.playlist.trackIds.map(item => item.id)
-  const completeResult = await getSongDetail(allIds)
+  const completeSongs = await getSongDetail(allIds)
   return {
     playlistId: result.playlist.id,
     playlistName: result.playlist.name,
-    playlists: completeResult.songs.map(item => ({
+    playlists: completeSongs.map(item => ({
       id: item.id,
       name: item.name,
       artists: item.ar,
