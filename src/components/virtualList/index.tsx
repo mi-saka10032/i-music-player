@@ -1,4 +1,4 @@
-import { type CSSProperties, type FC, memo, forwardRef } from 'react'
+import { type CSSProperties, type FC, memo, forwardRef, useMemo, useRef } from 'react'
 
 interface FixedRowProps {
   index: number
@@ -20,35 +20,41 @@ interface VirtualListProps {
 // 手动实现虚拟列表，去除滚动条后可以通过外部scrollPosition手动跟随滚动。适用于包含Header内容的详情页
 const VirtualList = memo(
   forwardRef<HTMLDivElement, VirtualListProps>(
-    ({ className, width, height, itemData, itemCount, itemSize, scrollPosition, children: ChildrenComponent }, ref) => {
+    (props, ref) => {
+      const { className, width, height, itemCount, itemSize, scrollPosition } = props
       // 可见元素数量
-      const visibleItems = Math.ceil(height / itemSize)
+      const visibleItems = useMemo<number>(() => Math.ceil(height / itemSize), [height, itemSize])
       // 总占位高度
-      const totalHeight = itemCount * itemSize
+      const totalHeight = useMemo<number>(() => itemCount * itemSize, [itemCount, itemSize])
       // 增加预渲染的元素数量
-      const buffer = 20 // 预渲染的额外元素数量
-      // 起始节点索引
-      const startNode = Math.max(0, Math.floor(scrollPosition / itemSize) - visibleItems - buffer)
-      // 结束节点索引（双倍数量）
-      const endNode = startNode + visibleItems * 2 + buffer * 2
+      const buffer = useRef(10) // 预渲染的额外元素数量
+      // 起始节点索引（对于Detail详情页，Header内容占位接近10个元素数量，此处约等于向上预留20个元素）
+      const startNode = useMemo<number>(() => {
+        return Math.max(0, Math.floor(scrollPosition / itemSize) - visibleItems - buffer.current)
+      }, [scrollPosition, itemSize, visibleItems])
+      // 结束节点索引（加倍数量）
+      const endNode = useMemo<number>(() => {
+        return startNode + visibleItems * 2 + buffer.current * 3
+      }, [startNode, visibleItems])
       // 偏移高度
-      const offsetY = startNode * itemSize
+      const offsetY = useMemo<number>(() => startNode * itemSize, [startNode, itemSize])
       // 可见元素数据切割
-      const visibleItemsData = itemData.slice(startNode, endNode)
+      const visibleItemsData = useMemo<any[]>(() => {
+        return props.itemData.slice(startNode, endNode)
+      }, [props.itemData, startNode, endNode])
 
       return (
         <div ref={ref} className={className} style={{ position: 'relative', width, height: '100%' }}>
+          {/* 总占位高度元素 */}
+          <div style={{ position: 'relative', width: '100%', height: totalHeight }} />
           <div style={{ position: 'absolute', top: offsetY, width: '100%' }}>
             {/* children组件渲染 */}
-            {visibleItemsData.map((item, index) => <ChildrenComponent key={(item.id ?? 0) + '' + index} index={startNode + index} style={{ height: itemSize }} data={itemData} />)}
+            {visibleItemsData.map((item, index) => <props.children key={(item.id ?? 0) + '' + index} index={startNode + index} style={{ height: itemSize }} data={props.itemData} />)}
           </div>
-          {/* 顶部偏移占位元素 */}
-          <div style={{ height: offsetY }}></div>
-          {/* 底部偏移占位元素 */}
-          <div style={{ height: totalHeight - offsetY - visibleItemsData.length * itemSize }}></div>
         </div>
       )
-    })
+    }
+  )
 )
 
 VirtualList.displayName = 'VirtualList'
