@@ -25,10 +25,12 @@ const VirtualList = memo(
       const visibleItems = Math.ceil(height / itemSize)
       // 总占位高度
       const totalHeight = itemCount * itemSize
+      // 增加预渲染的元素数量
+      const buffer = 20 // 预渲染的额外元素数量
       // 起始节点索引
-      const startNode = Math.max(0, Math.floor(scrollPosition / itemSize) - visibleItems)
+      const startNode = Math.max(0, Math.floor(scrollPosition / itemSize) - visibleItems - buffer)
       // 结束节点索引（双倍数量）
-      const endNode = startNode + visibleItems * 2
+      const endNode = startNode + visibleItems * 2 + buffer * 2
       // 偏移高度
       const offsetY = startNode * itemSize
       // 可见元素数据切割
@@ -38,7 +40,7 @@ const VirtualList = memo(
         <div ref={ref} className={className} style={{ position: 'relative', width, height: '100%' }}>
           <div style={{ position: 'absolute', top: offsetY, width: '100%' }}>
             {/* children组件渲染 */}
-            {visibleItemsData.map((_, index) => <ChildrenComponent key={index} index={startNode + index} style={{ height: itemSize }} data={itemData} />)}
+            {visibleItemsData.map((item, index) => <ChildrenComponent key={(item.id ?? 0) + '' + index} index={startNode + index} style={{ height: itemSize }} data={itemData} />)}
           </div>
           {/* 顶部偏移占位元素 */}
           <div style={{ height: offsetY }}></div>
