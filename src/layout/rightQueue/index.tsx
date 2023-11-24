@@ -1,4 +1,4 @@
-import { memo, useMemo, useEffect, useRef } from 'react'
+import { memo, useMemo, useEffect, useRef, type CSSProperties } from 'react'
 import { Divider, Row, Col, Button } from 'antd'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { type Align, FixedSizeList } from 'react-window'
@@ -34,7 +34,7 @@ const RightQueue = memo((props: RightQueueProps) => {
   // 固定行渲染列表Ref
   const fixedListRef = useRef<FixedSizeList>(null)
   // 固定行渲染元素
-  const FixedRow = memo(({ index, style, data }: { index: number, style: React.CSSProperties, data: SongData[] }) => {
+  const FixedRow = memo(({ index, style, data }: { index: number, style: CSSProperties, data: SongData[] }) => {
     const item = data[index]
     return item != null
       ? (
@@ -126,8 +126,8 @@ const RightQueue = memo((props: RightQueueProps) => {
               ref={fixedListRef}
               width={width}
               height={height}
-              itemCount={props.playlists.length}
               itemData={props.playlists}
+              itemCount={props.playlists.length}
               itemSize={fixedItemHeight.current}
             >
               { FixedRow }

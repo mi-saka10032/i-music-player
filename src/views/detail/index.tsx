@@ -94,7 +94,7 @@ const MusicDetail = memo(() => {
                     </span>
                   </section>
                   <nav className="flex items-center space-x-2 text-sm">
-                    <PlayAllButton onPlayAll={() => { getPlaylists(id) }} />
+                    <PlayAllButton onPlayAll={() => { getPlaylists(Number(id)) }} />
                     <CollectButton subscribedCount={playlistHeader.subscribedCount ?? 0} />
                     <ShareButton shareCount={playlistHeader.shareCount ?? 0} />
                     <DownloadButton />

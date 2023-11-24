@@ -31,8 +31,7 @@
     "react-virtualized-auto-sizer": "^1.0.20",
     "react-window": "^1.8.9",
     "swiper": "^11.0.3",
-    "tauri-plugin-sql-api": "github:tauri-apps/tauri-plugin-sql#v1",
-    "throttle-debounce": "^5.0.0"
+    "tauri-plugin-sql-api": "github:tauri-apps/tauri-plugin-sql#v1"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^1.5.0",

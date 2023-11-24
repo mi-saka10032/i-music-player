@@ -59,9 +59,6 @@ dependencies:
   tauri-plugin-sql-api:
     specifier: github:tauri-apps/tauri-plugin-sql#v1
     version: github.com/tauri-apps/tauri-plugin-sql/3604825a4eded2be6cfa248aa0de9614a900cc2d
-  throttle-debounce:
-    specifier: ^5.0.0
-    version: 5.0.0
 
 devDependencies:
   '@tauri-apps/cli':
