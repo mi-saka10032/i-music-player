@@ -9,8 +9,8 @@ const Playlist = lazy(async () => await import('@/views/discovery/play-list'))
 const Toplist = lazy(async () => await import('@/views/discovery/top-list'))
 const Artist = lazy(async () => await import('@/views/discovery/art-ist'))
 const Album = lazy(async () => await import('@/views/discovery/album'))
-const MusicDetail = lazy(async () => await import('@/views/detail'))
-const Mine = lazy(async () => await import('@/views/mine'))
+const MusicDetail = lazy(async () => await import('@/views/musicDetail/kinds/musicDetail'))
+const FavoriteDetail = lazy(async () => await import('@/views/musicDetail/kinds/favoriteDetail'))
 
 const router = createBrowserRouter([
   {
@@ -29,8 +29,8 @@ const router = createBrowserRouter([
         path: 'discovery',
         children: [
           {
-            index: true,
             // 首页推荐
+            index: true,
             element: <LazyImportComponent lazyChildren={Recommend} />
           },
           {
@@ -52,15 +52,15 @@ const router = createBrowserRouter([
         ]
       },
       {
-        path: 'detail/:id',
-        element: <LazyImportComponent lazyChildren={MusicDetail} />
-      },
-      {
-        path: 'mine',
+        path: 'musicDetail',
         children: [
           {
-            index: true,
-            element: <LazyImportComponent lazyChildren={Mine} />
+            path: ':id',
+            element: <LazyImportComponent lazyChildren={MusicDetail} />
+          },
+          {
+            path: 'mine',
+            element: <LazyImportComponent lazyChildren={FavoriteDetail} />
           }
         ]
       }

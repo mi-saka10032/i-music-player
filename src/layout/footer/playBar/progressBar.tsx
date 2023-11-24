@@ -132,7 +132,7 @@ const ProgressBar = memo(
           onClick={handleClick}
         >
           <div
-            className="absolute bg-primary rounded-full cursor-grab hidden group-hover/progress:inline-block"
+            className="absolute z-50 bg-primary rounded-full cursor-grab hidden group-hover/progress:inline-block"
             style={{
               width: pointSize,
               height: pointSize,

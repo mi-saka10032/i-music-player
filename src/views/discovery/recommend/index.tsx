@@ -1,6 +1,6 @@
 import { memo, useCallback, useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { useAppSelector, playNow } from '@/hooks'
+import { useAppSelector, playNowById } from '@/hooks'
 import Card from './card'
 import SwiperComponent from '@/components/swiper'
 
@@ -10,10 +10,10 @@ const Recommend = memo(() => {
   const { cookie } = useAppSelector(state => state.user)
   const { banners, personalizedPlaylist, recommendList } = useAppSelector(state => state.cache)
 
-  const getPlaylists = playNow()
+  const getPlaylists = playNowById()
 
   const gotoDetail = useCallback((id: number) => {
-    navigate(`/detail/${id}`)
+    navigate(`/musicDetail/${id}`)
   }, [])
 
   const CurRecommendList = useMemo(() => {

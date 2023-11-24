@@ -13,8 +13,12 @@ import PlayActiveIcon from '@/assets/svg/play_active.svg?react'
 import FavoriteIcon from '@/assets/svg/favorite.svg?react'
 import DownloadIcon from '@/assets/svg/download.svg?react'
 
-// 详情列表支持懒加载
-const MusicDetailLists = memo((props: { trackIds: TrackIdsLists }) => {
+interface MusicDetailListsProps {
+  listsIds: number[]
+}
+
+/** MusicDetail位于底部的列表List组件，监听外部容器scroll，手动实现虚拟滚动 */
+const MusicDetailLists = memo((props: MusicDetailListsProps) => {
   // 详情列表表头
   const ListHeader = memo(() => {
     return (
@@ -31,6 +35,7 @@ const MusicDetailLists = memo((props: { trackIds: TrackIdsLists }) => {
 
   // 全局activeId
   const { playId } = useAppSelector(state => state.playlist)
+  // 全局播放状态 以动态切换小图标
   const playStatus = useAppSelector(state => state.playlist.playerInstance.status)
 
   const [loading, setLoading] = useState(false)
@@ -38,25 +43,26 @@ const MusicDetailLists = memo((props: { trackIds: TrackIdsLists }) => {
 
   // 初始挂载时读取前200首
   useEffect(() => {
-    setLoading(true)
-    const allIds = props.trackIds.map(item => item.id)
-    getSongDetail(allIds)
-      .then(res => {
-        setPlaylists(res.map(item => ({
-          id: item.id,
-          name: item.name,
-          artists: item.ar,
-          album: item.al,
-          time: item.dt
-        })))
-      })
-      .catch(err => {
-        console.log(err)
-      })
-      .finally(() => {
-        setLoading(false)
-      })
-  }, [props.trackIds])
+    if (props.listsIds.length > 0) {
+      setLoading(true)
+      getSongDetail(props.listsIds)
+        .then(res => {
+          setPlaylists(res.map(item => ({
+            id: item.id,
+            name: item.name,
+            artists: item.ar,
+            album: item.al,
+            time: item.dt
+          })))
+        })
+        .catch(err => {
+          console.log(err)
+        })
+        .finally(() => {
+          setLoading(false)
+        })
+    }
+  }, [props.listsIds])
 
   // list动态高度设置
   const listRef = useRef<HTMLUListElement>(null)
@@ -157,7 +163,7 @@ const MusicDetailLists = memo((props: { trackIds: TrackIdsLists }) => {
               itemCount={playlists.length}
               itemSize={fixedItemHeight.current}
               scrollPosition={scrollPosition}
-              >
+            >
               { FixedRow }
             </VirtualList>
           )}

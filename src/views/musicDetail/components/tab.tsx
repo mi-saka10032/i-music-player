@@ -1,18 +1,19 @@
 import { memo, useMemo } from 'react'
 import { ConfigProvider, Tabs, type TabsProps } from 'antd'
-import MusicDetailLists from './detailLists'
+import MusicDetailLists from './lists'
 
 interface MusicDetailTabProps {
-  trackIds: TrackIdsLists
+  listsIds: number[]
   onChange?: () => void
 }
 
+/** MusicDetail位于中部的Tab菜单组件，暂无特殊作用，只为接收MusicLists组件 */
 const MusicDetailTab = memo((props: MusicDetailTabProps) => {
   const items = useMemo<TabsProps['items']>(() => [
     {
       key: '1',
       label: '歌曲列表',
-      children: <MusicDetailLists trackIds={props.trackIds} />
+      children: <MusicDetailLists listsIds={props.listsIds} />
     },
     {
       key: '2',
@@ -24,7 +25,7 @@ const MusicDetailTab = memo((props: MusicDetailTabProps) => {
       label: '收藏者',
       children: null
     }
-  ], [props.trackIds])
+  ], [props.listsIds])
 
   return (
     <ConfigProvider
@@ -44,6 +45,7 @@ const MusicDetailTab = memo((props: MusicDetailTabProps) => {
         defaultActiveKey="1"
         items={items}
         tabBarStyle={{ padding: '0 2rem', marginBottom: '0' }}
+        destroyInactiveTabPane={true}
         onChange={props?.onChange}
       />
     </ConfigProvider>

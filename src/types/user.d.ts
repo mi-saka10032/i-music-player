@@ -34,3 +34,10 @@ interface AccountInfoRes extends CommonRes {
   }
 }
 /** ---------- 登录状态与用户信息 ---------- */
+
+/** 登录用户私有歌单 */
+interface FavoriteRes extends CommonRes {
+  checkPoint: number
+  ids: number[]
+}
+/** 登录用户私有歌单 */
