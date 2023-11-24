@@ -2,6 +2,8 @@ import { combineReducers, configureStore } from '@reduxjs/toolkit'
 import { type CacheState, cacheReducer } from './cache'
 import { type UserState, userReducer } from './user'
 import { type PlaylistState, playlistReducer } from './playlist'
+import { type PlayerInstanceState, playerInstanceReducer } from './playerInstance'
+import { type PlayerStatusState, playerStatusReducer } from './playerStatus'
 import persist, { setInitialState } from './middleware/persist'
 import { INITIAL_STATE_LOADED } from '@/common/constants'
 
@@ -9,13 +11,17 @@ interface InitialState {
   user: UserState
   cache: CacheState
   playlist: PlaylistState
+  playerInstance: PlayerInstanceState
+  playerStatus: PlayerStatusState
 }
 
 // 初始化reducers
 const configureReducers = combineReducers({
   cache: cacheReducer,
   user: userReducer,
-  playlist: playlistReducer
+  playlist: playlistReducer,
+  playerInstance: playerInstanceReducer,
+  playerStatus: playerStatusReducer
 })
 
 // 初始化store
@@ -25,8 +31,8 @@ const store = configureStore({
       console.log('INITIAL DB↓')
       // 初始化的播放状态必须是none 禁自动播放
       if (action.payload.playlist != null) {
-        action.payload.playlist.playerInstance.autoplay = false
-        action.payload.playlist.playerInstance.status = 'none'
+        action.payload.playlist.autoplay = false
+        action.payload.playerStatus.status = 'none'
       }
       console.log(action.payload)
       return action.payload

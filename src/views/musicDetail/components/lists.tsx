@@ -34,9 +34,9 @@ const MusicDetailLists = memo((props: MusicDetailListsProps) => {
   ListHeader.displayName = 'ListHeader'
 
   // 全局activeId
-  const { playId } = useAppSelector(state => state.playlist)
+  const { activeId } = useAppSelector(state => state.playlist)
   // 全局播放状态 以动态切换小图标
-  const playStatus = useAppSelector(state => state.playlist.playerInstance.status)
+  const { status } = useAppSelector(state => state.playerStatus)
 
   const [loading, setLoading] = useState(false)
   const [playlists, setPlaylists] = useState<SongData[]>([])
@@ -108,9 +108,9 @@ const MusicDetailLists = memo((props: MusicDetailListsProps) => {
       >
         <span className="w-[7.5rem] flex justify-between items-center pr-5">
           {
-            item.id === playId
+            item.id === activeId
               ? (
-                  playStatus === 'playing'
+                  status === 'playing'
                     ? <PlayActiveIcon className="w-4 h-4" />
                     : <PlayInActiveIcon className="w-5 h-5" />
                 )
@@ -127,20 +127,20 @@ const MusicDetailLists = memo((props: MusicDetailListsProps) => {
         </span>
         <span
           title={item.name}
-          className={`flex-1 ${highlightNameClass(playId, item.id)}`}
+          className={`flex-1 ${highlightNameClass(activeId, item.id)}`}
         >
           {item.name}
         </span>
         <span
           title={artistsArrayTrans(item.artists)}
-          className={`w-2/12 ${highlightArtistClass(playId, item.id)}`}
+          className={`w-2/12 ${highlightArtistClass(activeId, item.id)}`}
         >
           {artistsArrayTrans(item.artists)}
         </span>
-        <span className={`w-3/12 ${highlightArtistClass(playId, item.id)}`}>
+        <span className={`w-3/12 ${highlightArtistClass(activeId, item.id)}`}>
           {item.album.name}
         </span>
-        <span className={`w-1/12 ${highlightDurationClass(playId, item.id)}`}>
+        <span className={`w-1/12 ${highlightDurationClass(activeId, item.id)}`}>
           {durationTrans(item.time ?? 0)}
         </span>
       </li>

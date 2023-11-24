@@ -15,7 +15,9 @@ interface PersistType {
 enum KeyList {
   cache = 'cache',
   user = 'user',
-  playlist = 'playlist'
+  playlist = 'playlist',
+  playerStatus = 'playerStatus',
+  playerInstance = 'playerInstance'
 }
 interface DBResult {
   id: number

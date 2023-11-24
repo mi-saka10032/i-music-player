@@ -3,16 +3,9 @@ import { message } from 'antd'
 import GlobalContext from './context'
 import { useAppSelector, useAppDispatch } from '@/hooks'
 import { fetchRecommendData } from '@/store/cache'
-import {
-  setPlayId,
-  setPlayStatus,
-  setPlayIndex,
-  setProgress,
-  setPlayType,
-  setMute,
-  setVolume,
-  clearPlaylists
-} from '@/store/playlist'
+import { clearPlaylists, setActiveId, setActiveIndex } from '@/store/playlist'
+import { clearPlayerStatus, setPlayStatus, setProgress } from '@/store/playerStatus'
+import { setMute, setPlayType, setVolume } from '@/store/playerInstance'
 import player, { PlayType, PlayerEvent, type SongData } from '@/core/player'
 import Header from './header'
 import Content from './content'
@@ -23,15 +16,23 @@ import Detail from './detail'
 
 const Layout = memo(() => {
   const {
-    playId,
-    playIndex,
+    activeId,
+    activeIndex,
     playlists,
-    playerType,
-    playerInstance,
     playlistLoading,
     playlistId,
-    playlistName
+    playlistName,
+    autoplay
   } = useAppSelector(state => state.playlist)
+  const {
+    status,
+    progress
+  } = useAppSelector(state => state.playerStatus)
+  const {
+    playType,
+    mute,
+    volume
+  } = useAppSelector(state => state.playerInstance)
   const dispatch = useAppDispatch()
 
   // 生命周期内仅维持一份player实例
@@ -92,11 +93,11 @@ const Layout = memo(() => {
   }, [])
 
   const handleDispatchId = useCallback((id: number) => {
-    dispatch(setPlayId(id))
+    dispatch(setActiveId(id))
   }, [])
 
   const handleDispatchIndex = useCallback((index: number) => {
-    dispatch(setPlayIndex(index))
+    dispatch(setActiveIndex(index))
   }, [])
 
   const handleDispatchType = useCallback((type: PlayType) => {
@@ -124,11 +125,11 @@ const Layout = memo(() => {
 
   /** HowlPlayer实例手动执行函数 */
   const handleSwitchPlay = useCallback(() => {
-    if (playerInstance.progress !== playerRef.current.progress) {
-      playerRef.current.progressTo(playerInstance.progress)
+    if (progress !== playerRef.current.progress) {
+      playerRef.current.progressTo(progress)
     }
     playerRef.current.switchPlay()
-  }, [playerInstance.progress])
+  }, [progress])
 
   const handleChangePrev = useCallback(() => {
     dispatch(setProgress(0))
@@ -153,34 +154,35 @@ const Layout = memo(() => {
   const handleClearPlaylist = useCallback(() => {
     playerRef.current.reset()
     dispatch(clearPlaylists())
+    dispatch(clearPlayerStatus())
   }, [])
   /** HowlPlayer实例手动执行函数 */
 
   // 音乐详情数据
   const songDetail = useMemo<SongData | null>(() => {
-    return playlists[playIndex] ?? null
-  }, [playlists, playIndex])
+    return playlists[activeIndex] ?? null
+  }, [playlists, activeIndex])
 
   /** store数据变化的系列副作用 */
   useEffect(() => {
-    playerRef.current.setRepeatMode(playerType.type)
-  }, [playerType.type])
+    playerRef.current.setRepeatMode(playType)
+  }, [playType])
 
   useEffect(() => {
-    playerRef.current.setMute(playerType.mute)
-  }, [playerType.mute])
+    playerRef.current.setMute(mute)
+  }, [mute])
 
   useEffect(() => {
-    playerRef.current.setVolume(playerType.volume)
-  }, [playerType.volume])
+    playerRef.current.setVolume(volume)
+  }, [volume])
 
   const lastPlaylists = useRef<SongData[]>([])
   useEffect(() => {
     if (playlists.length > 0 && playlists !== lastPlaylists.current) {
       lastPlaylists.current = playlists
-      playerRef.current.setPlaylist(playlists, playIndex, playerInstance.autoplay)
+      playerRef.current.setPlaylist(playlists, activeIndex, autoplay)
     }
-  }, [playlists, playIndex, playerInstance.autoplay])
+  }, [playlists, activeIndex, autoplay])
   /** store数据变化的系列副作用 */
 
   /** 挂载时触发 */
@@ -225,11 +227,11 @@ const Layout = memo(() => {
           <Footer
             queueStatusRef={queueStatusRef}
             detailRef={detailRef}
-            playStatus={playerInstance.status}
-            type={playerType.type}
-            mute={playerType.mute}
-            volume={playerType.volume}
-            progress={playerInstance.progress}
+            playStatus={status}
+            type={playType}
+            mute={mute}
+            volume={volume}
+            progress={progress}
             thumbnailItem={songDetail}
             setShowQueue={setShowQueue}
             setShowDetail={setShowDetail}
@@ -248,10 +250,10 @@ const Layout = memo(() => {
         >
           <RightQueue
             showQueue={showQueue}
-            activeId={playId}
-            activeIndex={playIndex}
+            activeId={activeId}
+            activeIndex={activeIndex}
             playlists={playlists}
-            playStatus={playerInstance.status}
+            playStatus={status}
             loading={playlistLoading}
             onIndexChange={handleChangeIndex}
             clearPlaylist={handleClearPlaylist}
@@ -267,8 +269,8 @@ const Layout = memo(() => {
             playlistId={playlistId}
             playlistName={playlistName}
             songItem={songDetail}
-            playStatus={playerInstance.status}
-            progress={playerInstance.progress}
+            playStatus={status}
+            progress={progress}
           />
         </div>
         {contextHolder}
