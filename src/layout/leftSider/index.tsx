@@ -1,23 +1,29 @@
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
-import { NavLink } from 'react-router-dom'
-import { Popover, Button } from 'antd'
+import { NavLink, useNavigate } from 'react-router-dom'
+import { Popover, Button, message } from 'antd'
 import { focusWindow, getLoginWindow, initLogin } from '@/utils'
 import { fetchAccountInfo, setCookie, setAccountInfo } from '@/store/user'
 import { fetchRecommendData } from '@/store/cache'
 import { useAppSelector, useAppDispatch } from '@/hooks'
 
 const links = [
-  { to: '/discovery', title: '发现音乐', icon: 'music' },
-  { to: '/mine', title: '我喜欢的音乐', icon: 'like' }
+  { to: '/discovery', title: '发现音乐', icon: 'music', needLogin: false },
+  { to: '/mine', title: '我喜欢的音乐', icon: 'like', needLogin: true }
 ]
 
 /** 左侧边栏组件 */
 const LeftSider = memo(() => {
+  const navigate = useNavigate()
   const { accountInfo, cookie } = useAppSelector((state) => state.user)
   const dispatch = useAppDispatch()
+
   // 登录状态判断
   const hasLogin = useMemo(() => cookie != null && accountInfo.profile != null, [accountInfo, cookie])
+  // 退出登录popover显示状态
   const [logout, setLogout] = useState(false)
+  // 登录跳转提示信息
+  const [messageApi, contextHolder] = message.useMessage()
+
   // 监听数据变化以切换显示用户名和头像
   const userInfo = useMemo(() => {
     if (hasLogin) {
@@ -57,6 +63,21 @@ const LeftSider = memo(() => {
       })
   }, [hasLogin])
 
+  // 判断link菜单是否允许跳转
+  const linkJudge = useCallback((e: React.MouseEvent, needLogin: boolean, path: string) => {
+    e.preventDefault()
+    if (needLogin && !hasLogin) {
+      void messageApi.open({
+        type: 'warning',
+        content: '请先登录',
+        duration: 1
+      })
+    } else {
+      navigate(path)
+    }
+  }, [hasLogin])
+
+  // 正式退出
   const exit = useCallback(() => {
     dispatch(setCookie(''))
     dispatch(setAccountInfo({ code: 0 }))
@@ -107,6 +128,7 @@ const LeftSider = memo(() => {
                       ' group/navlink'
                     )
                   }}
+                  onClick={e => { linkJudge(e, item.needLogin, item.to) }}
                 >
                   <div className="flex items-center px-6 py-2 group-hover/navlink:bg-ctd/10 group-[.active]/navlink:bg-ctd/10">
                     <i className={`iconfont icon-${item.icon} text-xl`}></i>
@@ -118,6 +140,7 @@ const LeftSider = memo(() => {
           })
         }
       </ul>
+      {contextHolder}
     </>
   )
 })

@@ -6,44 +6,48 @@ const RouteStackControl = () => {
   const navigate = useNavigate()
   const navigationType = useNavigationType()
   const [routeStack, setRouteStack] = useState([location.pathname])
-  const [routeStackIndex, setRouteStackIndex] = useState(0)
+  const [currentRouteIndex, setCurrentRouteIndex] = useState(0)
 
   // 使用 useEffect 监听路由变化
   useEffect(() => {
+    console.log(routeStack)
     if (navigationType === 'PUSH') {
-      setRouteStack((prevRouteStack) => [
-        ...prevRouteStack.slice(0, prevRouteStack.length - routeStackIndex),
-        location.pathname
-      ])
-      setRouteStackIndex(0)
+      setRouteStack((prevRouteStack) => {
+        const newRouteStack = prevRouteStack.slice(0, prevRouteStack.length - currentRouteIndex)
+        if (newRouteStack[newRouteStack.length - 1] !== location.pathname) {
+          newRouteStack.push(location.pathname)
+        }
+        return newRouteStack
+      })
+      setCurrentRouteIndex(0)
     } else if (navigationType === 'REPLACE') {
       setRouteStack((prevRouteStack) => [
-        ...prevRouteStack.slice(0, prevRouteStack.length - routeStackIndex - 1),
+        ...prevRouteStack.slice(0, prevRouteStack.length - currentRouteIndex - 1),
         location.pathname
       ])
-      setRouteStackIndex(0)
+      setCurrentRouteIndex(0)
     }
-  }, [location])
+  }, [location, navigationType])
 
   // 处理后退按钮点击事件
   const handleGoBack = () => {
-    navigate(-1)
-    setRouteStackIndex((prevRouteStackIndex) =>
-      Math.min(prevRouteStackIndex + 1, routeStack.length - 1)
-    )
+    if (currentRouteIndex < routeStack.length - 1) {
+      setCurrentRouteIndex(currentRouteIndex + 1)
+      navigate(routeStack[routeStack.length - 2 - currentRouteIndex])
+    }
   }
 
   // 处理前进按钮点击事件
   const handleGoForward = () => {
-    navigate(1)
-    setRouteStackIndex((prevRouteStackIndex) =>
-      Math.max(prevRouteStackIndex - 1, 0)
-    )
+    if (currentRouteIndex > 0) {
+      setCurrentRouteIndex(currentRouteIndex - 1)
+      navigate(routeStack[routeStack.length - currentRouteIndex])
+    }
   }
 
   // 检查是否可以后退或前进
-  const canGoBack = routeStackIndex < routeStack.length - 1
-  const canGoForward = routeStackIndex > 0
+  const canGoBack = currentRouteIndex < routeStack.length - 1
+  const canGoForward = currentRouteIndex > 0
 
   return (
     <div>
