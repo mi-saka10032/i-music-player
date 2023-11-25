@@ -4,7 +4,8 @@ import GlobalContext from './context'
 import { useAppSelector, useAppDispatch } from '@/hooks'
 import { fetchRecommendData } from '@/store/cache'
 import { clearPlaylists, setActiveId, setActiveIndex } from '@/store/playlist'
-import { clearPlayerStatus, setPlayStatus, setProgress } from '@/store/playerStatus'
+import { clearPlayerStatus, setPlayStatus } from '@/store/playerStatus'
+import { clearPlayerProgress, setProgress } from '@/store/playerProgress'
 import { setMute, setPlayType, setVolume } from '@/store/playerInstance'
 import player, { PlayType, PlayerEvent, type SongData } from '@/core/player'
 import Header from './header'
@@ -24,10 +25,8 @@ const Layout = memo(() => {
     playlistName,
     autoplay
   } = useAppSelector(state => state.playlist)
-  const {
-    status,
-    progress
-  } = useAppSelector(state => state.playerStatus)
+  const { status } = useAppSelector(state => state.playerStatus)
+  const { progress } = useAppSelector(state => state.playerProgress)
   const {
     playType,
     mute,
@@ -155,6 +154,7 @@ const Layout = memo(() => {
     playerRef.current.reset()
     dispatch(clearPlaylists())
     dispatch(clearPlayerStatus())
+    dispatch(clearPlayerProgress())
   }, [])
   /** HowlPlayer实例手动执行函数 */
 

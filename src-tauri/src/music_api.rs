@@ -5,9 +5,8 @@ use crate::crypto::{Crypto, HashType};
 use crate::request::generate_response;
 use std::collections::HashMap;
 
-use crate::Options;
 use crate::FormatParams;
-
+use crate::Options;
 
 fn get_cookie_string(cookie: &str) -> String {
     if !cookie.is_empty() {
@@ -891,7 +890,7 @@ pub(crate) fn index_login_qr_key(options: Options) -> FormatParams {
 pub(crate) fn index_login_qr_create(options: Options) -> FormatParams {
     let query = QueryParams::from(options.params);
     let codekey = query.value("key").unwrap();
-    let url = &format!("https://music.163.com/login?codekey={}",codekey);
+    let url = &format!("https://music.163.com/login?codekey={}", codekey);
     let _params = json_object!({});
     let cookies = get_cookie_string(options.cookie);
     request_handler(url, "weapi", _params, &cookies)

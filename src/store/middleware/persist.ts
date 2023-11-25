@@ -17,7 +17,8 @@ enum KeyList {
   user = 'user',
   playlist = 'playlist',
   playerStatus = 'playerStatus',
-  playerInstance = 'playerInstance'
+  playerInstance = 'playerInstance',
+  playerProgress = 'playerProgress'
 }
 interface DBResult {
   id: number
