@@ -1,19 +1,75 @@
-import { memo, useCallback, useEffect, useMemo, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { Popover, Button, message } from 'antd'
 import { focusWindow, getLoginWindow, initLogin } from '@/utils'
 import { fetchAccountInfo, setCookie, setAccountInfo } from '@/store/user'
 import { fetchRecommendData } from '@/store/cache'
 import { useAppSelector, useAppDispatch } from '@/hooks'
+import { getUserPlaylist } from '@/api'
 
-const links = [
-  { to: '/discovery', title: '发现音乐', icon: 'music', needLogin: false },
-  { to: '/musicDetail/mine', title: '我喜欢的音乐', icon: 'like', needLogin: true }
-]
+interface LeftSiderMenu {
+  to: string
+  title: string
+  needLogin: boolean
+  icon?: string
+}
+
+interface MenusProps {
+  hasLogin: boolean
+  menus: LeftSiderMenu[]
+}
+
+// 菜单渲染组件
+const Menus = memo((props: MenusProps) => {
+  const navigate = useNavigate()
+  // 登录跳转提示信息
+  const [messageApi, contextHolder] = message.useMessage()
+
+  // 判断link菜单是否允许跳转
+  const linkJudge = useCallback(({ event, needLogin, to }: LeftSiderMenu & { event: React.MouseEvent }) => {
+    event.preventDefault()
+    if (needLogin && !props.hasLogin) {
+      void messageApi.open({
+        type: 'warning',
+        content: '请先登录',
+        duration: 1
+      })
+    } else {
+      navigate(to)
+    }
+  }, [props.hasLogin])
+
+  return (
+    <>
+      <ul>
+        {
+          props.menus.map((item, index) => {
+            const key = String(item.to + index)
+            return (
+              <li key={key}>
+                <NavLink
+                  to={item.to}
+                  className={({ isActive }) => ((isActive ? 'text-primary active' : 'text-[#333]') + ' group/navlink')}
+                  onClick={event => { linkJudge({ event, ...item }) }}
+              >
+                  <div className="flex items-center px-6 py-2 group-hover/navlink:bg-ctd/10 group-[.active]/navlink:bg-ctd/10">
+                    { item.icon != null ? <i className={`mr-1 iconfont icon-${item.icon} text-xl`}></i> : null }
+                    <span>{item.title}</span>
+                  </div>
+                </NavLink>
+              </li>
+            )
+          })
+        }
+      </ul>
+      { contextHolder }
+    </>
+  )
+})
+Menus.displayName = 'Menus'
 
 /** 左侧边栏组件 */
 const LeftSider = memo(() => {
-  const navigate = useNavigate()
   const { accountInfo, cookie } = useAppSelector((state) => state.user)
   const dispatch = useAppDispatch()
 
@@ -21,8 +77,21 @@ const LeftSider = memo(() => {
   const hasLogin = useMemo(() => cookie != null && accountInfo.profile != null, [accountInfo, cookie])
   // 退出登录popover显示状态
   const [logout, setLogout] = useState(false)
-  // 登录跳转提示信息
-  const [messageApi, contextHolder] = message.useMessage()
+
+  // 通用菜单
+  const [commonMenu] = useState<LeftSiderMenu[]>([
+    { to: '/discovery', title: '发现音乐', needLogin: false }
+  ])
+
+  // 我的音乐
+  const favoriteRef = useRef<LeftSiderMenu>({ to: '/musicDetail', title: '我喜欢的音乐', icon: 'like', needLogin: true })
+  const [myMusicMenu, setMyMusicMenu] = useState<LeftSiderMenu[]>([favoriteRef.current])
+
+  // 创建歌单
+  const [createdMenu, setCreatedMenu] = useState<LeftSiderMenu[]>([])
+
+  // 收藏歌单
+  const [subscribedMenu, setSubscribedMenu] = useState<LeftSiderMenu[]>([])
 
   // 监听数据变化以切换显示用户名和头像
   const userInfo = useMemo(() => {
@@ -37,7 +106,7 @@ const LeftSider = memo(() => {
         nickname: '未登录'
       }
     }
-  }, [hasLogin, accountInfo])
+  }, [hasLogin])
 
   // 判断cookie来创建登录弹窗
   const handleLogin = useCallback((newOpen: boolean) => {
@@ -63,20 +132,6 @@ const LeftSider = memo(() => {
       })
   }, [hasLogin])
 
-  // 判断link菜单是否允许跳转
-  const linkJudge = useCallback((e: React.MouseEvent, needLogin: boolean, path: string) => {
-    e.preventDefault()
-    if (needLogin && !hasLogin) {
-      void messageApi.open({
-        type: 'warning',
-        content: '请先登录',
-        duration: 1
-      })
-    } else {
-      navigate(path)
-    }
-  }, [hasLogin])
-
   // 正式退出
   const exit = useCallback(() => {
     dispatch(setCookie(''))
@@ -93,11 +148,53 @@ const LeftSider = memo(() => {
     }
   }, [])
 
+  // 用户登录后获取喜欢音乐、歌单信息
+  useEffect(() => {
+    const uid = accountInfo.account?.id
+    if (uid == null) return
+    getUserPlaylist(Number(uid))
+      .then(res => {
+        let favoriteId: number = 0
+        const createdLists: LeftSiderMenu[] = []
+        const subscribedLists: LeftSiderMenu[] = []
+        res.playlist.forEach(item => {
+          if (item.specialType === 5) {
+            favoriteId = item.id
+          } else {
+            const menu: LeftSiderMenu = {
+              to: `/musicDetail/${item.id}`,
+              title: item.name,
+              needLogin: true,
+              icon: 'music'
+            }
+            if (item.subscribed) {
+              subscribedLists.push(menu)
+            } else {
+              createdLists.push(menu)
+            }
+          }
+        })
+        if (favoriteId !== 0) {
+          favoriteRef.current.to = '/musicDetail/' + favoriteId
+          setMyMusicMenu([favoriteRef.current])
+        }
+        if (createdLists.length > 0) {
+          setCreatedMenu(createdLists)
+        }
+        if (subscribedLists.length > 0) {
+          setSubscribedMenu(subscribedLists)
+        }
+      })
+      .catch(err => {
+        console.log(err)
+      })
+  }, [hasLogin])
+
   return (
     <>
       <Popover
         content={<Button danger type="text" size="small" onClick={exit}>退出登录</Button>}
-        trigger="click"
+        trigger={ hasLogin ? 'hover' : 'click' }
         placement="rightTop"
         open={logout}
         onOpenChange={handleLogin}
@@ -115,32 +212,32 @@ const LeftSider = memo(() => {
           </div>
         </div>
       </Popover>
-      <ul>
-        {
-          links.map((item) => {
-            return (
-              <li key={item.to}>
-                <NavLink
-                  to={item.to}
-                  className={({ isActive }) => {
-                    return (
-                      (isActive ? 'text-primary active' : 'text-ct') +
-                      ' group/navlink'
-                    )
-                  }}
-                  onClick={e => { linkJudge(e, item.needLogin, item.to) }}
-                >
-                  <div className="flex items-center px-6 py-2 group-hover/navlink:bg-ctd/10 group-[.active]/navlink:bg-ctd/10">
-                    <i className={`iconfont icon-${item.icon} text-xl`}></i>
-                    <span className="ml-1">{item.title}</span>
-                  </div>
-                </NavLink>
-              </li>
-            )
-          })
-        }
-      </ul>
-      {contextHolder}
+      {/* 通用菜单 */}
+      <Menus
+        hasLogin={hasLogin}
+        menus={commonMenu}
+      />
+      <div className="px-6 py-2 text-sm leading-none text-[#999]">我的音乐</div>
+      <Menus
+        hasLogin={hasLogin}
+        menus={myMusicMenu}
+      />
+      <div className="flex items-center px-6 py-2 text-sm leading-none text-[#999] group/created cursor-pointer">
+        创建的歌单
+        <i className="triangle ml-1 group-hover/created:border-l-[#333]" />
+      </div>
+      <Menus
+        hasLogin={hasLogin}
+        menus={createdMenu}
+      />
+      <div className="flex items-center px-6 py-2 text-sm leading-none text-[#999] group/sub cursor-pointer">
+        收藏的歌单
+        <i className="triangle ml-1 group-hover/sub:border-l-[#333]" />
+      </div>
+      <Menus
+        hasLogin={hasLogin}
+        menus={subscribedMenu}
+      />
     </>
   )
 })

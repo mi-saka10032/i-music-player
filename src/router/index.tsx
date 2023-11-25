@@ -10,7 +10,6 @@ const Toplist = lazy(async () => await import('@/views/discovery/top-list'))
 const Artist = lazy(async () => await import('@/views/discovery/art-ist'))
 const Album = lazy(async () => await import('@/views/discovery/album'))
 const MusicDetail = lazy(async () => await import('@/views/musicDetail/kinds/musicDetail'))
-const FavoriteDetail = lazy(async () => await import('@/views/musicDetail/kinds/favoriteDetail'))
 
 const router = createBrowserRouter([
   {
@@ -57,10 +56,6 @@ const router = createBrowserRouter([
           {
             path: ':id',
             element: <LazyImportComponent lazyChildren={MusicDetail} />
-          },
-          {
-            path: 'mine',
-            element: <LazyImportComponent lazyChildren={FavoriteDetail} />
           }
         ]
       }

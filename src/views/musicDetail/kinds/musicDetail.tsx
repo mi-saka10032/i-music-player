@@ -50,7 +50,7 @@ const MusicDetail = memo(() => {
       .finally(() => {
         setLoading(false)
       })
-  }, [])
+  }, [id])
 
   return (
     <div className="pt-8">

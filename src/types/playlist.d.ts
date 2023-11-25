@@ -68,10 +68,6 @@ type TrackIdsLists = Array<{
 }>
 
 interface PlayListDetail {
-  id: number
-  name: string
-  tracks: TracksLists
-  trackIds: TrackIdsLists
   coverImgUrl: string
   createTime: number
   creator: {
@@ -79,11 +75,20 @@ interface PlayListDetail {
     nickname: string
     avatarUrl: string
   }
-  subscribedCount: number
-  shareCount: number
-  tags: string[]
+  description: string | null
+  id: number
+  name: string
   playCount: number
-  description: string
+  shareCount: number
+  // 0 普通歌单 | 5 喜欢音乐
+  specialType: 0 | 5
+  // true 收藏歌单 | false 创建歌单
+  subscribed: boolean
+  subscribedCount: number
+  tags: string[]
+  tracks: TracksLists
+  trackIds: TrackIdsLists
+  userId: number
 }
 
 // 歌单详情Response
@@ -98,7 +103,7 @@ interface SongRes extends CommonRes {
 
 // 歌词详情Response
 interface LyricRes extends CommonRes {
-  lrc: {
+  lrc?: {
     lyric: string
   }
 }

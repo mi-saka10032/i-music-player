@@ -93,7 +93,7 @@ const MusicDetailHeader = memo((props: PropsWithChildren<MusicDetailHeaderProps>
               </div>
               <div className="flex items-center">
                 {
-                props.playlistHeader.description.length > 0
+                props.playlistHeader.description != null && props.playlistHeader.description?.length > 0
                   ? (
                     <>
                       <label className="flex justify-between items-center mr-1 w-14 text-[#363636]">

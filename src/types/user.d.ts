@@ -40,4 +40,8 @@ interface FavoriteRes extends CommonRes {
   checkPoint: number
   ids: number[]
 }
+
+interface UserPlaylistsRes extends CommonRes {
+  playlist: PlayListDetail[]
+}
 /** 登录用户私有歌单 */

@@ -217,7 +217,7 @@ const Layout = memo(() => {
             setShowDetail={setShowDetail}
           />
         </div>
-        <div className="pt-[50px] bg-[#ededed]">
+        <div className="pt-[50px] bg-[#ededed] overflow-auto">
           <LeftSider />
         </div>
         <div className="flex w-full h-full overflow-hidden">
