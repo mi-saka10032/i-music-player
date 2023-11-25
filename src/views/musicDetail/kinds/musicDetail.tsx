@@ -23,11 +23,10 @@ const MusicDetail = memo(() => {
     getPlaylists(Number(id))
   }, [id])
 
-  const checkById = useCallback((currentId: number, currentIndex: number) => {
+  const checkById = useCallback((currentId: number) => {
     player.emit(PlayerEvent.CHECK_BY_ID, {
       listId: Number(id),
-      songId: currentId,
-      songIndex: currentIndex
+      songId: currentId
     })
   }, [id])
 

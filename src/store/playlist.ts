@@ -33,11 +33,12 @@ interface FetchPlaylistDetailRes {
   playlistId: number
   playlistName: string
   playlists: SongData[]
-  activeIndex: number
+  activeId: number
 }
 
-export const fetchPlaylistDetail = createAsyncThunk('playlist/fetchPlaylistDetail', async ({ id, index }: { id: number, index: number }): Promise<FetchPlaylistDetailRes> => {
-  const result = await getPlaylistDetail(id)
+export const fetchPlaylistDetail = createAsyncThunk('playlist/fetchPlaylistDetail', async (
+  { playlistId, songId }: { playlistId: number, songId: number }): Promise<FetchPlaylistDetailRes> => {
+  const result = await getPlaylistDetail(playlistId)
   // 遍历trackIds获取完整id，再拉取一次全量歌曲信息
   const allIds = result.playlist.trackIds.map(item => item.id)
   const completeSongs = await getSongDetail(allIds)
@@ -51,7 +52,7 @@ export const fetchPlaylistDetail = createAsyncThunk('playlist/fetchPlaylistDetai
       album: item.al,
       time: item.dt
     })),
-    activeIndex: index
+    activeId: songId
   }
 })
 
@@ -112,7 +113,12 @@ const playlistSlice = createSlice({
       state.playlistId = payload.playlistId
       state.playlistName = payload.playlistName
       state.playlists = payload.playlists
-      state.activeIndex = payload.activeIndex
+      if (payload.activeId === 0) {
+        state.activeIndex = 0
+      } else {
+        const activeIndex = payload.playlists.findIndex(item => item.id === payload.activeId)
+        state.activeIndex = activeIndex !== -1 ? activeIndex : 0
+      }
     })
   }
 })

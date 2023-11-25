@@ -15,7 +15,7 @@ import DownloadIcon from '@/assets/svg/download.svg?react'
 
 interface MusicDetailListsProps {
   listsIds: number[]
-  checkById: (id: number, index: number) => void
+  checkById: (id: number) => void
 }
 
 /** MusicDetail位于底部的列表List组件，监听外部容器scroll，手动实现虚拟滚动 */
@@ -106,7 +106,7 @@ const MusicDetailLists = memo((props: MusicDetailListsProps) => {
         key={item.id + index}
         className={`relative flex items-center w-full h-[36px] px-8 py-[8px] group ${generateZebraClass(index)}`}
         style={style}
-        onDoubleClick={() => { props.checkById(item.id, index) }}
+        onDoubleClick={() => { props.checkById(item.id) }}
       >
         <span className="w-[7.5rem] flex justify-between items-center pr-5">
           {

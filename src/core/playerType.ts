@@ -53,7 +53,7 @@ export interface MittEvents<T> extends Record<EventType, unknown> {
   STATUS_CHANGE: MediaSessionPlaybackState
   DURATION_CHANGE: number
   // Views页面专属Event
-  CHECK_BY_ID: { listId: number, songIndex: number, songId: number }
+  CHECK_BY_ID: { listId: number, songId: number }
 }
 
 export interface PlayerState {

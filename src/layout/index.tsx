@@ -187,13 +187,13 @@ const Layout = memo(() => {
   /** store数据变化的系列副作用 */
 
   /** 来自MusicDetail详情页的监听事件 */
-  const checkPlaylistsById = useCallback(({ listId, songId, songIndex }: { listId: number, songId: number, songIndex: number }) => {
+  const checkPlaylistsById = useCallback(({ listId, songId }: { listId: number, songId: number }) => {
     if (listId === playlistId) {
       // 详情歌单与当前播放中歌单id相同，查找匹配歌曲ID，执行歌曲切换
       playerRef.current.setId(songId)
     } else {
       // 详情歌单与当前播放中歌单id不同，重新获取歌曲，填入歌曲索引
-      getPlaylists(listId, songIndex)
+      getPlaylists(listId, songId)
     }
   }, [playlistId])
   /** 来自MusicDetail详情页的监听事件 */

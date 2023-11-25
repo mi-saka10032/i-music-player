@@ -7,7 +7,7 @@ import { clearPlayerProgress } from '@/store/playerProgress'
 export const playNowById = () => {
   const dispatch = useAppDispatch()
 
-  const getPlaylists = useCallback((id: number, index: number = 0) => {
+  const getPlaylists = useCallback((playlistId: number, songId: number = 0) => {
     // 开启列表栏loading
     dispatch(setLoading(true))
     // 使用自动播放
@@ -16,7 +16,7 @@ export const playNowById = () => {
     dispatch(clearPlayerStatus())
     dispatch(clearPlayerProgress())
     // 立刻获取完整歌单列表
-    void dispatch(fetchPlaylistDetail({ id, index }))
+    void dispatch(fetchPlaylistDetail({ playlistId, songId }))
   }, [])
 
   return getPlaylists

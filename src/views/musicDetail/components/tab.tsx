@@ -4,7 +4,7 @@ import MusicDetailLists from './lists'
 
 interface MusicDetailTabProps {
   listsIds: number[]
-  checkById: (id: number, index: number) => void
+  checkById: (id: number) => void
   onChange?: () => void
 }
 
