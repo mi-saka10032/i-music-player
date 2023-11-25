@@ -54,7 +54,7 @@ const Menus = memo((props: MenusProps) => {
               >
                   <div className="flex items-center px-6 py-2 group-hover/navlink:bg-ctd/10 group-[.active]/navlink:bg-ctd/10">
                     { item.icon != null ? <i className={`mr-1 iconfont icon-${item.icon} text-xl`}></i> : null }
-                    <span>{item.title}</span>
+                    <span className="flex-1 text-ellipsis">{item.title}</span>
                   </div>
                 </NavLink>
               </li>
@@ -89,9 +89,11 @@ const LeftSider = memo(() => {
 
   // 创建歌单
   const [createdMenu, setCreatedMenu] = useState<LeftSiderMenu[]>([])
+  const [showCreated, setShowCreated] = useState(true)
 
   // 收藏歌单
   const [subscribedMenu, setSubscribedMenu] = useState<LeftSiderMenu[]>([])
+  const [showSubscribed, setShowSubscribed] = useState(false)
 
   // 监听数据变化以切换显示用户名和头像
   const userInfo = useMemo(() => {
@@ -136,6 +138,10 @@ const LeftSider = memo(() => {
   const exit = useCallback(() => {
     dispatch(setCookie(''))
     dispatch(setAccountInfo({ code: 0 }))
+    setCreatedMenu([])
+    setShowCreated(false)
+    setSubscribedMenu([])
+    setShowSubscribed(false)
     setLogout(false)
     void dispatch(fetchRecommendData())
     console.log('退出登录')
@@ -222,22 +228,32 @@ const LeftSider = memo(() => {
         hasLogin={hasLogin}
         menus={myMusicMenu}
       />
-      <div className="flex items-center px-6 py-2 text-sm leading-none text-[#999] group/created cursor-pointer">
+      <div
+        className="flex items-center px-6 py-2 text-sm leading-none text-[#999] group/created cursor-pointer"
+        onClick={() => { setShowCreated(!showCreated) }}
+      >
         创建的歌单
         <i className="triangle ml-1 group-hover/created:border-l-[#333]" />
       </div>
-      <Menus
-        hasLogin={hasLogin}
-        menus={createdMenu}
-      />
-      <div className="flex items-center px-6 py-2 text-sm leading-none text-[#999] group/sub cursor-pointer">
+      <div className={showCreated ? '' : 'hidden'}>
+        <Menus
+          hasLogin={hasLogin}
+          menus={createdMenu}
+        />
+      </div>
+      <div
+        className="flex items-center px-6 py-2 text-sm leading-none text-[#999] group/sub cursor-pointer"
+        onClick={() => { setShowSubscribed(!showSubscribed) }}
+      >
         收藏的歌单
         <i className="triangle ml-1 group-hover/sub:border-l-[#333]" />
       </div>
-      <Menus
-        hasLogin={hasLogin}
-        menus={subscribedMenu}
-      />
+      <div className={showSubscribed ? '' : 'hidden'}>
+        <Menus
+          hasLogin={hasLogin}
+          menus={subscribedMenu}
+        />
+      </div>
     </>
   )
 })

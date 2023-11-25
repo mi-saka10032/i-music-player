@@ -28,6 +28,7 @@ export enum PlayerEvent {
   RESET = 'RESET',
   STATUS_CHANGE = 'STATUS_CHANGE',
   DURATION_CHANGE = 'DURATION_CHANGE',
+  CHECK_BY_ID = 'CHECK_BY_ID'
 }
 
 export interface MittEvents<T> extends Record<EventType, unknown> {
@@ -51,6 +52,8 @@ export interface MittEvents<T> extends Record<EventType, unknown> {
   RESET: T
   STATUS_CHANGE: MediaSessionPlaybackState
   DURATION_CHANGE: number
+  // Views页面专属Event
+  CHECK_BY_ID: { listId: number, songIndex: number, songId: number }
 }
 
 export interface PlayerState {

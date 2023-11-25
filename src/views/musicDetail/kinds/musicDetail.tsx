@@ -1,8 +1,10 @@
-import { memo, useCallback, useEffect } from 'react'
+import { memo, useCallback, useContext, useEffect } from 'react'
+import GlobalContext from '@/layout/context'
 import useMusicDetail from '../hooks/useMusicDetail'
-import { getPlaylistDetail } from '@/api'
 import MusicDetailHeader from '../components/header'
 import MusicDetailTab from '../components/tab'
+import { getPlaylistDetail } from '@/api'
+import { PlayerEvent } from '@/core/playerType'
 
 const MusicDetail = memo(() => {
   const {
@@ -15,8 +17,18 @@ const MusicDetail = memo(() => {
     listsIds
   } = useMusicDetail()
 
+  const { player } = useContext(GlobalContext)
+
   const playAllLists = useCallback(() => {
     getPlaylists(Number(id))
+  }, [id])
+
+  const checkById = useCallback((currentId: number, currentIndex: number) => {
+    player.emit(PlayerEvent.CHECK_BY_ID, {
+      listId: Number(id),
+      songId: currentId,
+      songIndex: currentIndex
+    })
   }, [id])
 
   useEffect(() => {
@@ -59,7 +71,7 @@ const MusicDetail = memo(() => {
         playlistHeader={playlistHeader}
         onPlayAll={playAllLists}
        >
-        <MusicDetailTab listsIds={listsIds} />
+        <MusicDetailTab listsIds={listsIds} checkById={checkById} />
       </MusicDetailHeader>
     </div>
   )

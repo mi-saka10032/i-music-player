@@ -74,9 +74,9 @@ const Detail = memo((props: DetailProps) => {
     if (props.songItem != null && props.songItem?.id > 0) {
       void getSongLyric(props.songItem.id)
         .then(res => {
-          const flag = res.lrc != null && res.lrc.lyric != null && res.lrc.lyric.length > 0
+          const flag = res.lrc?.lyric != null && res.lrc.lyric.length > 0
           if (flag) {
-            const lyric = res.lrc.lyric
+            const lyric = res.lrc?.lyric ?? ''
             if (lrcReg.current.test(lyric)) {
               setValidLrc(true)
             } else {

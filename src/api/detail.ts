@@ -25,7 +25,6 @@ export const getSongDetail = async (allIds: number[]): Promise<TracksLists> => {
       })
   ).then(() => {
     // 所有批次处理完成后，返回结果
-    console.log(result)
     return result
   })
 }

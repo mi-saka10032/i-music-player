@@ -1,7 +1,7 @@
 import { type MouseEvent, memo, useEffect, useState, useRef, useCallback, useMemo } from 'react'
 import { message } from 'antd'
 import GlobalContext from './context'
-import { useAppSelector, useAppDispatch } from '@/hooks'
+import { useAppSelector, useAppDispatch, playNowById } from '@/hooks'
 import { fetchRecommendData } from '@/store/cache'
 import { clearPlaylists, setActiveId, setActiveIndex } from '@/store/playlist'
 import { clearPlayerStatus, setPlayStatus } from '@/store/playerStatus'
@@ -33,6 +33,7 @@ const Layout = memo(() => {
     volume
   } = useAppSelector(state => state.playerInstance)
   const dispatch = useAppDispatch()
+  const getPlaylists = playNowById()
 
   // 生命周期内仅维持一份player实例
   const playerRef = useRef(player)
@@ -185,6 +186,18 @@ const Layout = memo(() => {
   }, [playlists, activeIndex, autoplay])
   /** store数据变化的系列副作用 */
 
+  /** 来自MusicDetail详情页的监听事件 */
+  const checkPlaylistsById = useCallback(({ listId, songId, songIndex }: { listId: number, songId: number, songIndex: number }) => {
+    if (listId === playlistId) {
+      // 详情歌单与当前播放中歌单id相同，查找匹配歌曲ID，执行歌曲切换
+      playerRef.current.setId(songId)
+    } else {
+      // 详情歌单与当前播放中歌单id不同，重新获取歌曲，填入歌曲索引
+      getPlaylists(listId, songIndex)
+    }
+  }, [playlistId])
+  /** 来自MusicDetail详情页的监听事件 */
+
   /** 挂载时触发 */
   useEffect(() => {
     // 获取轮播列表和每日推荐
@@ -202,6 +215,13 @@ const Layout = memo(() => {
       playerRef.current.off(PlayerEvent.INVALID, showInvalidTips)
     }
   }, [])
+
+  useEffect(() => {
+    playerRef.current.on(PlayerEvent.CHECK_BY_ID, checkPlaylistsById)
+    return () => {
+      playerRef.current.off(PlayerEvent.CHECK_BY_ID, checkPlaylistsById)
+    }
+  }, [playlistId])
   /** 挂载时触发 */
 
   return (

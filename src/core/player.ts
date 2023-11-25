@@ -180,7 +180,15 @@ export class Player {
     void this.setIndex(index, autoplay)
   }
 
-  /** 切换曲目 */
+  /** 切换曲目（ID） */
+  public setId (id: number) {
+    if (this._playlist.length === 0) return
+    const index = this._playlist.findIndex(item => item.id === id)
+    void this.setIndex(index, true)
+  }
+  /** 切换曲目（ID） */
+
+  /** 切换曲目（索引） */
   public async setIndex (index: number, autoplay: boolean = true) {
     if (this.index === index) return
     const beforeHowl = this.getCurrentHowl()

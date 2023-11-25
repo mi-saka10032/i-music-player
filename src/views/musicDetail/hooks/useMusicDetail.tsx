@@ -1,11 +1,9 @@
 import { useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { playNowById, useAppSelector } from '@/hooks'
+import { playNowById } from '@/hooks'
 
 export default function useMusicDetail () {
   const { id } = useParams<{ id: string }>()
-
-  const { accountInfo } = useAppSelector(state => state.user)
 
   const getPlaylists = playNowById()
 
@@ -27,7 +25,10 @@ export default function useMusicDetail () {
     shareCount: 0,
     tags: [],
     playCount: 0,
-    description: ''
+    description: '',
+    specialType: 0,
+    subscribed: false,
+    userId: 0
   })
 
   const listsIds = useMemo<number[]>(() => {
@@ -35,13 +36,12 @@ export default function useMusicDetail () {
   }, [playlistHeader])
 
   return {
-    accountInfo,
-    getPlaylists,
     id,
     loading,
     setLoading,
     playlistHeader,
     setPlaylistHeader,
-    listsIds
+    listsIds,
+    getPlaylists
   }
 }
