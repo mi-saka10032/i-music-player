@@ -1,10 +1,10 @@
 [package]
 name = "i-music-player"
-version = "0.0.0"
-description = "A Tauri App"
+version = "0.0.1"
+description = "i-music-player"
 authors = ["you"]
-license = ""
-repository = ""
+license = "mit"
+repository = "https://github.com/mi-saka10032/i-music-player"
 edition = "2021"
 
 [lib]
