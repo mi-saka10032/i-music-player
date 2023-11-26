@@ -88,22 +88,26 @@ export function normalSongDataTrans (trackLists: TracksLists): SongData[] {
 
 // 自定义歌曲数据结构转化
 export function customSongDataTrans (customSongs: CustomSongs): SongData[] {
-  return customSongs.map(item => ({
-    id: item.id,
-    name: item.songName,
-    artists: item.singers.map(singer => ({
-      id: singer.id,
-      name: singer.singerName
-    })),
-    album: {
-      id: item.album.id,
-      name: item.album.albumName,
-      picUrl: item.album.coverUrl
-    },
-    // 自定义歌单 时长单位为秒
-    time: item.duration * 1000,
-    // 额外响应数据
-    lyric: item.lyric,
-    url: item.musicUrl
-  }))
+  return customSongs.map(item => {
+    const artists = item.singers?.length > 0 ? item.singers : []
+    const album = item.album ?? {}
+    return {
+      id: item.id,
+      name: item.songName,
+      artists: artists.map(singer => ({
+        id: singer.id,
+        name: singer.singerName
+      })),
+      album: {
+        id: album.id ?? 0,
+        name: album.albumName ?? '',
+        picUrl: album.coverUrl ?? ''
+      },
+      // 自定义歌单 时长单位为秒
+      time: item.duration * 1000,
+      // 额外响应数据
+      lyric: item.lyric,
+      url: item.musicUrl
+    }
+  })
 }
