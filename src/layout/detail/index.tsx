@@ -69,30 +69,36 @@ const Detail = memo((props: DetailProps) => {
   // 回滚参数
   const { signal } = useRecoverAutoScrollImmediately()
 
+  const checkAndSetLyric = useCallback((lyric: string) => {
+    if (lrcReg.current.test(lyric)) {
+      setValidLrc(true)
+    } else {
+      setValidLrc(false)
+    }
+    setLrc(lyric)
+  }, [])
+
   // 根据songId获取歌词
   useEffect(() => {
     if (props.songItem != null && props.songItem?.id > 0) {
-      void getSongLyric(props.songItem.id)
-        .then(res => {
-          const flag = res.lrc?.lyric != null && res.lrc.lyric.length > 0
-          if (flag) {
-            const lyric = res.lrc?.lyric ?? ''
-            if (lrcReg.current.test(lyric)) {
-              setValidLrc(true)
+      if (props.songItem.lyric != null && props.songItem.lyric?.length > 0) {
+        checkAndSetLyric(props.songItem.lyric)
+      } else {
+        getSongLyric(props.songItem.id)
+          .then(res => {
+            if (res.lrc?.lyric != null && res.lrc.lyric.length > 0) {
+              checkAndSetLyric(res.lrc.lyric)
             } else {
               setValidLrc(false)
+              setLrc('')
             }
-            setLrc(lyric)
-          } else {
+          })
+          .catch(error => {
+            console.log(error)
             setValidLrc(false)
             setLrc('')
-          }
-        })
-        .catch(error => {
-          console.log(error)
-          setValidLrc(false)
-          setLrc('')
-        })
+          })
+      }
     }
   }, [props.songItem])
 

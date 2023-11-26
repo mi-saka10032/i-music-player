@@ -188,6 +188,7 @@ fn get_params(options: Options) -> FormatParams {
         "/video/sub" => music_api::index_video_sub(options),
         "/video/url" => music_api::index_video_url(options),
         "/weblog" => music_api::index_weblog(options),
+        "/songs/jay" => music_api::get_jay_songs(options),
         _ => FormatParams {
             url: "".to_string(),
             headers: vec![],

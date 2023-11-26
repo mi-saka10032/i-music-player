@@ -2087,3 +2087,21 @@ pub(crate) fn index_weblog(options: Options) -> FormatParams {
     let url = "https://music.163.com/weapi/feedback/weblog";
     empty_query_params_handler(url, "weapi", options.cookie)
 }
+
+// #[get("/songs/jay")]
+pub(crate) fn get_jay_songs(options: Options) -> FormatParams {
+    let url = "http://47.97.34.209:7001/api/song/page";
+    let query = QueryParams::from(options.params);
+    let query_params = json_object!({
+        "singerName": query.value("singerName").unwrap_or("周杰伦"),
+        "pageNo": query.value("offset").unwrap_or("1"),
+        "pageSize": query.value("limit").unwrap_or("1000"),
+    });
+
+    FormatParams {
+        url: url.to_string(),
+        headers: Vec::new(),
+        body: QueryParams::from_map(query_params).json(),
+        method: "POST".to_string(),
+    }
+}

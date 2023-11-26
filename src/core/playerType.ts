@@ -79,4 +79,5 @@ export interface SongData extends PlayData {
   /** time (ms) */
   time?: number
   howl?: Howl | null
+  lyric?: string
 }

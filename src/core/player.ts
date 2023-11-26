@@ -172,8 +172,8 @@ export class Player {
         artists: item.artists,
         album: item.album,
         howl: null,
-        url: '',
-        time: 0
+        url: item.url ?? '',
+        time: item.time ?? 0
       }
     })
     this._index = -1
@@ -202,14 +202,31 @@ export class Player {
     if (this.playlist[index] == null) return
     if (this.playlist[index].howl == null) {
       try {
-        const { url, time } = await getSongUrl(this.playlist[index].id).then(res => res.data[0])
-        this.playlist[index].url = url
-        this.playlist[index].time = time
-        if (url?.length > 0) {
-          this.playlist[index].howl = new Howl({ src: [url] })
+        if (this.playlist[index].url == null || this.playlist[index].url?.length === 0) {
+          // 应对网易云歌单，每首歌需要单独根据id获取url
+          const { url, time } = await getSongUrl(this.playlist[index].id).then(res => res.data[0])
+          this.playlist[index].url = url
+          this.playlist[index].time = time
+          if (url?.length > 0) {
+            this.playlist[index].howl = new Howl({
+              src: [url],
+              onloaderror: () => {
+                this.emit(PlayerEvent.INVALID, this.state)
+              }
+            })
+          } else {
+            console.warn('invalid audio')
+            this.emit(PlayerEvent.INVALID, this.state)
+          }
         } else {
-          console.warn('invalid audio')
-          this.emit(PlayerEvent.INVALID, this.state)
+          // 应对自定义歌单，每首歌获取时自带url
+          const url = String(this.playlist[index].url)
+          this.playlist[index].howl = new Howl({
+            src: [url],
+            onloaderror: () => {
+              this.emit(PlayerEvent.INVALID, this.state)
+            }
+          })
         }
       } catch (error) {
         console.warn(error)
