@@ -1,5 +1,6 @@
 import tauriClient from '@/request'
 import { Body, fetch } from '@tauri-apps/api/http'
+import { CUSTOM_ID, CUSTOM_NAME } from '@/utils/constant'
 
 export const getJaySongs = async (): Promise<CustomDetail> => {
   const { link, options } = await tauriClient.tauriGetFetchOption('GET', '/songs/jay', {})
@@ -9,11 +10,9 @@ export const getJaySongs = async (): Promise<CustomDetail> => {
     method: options.method,
     body: Body.json(payload)
   })
-  const customId = 6935838229622784
-  const customName = '周杰伦'
   return {
-    customId,
-    customName,
+    customId: CUSTOM_ID,
+    customName: CUSTOM_NAME,
     list: result?.data?.data?.list ?? []
   }
 }

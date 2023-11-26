@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/tool
 import { getPlaylistDetail, getSongDetail } from '@/api'
 import { getJaySongs } from '@/api/jay'
 import { type SongData } from '@/core/player'
+import { normalSongDataTrans, customSongDataTrans } from '@/utils/formatter'
 
 export interface PlaylistState {
   // 右边栏loading
@@ -46,13 +47,7 @@ export const fetchPlaylistDetail = createAsyncThunk('playlist/fetchPlaylistDetai
     return {
       playlistId: result.playlist.id,
       playlistName: result.playlist.name,
-      playlists: completeSongs.map(item => ({
-        id: item.id,
-        name: item.name,
-        artists: item.ar,
-        album: item.al,
-        time: item.dt
-      })),
+      playlists: normalSongDataTrans(completeSongs),
       activeId: songId
     }
   })
@@ -63,24 +58,7 @@ export const fetchJayPlaylistDetail = createAsyncThunk('playlist/fetchJayPlaylis
     return {
       playlistId: customId,
       playlistName: customName,
-      playlists: list.map(item => ({
-        id: item.id,
-        name: item.songName,
-        artists: item.singers.map(singer => ({
-          id: singer.id,
-          name: singer.singerName
-        })),
-        album: {
-          id: item.album.id,
-          name: item.album.albumName,
-          picUrl: item.album.coverUrl
-        },
-        // 自定义歌单 时长单位为秒
-        time: item.duration * 1000,
-        // 额外响应数据
-        lyric: item.lyric,
-        url: item.musicUrl
-      })),
+      playlists: customSongDataTrans(list),
       activeId: songId
     }
   })

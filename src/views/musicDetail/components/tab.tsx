@@ -3,6 +3,7 @@ import { ConfigProvider, Tabs, type TabsProps } from 'antd'
 import MusicDetailLists from './lists'
 
 interface MusicDetailTabProps {
+  isCustom: boolean
   listsIds: number[]
   checkById: (id: number) => void
   onChange?: () => void
@@ -14,7 +15,13 @@ const MusicDetailTab = memo((props: MusicDetailTabProps) => {
     {
       key: '1',
       label: '歌曲列表',
-      children: <MusicDetailLists listsIds={props.listsIds} checkById={props.checkById} />
+      children: (
+        <MusicDetailLists
+          isCustom={props.isCustom}
+          listsIds={props.listsIds}
+          checkById={props.checkById}
+        />
+      )
     },
     {
       key: '2',
@@ -26,7 +33,7 @@ const MusicDetailTab = memo((props: MusicDetailTabProps) => {
       label: '收藏者',
       children: null
     }
-  ], [props.listsIds, props.checkById])
+  ], [props.isCustom, props.listsIds, props.checkById])
 
   return (
     <ConfigProvider

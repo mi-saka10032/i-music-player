@@ -2095,7 +2095,7 @@ pub(crate) fn get_jay_songs(options: Options) -> FormatParams {
     let query_params = json_object!({
         "singerName": query.value("singerName").unwrap_or("周杰伦"),
         "pageNo": query.value("offset").unwrap_or("1"),
-        "pageSize": query.value("limit").unwrap_or("1000"),
+        "pageSize": query.value("limit").unwrap_or("10000"),
     });
 
     FormatParams {

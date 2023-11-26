@@ -70,7 +70,7 @@ const MusicDetail = memo(() => {
         playlistHeader={playlistHeader}
         onPlayAll={playAllLists}
        >
-        <MusicDetailTab listsIds={listsIds} checkById={checkById} />
+        <MusicDetailTab listsIds={listsIds} checkById={checkById} isCustom={false} />
       </MusicDetailHeader>
     </div>
   )

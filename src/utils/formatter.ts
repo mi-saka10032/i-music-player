@@ -1,3 +1,5 @@
+import { type SongData } from '@/core/playerType'
+
 // 时长格式化
 export function durationTrans (millSeconds: number): string {
   const seconds: number = millSeconds / 1000
@@ -71,4 +73,37 @@ export function serializeNumberTrans (index: number): string {
   if (index >= 10) return index + ''
   if (index > 0) return '0' + index
   return ''
+}
+
+// 默认网易云歌曲数据结构转化
+export function normalSongDataTrans (trackLists: TracksLists): SongData[] {
+  return trackLists.map(item => ({
+    id: item.id,
+    name: item.name,
+    artists: item.ar,
+    album: item.al,
+    time: item.dt
+  }))
+}
+
+// 自定义歌曲数据结构转化
+export function customSongDataTrans (customSongs: CustomSongs): SongData[] {
+  return customSongs.map(item => ({
+    id: item.id,
+    name: item.songName,
+    artists: item.singers.map(singer => ({
+      id: singer.id,
+      name: singer.singerName
+    })),
+    album: {
+      id: item.album.id,
+      name: item.album.albumName,
+      picUrl: item.album.coverUrl
+    },
+    // 自定义歌单 时长单位为秒
+    time: item.duration * 1000,
+    // 额外响应数据
+    lyric: item.lyric,
+    url: item.musicUrl
+  }))
 }

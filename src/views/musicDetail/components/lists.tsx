@@ -5,15 +5,17 @@ import { type SongData } from '@/core/playerType'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import VirtualList from '@/components/virtualList'
 import LoadingInstance from '@/components/loadingInstance'
-import { generateZebraClass, serializeNumberTrans, artistsArrayTrans, durationTrans } from '@/utils/formatter'
+import { generateZebraClass, serializeNumberTrans, artistsArrayTrans, durationTrans, customSongDataTrans } from '@/utils/formatter'
 import { highlightNameClass, highlightArtistClass, highlightDurationClass } from '@/utils/highlightSongClass'
 import { CONTENT_CONTAINER_ID } from '@/utils/constant'
 import PlayInActiveIcon from '@/assets/svg/play_inactive.svg?react'
 import PlayActiveIcon from '@/assets/svg/play_active.svg?react'
 import FavoriteIcon from '@/assets/svg/favorite.svg?react'
 import DownloadIcon from '@/assets/svg/download.svg?react'
+import { getJaySongs } from '@/api/jay'
 
 interface MusicDetailListsProps {
+  isCustom: boolean
   listsIds: number[]
   checkById: (id: number) => void
 }
@@ -42,19 +44,13 @@ const MusicDetailLists = memo((props: MusicDetailListsProps) => {
   const [loading, setLoading] = useState(false)
   const [playlists, setPlaylists] = useState<SongData[]>([])
 
-  // 初始挂载时读取前200首
   useEffect(() => {
-    if (props.listsIds.length > 0) {
+    if (props.isCustom) {
+      // 自定义歌曲调用其他接口
       setLoading(true)
-      getSongDetail(props.listsIds)
+      getJaySongs()
         .then(res => {
-          setPlaylists(res.map(item => ({
-            id: item.id,
-            name: item.name,
-            artists: item.ar,
-            album: item.al,
-            time: item.dt
-          })))
+          setPlaylists(customSongDataTrans(res.list))
         })
         .catch(err => {
           console.log(err)
@@ -62,8 +58,29 @@ const MusicDetailLists = memo((props: MusicDetailListsProps) => {
         .finally(() => {
           setLoading(false)
         })
+    } else {
+      // 初始挂载时读取前200首
+      if (props.listsIds.length > 0) {
+        setLoading(true)
+        getSongDetail(props.listsIds)
+          .then(res => {
+            setPlaylists(res.map(item => ({
+              id: item.id,
+              name: item.name,
+              artists: item.ar,
+              album: item.al,
+              time: item.dt
+            })))
+          })
+          .catch(err => {
+            console.log(err)
+          })
+          .finally(() => {
+            setLoading(false)
+          })
+      }
     }
-  }, [props.listsIds])
+  }, [props.isCustom, props.listsIds])
 
   // list动态高度设置
   const listRef = useRef<HTMLUListElement>(null)

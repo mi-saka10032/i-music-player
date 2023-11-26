@@ -27,8 +27,16 @@ const MusicDetailHeader = memo((props: PropsWithChildren<MusicDetailHeaderProps>
               <h1 className="ml-2.5 text-2xl font-semibold leading-none text-[#333]">{props.playlistHeader.name}</h1>
             </header>
             <section className="flex items-center space-x-2 text-sm">
-              <img src={props.playlistHeader.creator.avatarUrl} className="w-8 h-8 rounded-full super_link" />
-              <span className="max-w-[10rem] text-ellipsis super_link">{props.playlistHeader.creator.nickname}</span>
+              {
+                props.playlistHeader.creator.avatarUrl.length > 0
+                  ? (
+                    <>
+                      <img src={props.playlistHeader.creator.avatarUrl} className="w-8 h-8 rounded-full super_link" />
+                      <span className="max-w-[10rem] text-ellipsis super_link">{props.playlistHeader.creator.nickname}</span>
+                    </>
+                    )
+                  : null
+              }
               {
                 props.playlistHeader.createTime > 0
                   ? (
