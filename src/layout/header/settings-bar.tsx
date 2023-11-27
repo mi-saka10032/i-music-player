@@ -1,4 +1,9 @@
-import { memo, type ButtonHTMLAttributes } from 'react'
+import { memo, type ButtonHTMLAttributes, useRef } from 'react'
+import MinimizeIcon from '@/assets/svg/icon_minimize.svg?react'
+import MaxIcon from '@/assets/svg/icon_max.svg?react'
+import QuitIcon from '@/assets/svg/icon_quit.svg?react'
+import { detectOS } from '@/utils'
+import { appWindow } from '@tauri-apps/api/window'
 
 interface ButtonAttr extends ButtonHTMLAttributes<HTMLButtonElement> {
   icon?: string
@@ -21,6 +26,7 @@ const IconBtn = memo(({ icon, title, active, disabled, onClick }: ButtonAttr) =>
 IconBtn.displayName = 'IconBtn'
 
 const SettingsBar = memo(() => {
+  const isWindows = useRef(detectOS() === 'Windows')
   return (
     <ul className="flex space-x-4">
       <li>
@@ -45,6 +51,23 @@ const SettingsBar = memo(() => {
       <li>
         <IconBtn icon="mini" />
       </li>
+      {
+        isWindows.current
+          ? (
+            <>
+              <button onClick={() => { void appWindow.minimize() }}>
+                <MinimizeIcon className="w-5 h-5" />
+              </button>
+              <button onClick={() => { void appWindow.toggleMaximize() }}>
+                <MaxIcon className="w-5 h-5" />
+              </button>
+              <button onClick={() => { void appWindow.close() }}>
+                <QuitIcon className="w-5 h-5" />
+              </button>
+            </>
+            )
+          : null
+      }
     </ul>
   )
 })

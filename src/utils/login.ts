@@ -17,6 +17,7 @@ export async function initLogin () {
   return await new Promise<LoginPayload>(async (resolve, reject) => {
     const loginWin = await createWebviewWindow({
       label: LOGIN_WINDOW_NAME,
+      title: '登录',
       url: '/login',
       acceptFirstMouse: true,
       alwaysOnTop: true,

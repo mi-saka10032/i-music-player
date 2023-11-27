@@ -36,4 +36,15 @@ export function closeCurrentWindow (): void {
   }
 }
 
+export function detectOS (): string {
+  const os = window.navigator.platform.toLowerCase()
+  if (os.includes('win')) {
+    return 'Windows'
+  } else if (os.includes('mac')) {
+    return 'Mac'
+  } else if (os.includes('linux')) {
+    return 'Linux'
+  } else return os
+}
+
 export const isTauriEnv = window.__TAURI__ != null

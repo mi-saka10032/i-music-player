@@ -42,6 +42,17 @@
 .super_link:hover {
   color: #155fb3;
 }
+.hidden_scroll::-webkit-scrollbar {
+  display: none;
+}
+.triangle {
+  width: 0;
+  height: 0;
+  line-height: 0;
+  font-size: 0;
+  border: 3px solid transparent;
+  border-left-color: #999;
+}
 :root {
   width: 100%;
   height: 100%;
@@ -50,7 +61,7 @@
   line-height: 20px;
   font-weight: 400;
   color: #000000;
-  background-color: #ffffff;
+  background-color: transparent;
   user-select: none;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -66,6 +77,7 @@ body,
   margin: 0;
   padding: 0;
   overflow: hidden;
+  border-radius: 1rem;
 }
 * {
   /* WebKit browsers */
