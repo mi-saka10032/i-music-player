@@ -1,9 +1,10 @@
-import { memo, type ButtonHTMLAttributes, useRef } from 'react'
+import { memo, type ButtonHTMLAttributes, useRef, useCallback } from 'react'
 import MinimizeIcon from '@/assets/svg/icon_minimize.svg?react'
 import MaxIcon from '@/assets/svg/icon_max.svg?react'
 import QuitIcon from '@/assets/svg/icon_quit.svg?react'
 import { detectOS } from '@/utils'
 import { appWindow } from '@tauri-apps/api/window'
+import { message } from 'antd'
 
 interface ButtonAttr extends ButtonHTMLAttributes<HTMLButtonElement> {
   icon?: string
@@ -26,7 +27,15 @@ const IconBtn = memo(({ icon, title, active, disabled, onClick }: ButtonAttr) =>
 IconBtn.displayName = 'IconBtn'
 
 const SettingsBar = memo(() => {
+  const [messageApi, contextHolder] = message.useMessage()
   const isWindows = useRef(detectOS() === 'Windows')
+  const abilityToDo = useCallback(() => {
+    void messageApi.open({
+      type: 'warning',
+      content: '功能制作中',
+      duration: 1
+    })
+  }, [])
   return (
     <ul className="flex space-x-4">
       <li>
@@ -39,16 +48,16 @@ const SettingsBar = memo(() => {
           />
         </div>
       </li>
-      <li>
+      <li onClick={abilityToDo}>
         <IconBtn icon="setting" />
       </li>
-      <li>
+      <li onClick={abilityToDo}>
         <IconBtn icon="mail" />
       </li>
-      <li>
+      <li onClick={abilityToDo}>
         <IconBtn icon="theme" />
       </li>
-      <li>
+      <li onClick={abilityToDo}>
         <IconBtn icon="mini" />
       </li>
       {
@@ -68,6 +77,7 @@ const SettingsBar = memo(() => {
             )
           : null
       }
+      {contextHolder}
     </ul>
   )
 })
