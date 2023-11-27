@@ -58,7 +58,7 @@ dependencies:
     version: 11.0.3
   tauri-plugin-sql-api:
     specifier: github:tauri-apps/tauri-plugin-sql#v1
-    version: github.com/tauri-apps/tauri-plugin-sql/3604825a4eded2be6cfa248aa0de9614a900cc2d
+    version: github.com/tauri-apps/tauri-plugin-sql/3c58961a8bc9e13c240f186bc78bf103ed1d8133
 
 devDependencies:
   '@tauri-apps/cli':
@@ -5276,8 +5276,8 @@ packages:
     engines: {node: '>=10'}
     dev: true
 
-  github.com/tauri-apps/tauri-plugin-sql/3604825a4eded2be6cfa248aa0de9614a900cc2d:
-    resolution: {commit: 3604825a4eded2be6cfa248aa0de9614a900cc2d, repo: git+ssh://git@github.com/tauri-apps/tauri-plugin-sql.git, type: git}
+  github.com/tauri-apps/tauri-plugin-sql/3c58961a8bc9e13c240f186bc78bf103ed1d8133:
+    resolution: {tarball: https://codeload.github.com/tauri-apps/tauri-plugin-sql/tar.gz/3c58961a8bc9e13c240f186bc78bf103ed1d8133}
     name: tauri-plugin-sql-api
     version: 0.0.0
     dependencies:
