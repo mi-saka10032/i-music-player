@@ -88,6 +88,11 @@ jobs:
           node-version: 18
           cache: 'pnpm' # Set this to npm, yarn or pnpm.
 
+      - name: Setup git
+        run: |
+          git config --global url."https://".insteadOf git://
+          git config --global url."https://".insteadOf ssh://
+
       # 安装前端依赖
       - name: Install frontend dependencies
         # If you don't have `beforeBuildCommand` configured you may want to build your frontend here too.
