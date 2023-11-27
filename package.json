@@ -1,15 +1,13 @@
 {
   "name": "i-music-player",
-  "private": true,
-  "version": "0.0.0",
+  "version": "0.0.1",
   "license": "MIT",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "tauri:dev": "tauri dev",
-    "tauri:build": "tauri build",
+    "tauri": "tauri",
     "lint": "eslint --cache --max-warnings 0  \"src/**/*.{js,ts,tsx}\" --fix",
     "preinstall": "npx only-allow pnpm"
   },
