@@ -61,7 +61,7 @@ const Detail = memo((props: DetailProps) => {
   }, [props.songItem])
 
   // 歌词正则表达
-  const lrcReg = useRef(/\[\d{2}:\d{2}\.\d{3}\]/)
+  const lrcReg = useRef(/\[\d{2}:\d{2}\.\d{2,3}\]/)
   // 是否为有效可滚动歌词
   const [validLrc, setValidLrc] = useState(false)
   // 歌词字符串
