@@ -1,0 +1,19 @@
+{
+  "tauri": {
+    "windows": [
+      {
+        "center": true,
+        "fullscreen": false,
+        "resizable": true,
+        "title": "i-music-player",
+        "width": 1360,
+        "height": 768,
+        "minWidth": 1360,
+        "minHeight": 768,
+        "hiddenTitle": true,
+        "theme": "Light",
+        "titleBarStyle": "Overlay"
+      }
+    ]
+  }
+}
