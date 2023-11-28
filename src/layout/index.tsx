@@ -1,7 +1,7 @@
 import { type MouseEvent, memo, useEffect, useState, useRef, useCallback, useMemo } from 'react'
 import { message } from 'antd'
 import GlobalContext from './context'
-import { useAppSelector, useAppDispatch, playNowById } from '@/hooks'
+import { useAppSelector, useAppDispatch, playNowById, playNowByCustom } from '@/hooks'
 import { fetchRecommendData } from '@/store/cache'
 import { clearPlaylists, setActiveId, setActiveIndex } from '@/store/playlist'
 import { clearPlayerStatus, setPlayStatus } from '@/store/playerStatus'
@@ -14,6 +14,7 @@ import Footer from './footer'
 import LeftSider from './leftSider'
 import RightQueue from './rightQueue'
 import Detail from './detail'
+import { CUSTOM_ID } from '@/utils/constant'
 
 const Layout = memo(() => {
   const {
@@ -34,6 +35,7 @@ const Layout = memo(() => {
   } = useAppSelector(state => state.playerInstance)
   const dispatch = useAppDispatch()
   const getPlaylists = playNowById()
+  const getJayPlaylists = playNowByCustom()
 
   // 生命周期内仅维持一份player实例
   const playerRef = useRef(player)
@@ -193,7 +195,11 @@ const Layout = memo(() => {
       playerRef.current.setId(songId)
     } else {
       // 详情歌单与当前播放中歌单id不同，重新获取歌曲，填入歌曲索引
-      getPlaylists(listId, songId)
+      if (listId === CUSTOM_ID) {
+        getJayPlaylists(songId)
+      } else {
+        getPlaylists(listId, songId)
+      }
     }
   }, [playlistId])
   /** 来自MusicDetail详情页的监听事件 */
