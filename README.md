@@ -1,4 +1,4 @@
-<center>
+<div align="center">
   <img src="./app-icon.png" width="156" height="156" />
 
   <h1>I-MUSIC-PLAYER</h1>
@@ -13,7 +13,7 @@
   
   <a href="https://github.com/mi-saka10032/i-music-player/releases" target="blank"><strong>📦️ 下载安装包</strong></a>
 
-</center>
+</div>
 
 ## ✨ 特性
 
