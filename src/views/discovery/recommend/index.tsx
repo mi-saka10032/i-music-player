@@ -8,7 +8,7 @@ import { CUSTOM_IMG } from '@/utils/constant'
 const Recommend = memo(() => {
   const navigate = useNavigate()
 
-  const { cookie } = useAppSelector(state => state.user)
+  const { accountInfo } = useAppSelector(state => state.user)
   const { banners, personalizedPlaylist, recommendList } = useAppSelector(state => state.cache)
 
   const getPlaylists = playNowById()
@@ -32,7 +32,7 @@ const Recommend = memo(() => {
   }, [])
 
   const CurRecommendList = useMemo(() => {
-    if (cookie.length > 0) {
+    if (accountInfo.account?.id != null) {
       return recommendList.map(item => {
         const playList: PersonalLists[number] = { ...item, playCount: item.playcount }
         return (
@@ -54,7 +54,7 @@ const Recommend = memo(() => {
         />
       ))
     }
-  }, [cookie, personalizedPlaylist, recommendList])
+  }, [accountInfo, personalizedPlaylist, recommendList])
 
   return (
     <div className="px-8 py-6">

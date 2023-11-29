@@ -6,6 +6,7 @@ import { fetchAccountInfo, setCookie, setAccountInfo } from '@/store/user'
 import { fetchRecommendData } from '@/store/cache'
 import { useAppSelector, useAppDispatch } from '@/hooks'
 import { getUserPlaylist } from '@/api'
+import DefaultUserIcon from '@/assets/svg/user.svg'
 
 interface LeftSiderMenu {
   to: string
@@ -104,7 +105,7 @@ const LeftSider = memo(() => {
       }
     } else {
       return {
-        avatarUrl: '/svg/user.svg',
+        avatarUrl: DefaultUserIcon,
         nickname: '未登录'
       }
     }

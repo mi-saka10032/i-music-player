@@ -40,7 +40,7 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "shortDescription": "一款仿网易云音乐Mac风格的音乐播放器",
+      "shortDescription": "i-music-player",
       "appimage": {
         "bundleMediaFramework": true
       },
@@ -70,7 +70,8 @@
             "SimpChinese"
           ],
           "displayLanguageSelector": true,
-          "installerIcon": "icons/icon.ico"
+          "installerIcon": "icons/icon.ico",
+          "sidebarImage": "icons/sidebarImage.bmp"
         }
       }
     },

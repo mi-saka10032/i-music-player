@@ -2,6 +2,8 @@ declare module '*.less'
 
 declare module '*.png'
 
+declare module '*.svg'
+
 // Netease响应值结构
 interface CommonRes {
   code: number
