@@ -8,7 +8,7 @@
   },
   "package": {
     "productName": "i-music-player",
-    "version": "0.0.1"
+    "version": "0.0.2"
   },
   "tauri": {
     "allowlist": {
@@ -31,7 +31,8 @@
     "bundle": {
       "active": true,
       "targets": "all",
-      "identifier": "com.misaka10032.music",
+      "identifier": "com.mi-saka10032.music",
+      "publisher": "mi-saka10032",
       "icon": [
         "icons/32x32.png",
         "icons/128x128.png",
@@ -39,8 +40,38 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
+      "shortDescription": "一款仿网易云音乐Mac风格的音乐播放器",
       "appimage": {
         "bundleMediaFramework": true
+      },
+      "macOS": {
+        "minimumSystemVersion": "10.13",
+        "license": "../LICENSE",
+        "exceptionDomain": "126.net"
+      },
+      "windows": {
+        "allowDowngrades": true,
+        "certificateThumbprint": null,
+        "digestAlgorithm": null,
+        "timestampUrl": null,
+        "tsp": false,
+        "webviewFixedRuntimePath": null,
+        "webviewInstallMode": {
+          "silent": true,
+          "type": "downloadBootstrapper"
+        },
+        "wix": {
+          "license": "../LICENSE"
+        },
+        "nsis": {
+          "license": "../LICENSE",
+          "languages": [
+            "English",
+            "SimpChinese"
+          ],
+          "displayLanguageSelector": true,
+          "installerIcon": "icons/icon.ico"
+        }
       }
     },
     "security": {

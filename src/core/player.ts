@@ -202,32 +202,26 @@ export class Player {
     if (this.playlist[index] == null) return
     if (this.playlist[index].howl == null) {
       try {
+        // 应对自定义歌单，每首歌获取时自带url，不进入该判断逻辑
         if (this.playlist[index].url == null || this.playlist[index].url?.length === 0) {
           // 应对网易云歌单，每首歌需要单独根据id获取url
           const { url, time } = await getSongUrl(this.playlist[index].id).then(res => res.data[0])
-          this.playlist[index].url = url
-          this.playlist[index].time = time
+          // url不存在时抛出异常
           if (url?.length > 0) {
-            this.playlist[index].howl = new Howl({
-              src: [url],
-              onloaderror: () => {
-                this.emit(PlayerEvent.INVALID, this.state)
-              }
-            })
+            this.playlist[index].url = url
+            this.playlist[index].time = time
           } else {
-            console.warn('invalid audio')
+            throw new Error('invalid audio')
+          }
+        }
+        this.playlist[index].howl = new Howl({
+          src: [String(this.playlist[index].url)],
+          html5: true, // 优化音频加载
+          pool: 20, // 增大缓冲池
+          onloaderror: () => {
             this.emit(PlayerEvent.INVALID, this.state)
           }
-        } else {
-          // 应对自定义歌单，每首歌获取时自带url
-          const url = String(this.playlist[index].url)
-          this.playlist[index].howl = new Howl({
-            src: [url],
-            onloaderror: () => {
-              this.emit(PlayerEvent.INVALID, this.state)
-            }
-          })
-        }
+        })
       } catch (error) {
         console.warn(error)
         this.emit(PlayerEvent.INVALID, this.state)

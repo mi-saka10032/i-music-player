@@ -1,6 +1,6 @@
 import { type PropsWithChildren, memo } from 'react'
 import { millSecondsTransDate, playCountTrans } from '@/utils/formatter'
-import { detailCoverStyle, DetailFallback } from '@/components/detailFallback'
+import { detailCoverStyle, DetailFallback, detailNameStyle } from '@/components/detailFallback'
 import {
   PlayAllButton,
   CollectButton,
@@ -24,7 +24,9 @@ const MusicDetailHeader = memo((props: PropsWithChildren<MusicDetailHeaderProps>
           <div className="flex-1 space-y-4">
             <header className="flex items-center">
               <span className="p-1 text-sm leading-none text-[#ed4141] border border-[#ed4141] rounded">歌单</span>
-              <h1 className="ml-2.5 text-2xl font-semibold leading-none text-[#333]">{props.playlistHeader.name}</h1>
+              <h1 className="ml-2.5 text-2xl font-semibold leading-none text-[#333] truncate" style={detailNameStyle}>
+                {props.playlistHeader.name}
+              </h1>
             </header>
             <section className="flex items-center space-x-2 text-sm">
               {

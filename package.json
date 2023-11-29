@@ -1,9 +1,11 @@
 {
   "name": "i-music-player",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "license": "MIT",
   "type": "module",
   "scripts": {
+    "local:dev": "tauri dev",
+    "local:build": "tauri build",
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
