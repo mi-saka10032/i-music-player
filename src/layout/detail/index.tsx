@@ -128,91 +128,90 @@ const Detail = memo((props: DetailProps) => {
   }, [props.songItem, props.progress])
 
   return (
-    <>
-      <div className="relative flex" style={{ height: 'calc(100% - 60px)' }}>
-        <ArrowDown
-          className="absolute z-40 left-5 top-5 w-5 h-5 cursor-pointer"
-          onClick={switchDetailStatus}
+    <div className="relative flex" style={{ height: 'calc(100% - 60px)' }}>
+      <ArrowDown
+        className="absolute z-40 left-5 top-5 w-5 h-5 cursor-pointer"
+        onClick={switchDetailStatus}
       />
-        <aside className="relative flex justify-center items-center w-1/2">
-          {/* 唱片探针 */}
-          <img
-            src={Needle}
-            className="absolute z-30 w-[7.5rem] h-auto left-1/2 transition-all duration-1000 origin-top-left"
-            style={{ top: 'calc(50% - 17.5rem)', transform: needRotating }}
-          />
-          <div className="relative animate-spin" style={discRotating}>
-            {/* 唱片碟 */}
-            <img src={Disc} className="relative z-20 w-[22rem] h-[22rem]" />
-            {/* 内圈背景阴影 */}
-            <div className="absolute-middle-full z-10 w-56 h-56 bg-transparent rounded-full shadow-[0_0_0_0.5rem_#141519]"></div>
-            {/* 外圈背景阴影 */}
-            <div className="absolute-middle-full z-10 w-[22rem] h-[22rem] bg-transparent rounded-full shadow-[0_0_0_1rem_#e9e9e9]"></div>
-            {/* 唱片图 */}
-            <DiscImage src={imagePath}/>
-          </div>
-        </aside>
-        <main className={`w-1/2 pt-6 pr-32 pb-16 flex flex-col ${styles.vague}`}>
-          {
-            props.songItem != null
-              ? (
-                <>
-                  <h1 className="mb-5 font-sans text-2xl font-medium text-slate-900">{props.songItem.name}</h1>
-                  <Row
-                    className="w-full mb-8 text-gray-600"
-                    justify={'space-between'}
-                    align={'middle'}
-                    gutter={0}
-                    wrap={false}
-                  >
-                    <Col span={9} className="flex items-center text-sm">
-                      <span>专辑：</span>
-                      <span className="flex-1 text-ellipsis super_link">
-                        {props.songItem.album.name}
-                      </span>
-                    </Col>
-                    <Col span={8} className="text-ellipsis text-sm">
-                      <span>歌手：</span>
-                      <span className="flex-1 text-ellipsis super_link">
-                        {artistsName}
-                      </span>
-                    </Col>
-                    <Col span={7} className="text-ellipsis text-sm">
-                      <span>来源：</span>
-                      <span className="flex-1 text-ellipsis super_link">
-                        {props.playlistName}
-                      </span>
-                    </Col>
-                  </Row>
-                  {
-                    lrc.length > 0
-                      ? (
-                          validLrc
-                            ? (
-                              <Lrc
-                                verticalSpace
-                                className={`flex-1 min-h-0 ${styles.hidden_scroll}`}
-                                lrc={lrc}
-                                lineRenderer={lineRenderer}
-                                currentMillisecond={currentMillisecond}
-                                recoverAutoScrollSingal={signal}
-                                recoverAutoScrollInterval={2000}
-                              />
-                              )
-                            : <div className={`flex-1 pt-12 overflow-auto ${styles.hidden_scroll}`}>
-                              { staticLineRender(lrc) }
-                            </div>
-                        )
-                      : null
-                    }
-                </>
-                )
-              : null
-          }
-        </main>
-      </div>
-      <div className="h-[60px]"></div>
-    </>
+      <aside className="relative flex justify-center items-center w-1/2">
+        {/* 唱片探针 */}
+        <img
+          src={Needle}
+          className="absolute z-30 w-[7.5rem] h-auto left-1/2 transition-all duration-1000 origin-top-left"
+          style={{ top: 'calc(50% - 17.5rem)', transform: needRotating }}
+        />
+        <div className="relative animate-spin" style={discRotating}>
+          {/* 唱片碟 */}
+          <img src={Disc} className="relative z-20 w-[22rem] h-[22rem]" />
+          {/* 内圈背景阴影 */}
+          <div className="absolute-middle-full z-10 w-56 h-56 bg-transparent rounded-full shadow-[0_0_0_0.5rem_#141519]"></div>
+          {/* 外圈背景阴影 */}
+          <div className="absolute-middle-full z-10 w-[22rem] h-[22rem] bg-transparent rounded-full shadow-[0_0_0_1rem_#e9e9e9]"></div>
+          {/* 唱片图 */}
+          <DiscImage src={imagePath}/>
+        </div>
+      </aside>
+      <main className={`w-1/2 pt-6 pr-32 pb-16 flex flex-col ${styles.vague}`}>
+        {
+        props.songItem != null
+          ? (
+            <>
+              <h1 className="mb-5 font-sans text-2xl font-medium text-slate-900">{props.songItem.name}</h1>
+              <Row
+                className="w-full mb-8 text-gray-600"
+                justify={'space-between'}
+                align={'middle'}
+                gutter={0}
+                wrap={false}
+              >
+                <Col span={9} className="flex items-center text-sm">
+                  <span>专辑：</span>
+                  <span className="flex-1 text-ellipsis super_link">
+                    {props.songItem.album.name}
+                  </span>
+                </Col>
+                <Col span={8} className="text-ellipsis text-sm">
+                  <span>歌手：</span>
+                  <span className="flex-1 text-ellipsis super_link">
+                    {artistsName}
+                  </span>
+                </Col>
+                <Col span={7} className="text-ellipsis text-sm">
+                  <span>来源：</span>
+                  <span className="flex-1 text-ellipsis super_link">
+                    {props.playlistName}
+                  </span>
+                </Col>
+              </Row>
+              {
+                lrc.length > 0
+                  ? (
+                      validLrc
+                        ? (
+                          <Lrc
+                            verticalSpace
+                            className={`flex-1 min-h-0 ${styles.hidden_scroll}`}
+                            lrc={lrc}
+                            lineRenderer={lineRenderer}
+                            currentMillisecond={currentMillisecond}
+                            recoverAutoScrollSingal={signal}
+                            recoverAutoScrollInterval={2000}
+                            />
+                          )
+                        : (
+                          <div className={`flex-1 pt-12 overflow-auto ${styles.hidden_scroll}`}>
+                            { staticLineRender(lrc) }
+                          </div>
+                          )
+                    )
+                  : null
+                }
+            </>
+            )
+          : null
+      }
+      </main>
+    </div>
   )
 })
 

@@ -217,10 +217,7 @@ export class Player {
         this.playlist[index].howl = new Howl({
           src: [String(this.playlist[index].url)],
           html5: true, // 优化音频加载
-          pool: 20, // 增大缓冲池
-          onloaderror: () => {
-            this.emit(PlayerEvent.INVALID, this.state)
-          }
+          pool: 20 // 增大缓冲池
         })
       } catch (error) {
         console.warn(error)
