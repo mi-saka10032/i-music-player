@@ -81,7 +81,7 @@ const Layout = memo(() => {
 
   // 切换显示/隐藏的class类名
   const switchDetailClass = useMemo<string>(() => {
-    return showDetail ? 'opacity-1' : 'translate-y-full opacity-0'
+    return showDetail ? 'opacity-1' : 'opacity-0'
   }, [showDetail])
   /** 音乐详情页的显示/隐藏 */
 
@@ -249,7 +249,7 @@ const Layout = memo(() => {
         <div className="flex w-full h-full overflow-hidden">
           <Content />
         </div>
-        <div ref={footerRef} className="relative z-40 w-full h-full col-start-1 col-end-3 bg-white">
+        <div ref={footerRef} className="relative z-40 w-full h-full col-start-1 col-end-3 bg-white rounded-b-2xl">
           <Footer
             queueStatusRef={queueStatusRef}
             detailRef={detailRef}
@@ -286,8 +286,8 @@ const Layout = memo(() => {
           />
         </div>
         <div
-          className={`fixed z-20 flex flex-col w-full left-0 top-[50px] transition-all duration-500 bg-[#f8f8f8] ${switchDetailClass}`}
-          style={{ height: 'calc(100vh - 50px)' }}
+          className={`fixed z-20 flex flex-col w-full left-0 top-[50px] transition-[opacity] duration-500 bg-[#f8f8f8] ${switchDetailClass}`}
+          style={{ height: 'calc(100vh - 50px - 60px)' }}
         >
           <Detail
             detailRef={detailRef}
