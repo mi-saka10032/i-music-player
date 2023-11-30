@@ -81,7 +81,7 @@ const Layout = memo(() => {
 
   // 切换显示/隐藏的class类名
   const switchDetailClass = useMemo<string>(() => {
-    return showDetail ? 'opacity-1' : 'opacity-0'
+    return showDetail ? 'opacity-1' : 'opacity-0 top-full'
   }, [showDetail])
   /** 音乐详情页的显示/隐藏 */
 
