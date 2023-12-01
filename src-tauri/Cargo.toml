@@ -1,6 +1,6 @@
 [package]
 name = "i-music-player"
-version = "0.0.2"
+version = "0.0.3"
 description = "i-music-player"
 authors = ["you"]
 license = "mit"

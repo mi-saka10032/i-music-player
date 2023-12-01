@@ -7,7 +7,7 @@
 
   <div>
   
-  [![rust](https://img.shields.io/badge/rust-1.73.0-blue)](https://www.rust-lang.org/)&nbsp;&nbsp;[![Typescript](https://img.shields.io/badge/typescript-5.x-blue)](https://www.typescriptlang.org/)&nbsp;&nbsp;[![tauri](https://img.shields.io/badge/tauri-v1.5-brightgreen)](https://tauri.app/)&nbsp;&nbsp;[![vite](https://img.shields.io/badge/vite-4.x-brightgreen)](https://vitejs.dev/)&nbsp;&nbsp;[![!react](https://img.shields.io/badge/react-18.2.0-brightgreen)](https://react.dev/)
+  [![rust](https://img.shields.io/badge/rust-1.73.0-blue)](https://www.rust-lang.org/)&nbsp;&nbsp;[![Typescript](https://img.shields.io/badge/typescript-5.0.2-blue)](https://www.typescriptlang.org/)&nbsp;&nbsp;[![tauri](https://img.shields.io/badge/tauri-1.5-brightgreen)](https://tauri.app/)&nbsp;&nbsp;[![vite](https://img.shields.io/badge/vite-4.5.0-brightgreen)](https://vitejs.dev/)&nbsp;&nbsp;[![!react](https://img.shields.io/badge/react-18.2.0-brightgreen)](https://react.dev/)
 
   </div>
   
@@ -22,7 +22,8 @@
 - **网易云账号登录（目前仅支持扫码登录）**
 - **核心播放功能完整，登录后支持查看已创建歌单、已收藏歌单、显示歌词**
 - **支持播放列表与播放状态持久化**
-- **个人服务器友情提供部分精选歌曲**
+- **个人服务器友情提供部分（Jay Zhou）精选歌曲**
+- **2023/12/2：更新v0.0.3版本，布局、样式、构建全面优化，并且播放歌曲时优先获取HiRes音质歌曲链接**
 
 ![setup_size](./images/setup_size.jpg)
 
