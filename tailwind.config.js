@@ -11,6 +11,7 @@ export default {
         black: "#000000",
         white: "#ffffff",
         primary: "#d33a31",
+        gc: "#4c4c4c",
         ct: "#2d2d2d",
         ctd: "#787878",
         lg: "#c7c7c7"

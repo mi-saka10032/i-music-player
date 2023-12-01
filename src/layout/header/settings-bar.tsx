@@ -1,7 +1,4 @@
-import { memo, type ButtonHTMLAttributes, useRef, useCallback } from 'react'
-import MinimizeIcon from '@/assets/svg/icon_minimize.svg?react'
-import MaxIcon from '@/assets/svg/icon_max.svg?react'
-import QuitIcon from '@/assets/svg/icon_quit.svg?react'
+import { memo, type ButtonHTMLAttributes, useRef, useCallback, useState, useEffect } from 'react'
 import { detectOS } from '@/utils'
 import { appWindow } from '@tauri-apps/api/window'
 import { message } from 'antd'
@@ -15,7 +12,7 @@ const IconBtn = memo(({ icon, title, active, disabled, onClick }: ButtonAttr) =>
   return (
     <button
       className={`flex items-center justify-center iconfont icon-${icon} w-7 h-7 text-xl rounded-full ${
-        active === true ? 'text-primary' : 'text-ct'
+        active === true ? 'text-primary' : 'text-ctd'
       } enabled:hover:bg-[#e9e9e9] disabled:opacity-10`}
       onClick={onClick}
       disabled={disabled}
@@ -29,6 +26,8 @@ IconBtn.displayName = 'IconBtn'
 const SettingsBar = memo(() => {
   const [messageApi, contextHolder] = message.useMessage()
   const isWindows = useRef(detectOS() === 'Windows')
+  const [maxState, setMaxState] = useState(false)
+
   const abilityToDo = useCallback(() => {
     void messageApi.open({
       type: 'warning',
@@ -36,11 +35,26 @@ const SettingsBar = memo(() => {
       duration: 1
     })
   }, [])
+
+  const watchWindowState = useCallback(async () => {
+    const isMax = await appWindow.isMaximized()
+    setMaxState(isMax)
+  }, [])
+
+  useEffect(() => {
+    if (isWindows.current) {
+      window.addEventListener('resize', watchWindowState)
+      return () => {
+        window.removeEventListener('resize', watchWindowState)
+      }
+    }
+  }, [])
+
   return (
-    <ul className="flex space-x-4">
+    <ul className="flex space-x-4 text-ctd">
       <li>
         <div className="relative">
-          <i className="absolute left-2 top-2/4 pt-0.5 -translate-y-1/2 iconfont icon-search text-ct text-base"></i>
+          <i className="absolute left-2 top-2/4 pt-0.5 -translate-y-1/2 iconfont icon-search text-base"></i>
           <input
             type="search"
             className="w-44 h-7 leading-7 py-1 pl-7 pr-2 text-sm outline-none border-0 rounded-full bg-[#e9e9e9]"
@@ -57,21 +71,18 @@ const SettingsBar = memo(() => {
       <li onClick={abilityToDo}>
         <IconBtn icon="theme" />
       </li>
-      <li onClick={abilityToDo}>
-        <IconBtn icon="mini" />
-      </li>
       {
         isWindows.current
           ? (
             <>
               <button onClick={() => { void appWindow.minimize() }}>
-                <MinimizeIcon className="w-5 h-5" />
+                <i className="iconfont icon-min text-xl text-primary" />
               </button>
               <button onClick={() => { void appWindow.toggleMaximize() }}>
-                <MaxIcon className="w-5 h-5" />
+                <i className={`iconfont ${maxState ? 'icon-minimize' : 'icon-max'} text-xl text-primary`} />
               </button>
               <button onClick={() => { void appWindow.close() }}>
-                <QuitIcon className="w-5 h-5" />
+                <i className="iconfont icon-quit text-xl text-primary" />
               </button>
             </>
             )

@@ -11,7 +11,7 @@ const PlayTypeIcon = memo((props: PlayTypeIconProps) => {
   return (
     <div className="flex items-center justify-center">
       <i
-        className={`iconfont icon-${props.type} text-ct text-base cursor-pointer`}
+        className={`iconfont icon-${props.type} text-gc text-xl cursor-pointer`}
         onClick={() => { props.onTypeChange(props.type) }}
       />
     </div>

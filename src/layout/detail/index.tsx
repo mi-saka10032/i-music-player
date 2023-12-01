@@ -7,7 +7,6 @@ import { type SongData } from '@/core/playerType'
 import styles from './index.module.less'
 import Needle from '@/assets/png/playing_page_needle.png'
 import Disc from '@/assets/png/playing_page_disc.png'
-import ArrowDown from '@/assets/svg/arrow-down.svg?react'
 
 interface DetailProps {
   detailRef: React.MutableRefObject<boolean>
@@ -129,8 +128,8 @@ const Detail = memo((props: DetailProps) => {
 
   return (
     <div className="relative flex h-full">
-      <ArrowDown
-        className="absolute z-40 left-5 top-5 w-5 h-5 cursor-pointer"
+      <i
+        className="iconfont icon-arrow-down absolute z-40 left-5 top-5 text-xl text-ctd cursor-pointer"
         onClick={switchDetailStatus}
       />
       <aside className="relative flex justify-center items-center w-1/2">

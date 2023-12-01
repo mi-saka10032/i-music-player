@@ -29,22 +29,22 @@ const VolumeController = memo((props: VolumeControllerProps) => {
   // 音量图标
   const soundIcon = useMemo(() => {
     if (mute) {
-      return 'icon-volume_cross'
-    } else if (volume >= 80) {
-      return 'icon-volume_high'
-    } else if (volume >= 40) {
+      return 'icon-volume-cross'
+    } else if (volume >= 66) {
+      return 'icon-volume-high'
+    } else if (volume >= 33) {
       return 'icon-volume-middle'
     } else if (volume > 0) {
       return 'icon-volume-low'
     } else {
-      return 'icon-volume_zero'
+      return 'icon-volume-zero'
     }
   }, [mute, volume])
 
   return (
     <div className="group/volume relative w-5 h-5 flex justify-center items-center">
       <i
-        className={`iconfont ${soundIcon} cursor-pointer`}
+        className={`iconfont ${soundIcon} text-xl text-gc cursor-pointer`}
         onClick={switchMute}
       ></i>
       <div className="hidden group-hover/volume:inline-block group-active/volume:inline-block p-4 absolute -top-2 left-2/4 -translate-x-1/2 -translate-y-full bg-white shadow-md rounded">

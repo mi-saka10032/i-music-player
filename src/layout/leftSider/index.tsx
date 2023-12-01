@@ -54,7 +54,7 @@ const Menus = memo((props: MenusProps) => {
                   onClick={event => { linkJudge({ event, ...item }) }}
               >
                   <div className="flex items-center px-6 py-2 group-hover/navlink:bg-ctd/10 group-[.active]/navlink:bg-ctd/10">
-                    { item.icon != null ? <i className={`mr-1 iconfont icon-${item.icon} text-xl`}></i> : null }
+                    { item.icon != null ? <i className={`mr-1 iconfont icon-${item.icon} text-base`}></i> : null }
                     <span className="flex-1 text-ellipsis">{item.title}</span>
                   </div>
                 </NavLink>

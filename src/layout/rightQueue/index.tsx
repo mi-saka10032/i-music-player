@@ -6,8 +6,6 @@ import { type SongData } from '@/core/player'
 import LoadingInstance from '@/components/loadingInstance'
 import { generateZebraClass, artistsArrayTrans, durationTrans } from '@/utils/formatter'
 import { highlightArtistClass, highlightDurationClass, highlightNameClass } from '@/utils/highlightSongClass'
-import PlaySingleIcon from '@/assets/svg/play_single.svg?react'
-import PauseSingleIcon from '@/assets/svg/pause_single.svg?react'
 
 interface RightQueueProps {
   showQueue: boolean
@@ -23,7 +21,7 @@ interface RightQueueProps {
 const RightQueue = memo((props: RightQueueProps) => {
   /** 列表左侧播放/暂停小图标展示 */
   const CoreIcon = useMemo(() => {
-    return props.playStatus === 'paused' ? <PauseSingleIcon className="w-3.5 h-3.5" /> : <PlaySingleIcon className="w-3 h-3" />
+    return <i className={`iconfont ${props.playStatus === 'playing' ? 'icon-play' : 'icon-pause'} text-sm leading-none font-bold text-primary`} />
   }, [props.playStatus])
   /** 列表左侧播放/暂停小图标展示 */
 
