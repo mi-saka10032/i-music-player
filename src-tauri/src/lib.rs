@@ -1,5 +1,3 @@
-
-
 #[macro_use]
 mod macros;
 
@@ -9,8 +7,7 @@ mod request;
 
 use serde::Deserialize;
 
-#[derive(Debug)]
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct Options<'a> {
     method: &'a str,
     url: &'a str,
@@ -18,14 +15,13 @@ pub struct Options<'a> {
     cookie: &'a str,
 }
 
-
-use serde::{Serialize};
+use serde::Serialize;
 #[derive(Serialize)]
 pub struct FormatParams {
     url: String,
     headers: Vec<(String, String)>,
     body: String,
-    method: String
+    method: String,
 }
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
@@ -158,6 +154,7 @@ fn get_params(options: Options) -> FormatParams {
         "/simi/user" => music_api::index_simi_user(options),
         "/song/detail" => music_api::index_song_detail(options),
         "/song/url" => music_api::index_song_url(options),
+        "/song/download/url" => music_api::index_song_download_url(options),
         "/top/album" => music_api::index_top_album(options),
         "/top/artist" => music_api::index_top_artist(options),
         "/top/list" => music_api::index_top_list(options),
@@ -193,17 +190,16 @@ fn get_params(options: Options) -> FormatParams {
             url: "".to_string(),
             headers: vec![],
             body: "".to_string(),
-            method: "POST".to_string()
+            method: "POST".to_string(),
         },
     }
 }
 
-
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-  tauri::Builder::default()
-      .plugin(tauri_plugin_sql::Builder::default().build())
-      .invoke_handler(tauri::generate_handler![greet, get_params])
-      .run(tauri::generate_context!())
-      .expect("error while running tauri application");
+    tauri::Builder::default()
+        .plugin(tauri_plugin_sql::Builder::default().build())
+        .invoke_handler(tauri::generate_handler![greet, get_params])
+        .run(tauri::generate_context!())
+        .expect("error while running tauri application");
 }

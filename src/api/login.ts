@@ -3,8 +3,7 @@ import QRCode from 'qrcode'
 import tauriClient from '@/request'
 import { isTauriEnv } from '@/utils'
 
-export const getLoginQrKey = async () =>
-  await tauriClient.get<LoginKeyRes>('/login/qr/key')
+export const getLoginQrKey = async () => await tauriClient.get<LoginKeyRes>('/login/qr/key')
 
 export const loginQrCreate = async (params: { key: string, qrimg: boolean }): Promise<LoginCodeRes> => {
   const url = '/login/qr/create'
@@ -28,8 +27,7 @@ export const loginQrCheck = async (params: { key: string }): Promise<LoginCheckR
   return await fetch(link, options)
 }
 
-export const getLoginStatus = async () =>
-  await tauriClient.get('/login/status')
+export const getLoginStatus = async () => await tauriClient.get('/login/status')
 
 export default {
   getLoginQrKey,

@@ -32,5 +32,8 @@ export const getSongDetail = async (allIds: number[]): Promise<TracksLists> => {
 // 获取歌曲链接
 export const getSongUrl = async (id: number) => await tauriClient.get<SongRes>('/song/url', { id })
 
+// 获取Hi-Res歌曲链接
+export const getHiResSongUrl = async (id: number) => await tauriClient.get<HiResSongRes>('/song/download/url', { id })
+
 // 获取歌词
 export const getSongLyric = async (id: number) => await tauriClient.get<LyricRes>('/lyric', { id })

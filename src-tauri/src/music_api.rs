@@ -1673,15 +1673,26 @@ pub(crate) fn index_song_detail(options: Options) -> FormatParams {
 pub(crate) fn index_song_url(options: Options) -> FormatParams {
     let url = "https://music.163.com/api/song/enhance/player/url";
     let query = QueryParams::from(options.params);
-
     let ids = "[".to_owned() + query.value("id").unwrap() + "]";
     let query_params = json_object!({
         "ids": ids.as_str(),
         "br": query.value("br").unwrap_or("999000")
     });
-
     let cookies = get_cookie_string(options.cookie) + ";os=pc;";
     request_handler(url, "linuxapi", query_params, &cookies)
+}
+
+// #[get("/song/download/url")] 新版获取url接口，非VIP会员亦可获取hires音质的歌曲链接
+pub(crate) fn index_song_download_url (options: Options) -> FormatParams {
+    let url = "https://interface.music.163.com/eapi/song/enhance/download/url";
+    let query = QueryParams::from(options.params);
+    let query_params = json_object!({
+        "id": query.value("id").unwrap(),
+        "br": query.value("br").unwrap_or("999000"),
+        "url": "/api/song/enhance/download/url"
+    });
+    let cookies = get_cookie_string(options.cookie) + ";os=pc;";
+    request_handler(url, "eapi", query_params, &cookies)
 }
 
 // #[get("/top/album")]

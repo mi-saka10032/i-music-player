@@ -55,19 +55,15 @@ impl Crypto {
             Some(&*IV),
             |t: &Vec<u8>| hex::encode_upper(t)
         );
-        println!("params={}", params);
         QueryParams::from(vec![("params", params.as_str())]).stringify()
     }
 
     pub fn weapi(text: &str) -> String {
-        println!("text={}", text);
         let mut secret_key = [0u8; 16];
         OsRng.fill_bytes(&mut secret_key);
         let key: Vec<u8> = secret_key.iter().map(|i| {
             BASE62[ (i % 62) as usize ]
         }).collect();
-
-        println!("key={}", String::from_utf8(key.clone()).unwrap());
 
         let params1 = Crypto::aes_encrypt(
             text,
@@ -107,7 +103,6 @@ impl Crypto {
             None,
             |t:&Vec<u8>| hex::encode(t)
         ).to_uppercase();
-        println!("text={},prams={}", text, params);
         QueryParams::from(vec![
             ("eparams", params.as_str())
         ]).stringify()
@@ -251,8 +246,6 @@ mod tests {
             |t: &Vec<u8>| base64::encode( t )
         );
 
-        println!("params1={}\nparams={}", params1, params);
-
         let enc_sec_key = Crypto::rsa_encrypt(
             std::str::from_utf8(
                 &key.iter().rev().map(|n|*n)
@@ -265,13 +258,11 @@ mod tests {
             ("params", params.as_str()),
             ("encSecKey", enc_sec_key.as_str())
         ]).stringify();
-        println!("res={}", res);
     }
 
     #[test]
     fn test_linuxapi() {
         let msg = r#"{"method":"POST","url":"https://music.163.com/api/song/lyric?lv=-1&kv=-1&tv=-1","params":{"id":"347230"}}"#;
-        println!("msg={}", msg);
         let res = Crypto::linuxapi(msg);
         assert_eq!(res, "eparams=A0D9583F4C5FF68DE851D2893A49DE98FAFB24399F27B4F7E74C64B6FC49A965CFA972FA5EA3D6247CD6247C8198CB873B98A81F6838B428B103E7871611EAC556D5DBE4408FD2751C0E2AD139004A718B72FE3E65ECD467E96A996D93F627A05EB0AAB74EC2E68145C014D505562560&");
     }
