@@ -104,7 +104,7 @@ const Detail = memo((props: DetailProps) => {
   // 正常歌词行渲染
   const lineRenderer = useCallback(({ active, line }: { active: boolean, line: LrcLine }) => {
     return (
-      <div className={`min-h-[12px] py-1.5 text-base ${active ? 'text-lg font-medium text-zinc-950' : 'text-gray-600'}`}>
+      <div className={`min-h-[12px] py-2 ${active ? 'text-lg font-semibold text-zinc-950' : 'text-base text-gray-600'}`}>
         {line.content}
       </div>
     )

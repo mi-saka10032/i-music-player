@@ -6,7 +6,8 @@ import { fetchAccountInfo, setCookie, setAccountInfo } from '@/store/user'
 import { fetchRecommendData } from '@/store/cache'
 import { useAppSelector, useAppDispatch } from '@/hooks'
 import { getUserPlaylist } from '@/api'
-import DefaultUserIcon from '@/assets/svg/user.svg'
+import DefaultUserIcon from '@/assets/svg/user.svg?react'
+import styles from './index.module.less'
 
 interface LeftSiderMenu {
   to: string
@@ -105,7 +106,7 @@ const LeftSider = memo(() => {
       }
     } else {
       return {
-        avatarUrl: DefaultUserIcon,
+        avatarUrl: undefined,
         nickname: '未登录'
       }
     }
@@ -198,7 +199,7 @@ const LeftSider = memo(() => {
   }, [hasLogin])
 
   return (
-    <div className="h-full overflow-auto">
+    <div className={`h-full overflow-auto ${styles.toggle_scroll}`}>
       <Popover
         content={<Button danger type="text" size="small" onClick={exit}>退出登录</Button>}
         trigger={ hasLogin ? 'hover' : 'click' }
@@ -208,10 +209,14 @@ const LeftSider = memo(() => {
       >
         <div className="h-14 my-2 py-1 px-3 cursor-pointer">
           <div className="flex items-center">
-            <img
-              className="w-12 h-12 bg-[#e0e0e0] rounded-full shadow-inner"
-              src={userInfo.avatarUrl}
-            />
+            {
+              userInfo.avatarUrl != null
+                ? <img
+                    className="w-12 h-12 bg-[#e0e0e0] rounded-full shadow-inner"
+                    src={userInfo.avatarUrl}
+                  />
+                : <DefaultUserIcon className="w-12 h-12 bg-[#e0e0e0] rounded-full shadow-inner" />
+            }
             <div className="max-w-[150px] pl-3 pr-2 leading-4 font-[500] truncate">
               {userInfo.nickname}
             </div>

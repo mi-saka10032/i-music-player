@@ -39,21 +39,16 @@ body,
   }
 
   &::-webkit-scrollbar-thumb {
-    background-color: #8f8f8f;
+    background-color: @scroll-color;
     border-radius: @scroll-width;
+
+    &:hover {
+      background-color: @scroll-active-color;;
+    }
   }
 
   &::-webkit-scrollbar-track {
-    background-color: #fff;
+    background-color: @bg-color;
     border-radius: @scroll-width;
   }
-
-  /* Firefox */
-  scrollbar-width: @scroll-width;
-  scrollbar-color: #8f8f8f #fff;
-
-  /* Edge */
-  -ms-overflow-style: none;
-  scrollbar-width: @scroll-width;
-  scrollbar-color: #8f8f8f #fff;
 }

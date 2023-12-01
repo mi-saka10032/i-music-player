@@ -1,0 +1,12 @@
+.toggle_scroll::-webkit-scrollbar-thumb:hover {
+  background-color: #e0e0e0;
+}
+.toggle_scroll::-webkit-scrollbar-track {
+  background-color: #ededed;
+}
+.toggle_scroll::-webkit-scrollbar {
+  display: none;
+}
+.toggle_scroll:hover::-webkit-scrollbar {
+  display: block;
+}

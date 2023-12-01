@@ -8,7 +8,6 @@ import Axios, {
   type CustomParamsSerializer,
   type AxiosError
 } from 'axios'
-import NProgress from './progress'
 import { getCookie, isTauriEnv } from '@/utils'
 
 // H5依赖接口
@@ -41,11 +40,7 @@ class TauriClient {
 
   private httpInterceptorsRequest (): void {
     TauriClient.axiosInstance.interceptors.request.use(
-      async (config: AxiosRequestConfig): Promise<any> => {
-        // 开启进度条动画
-        NProgress.start()
-        return config
-      },
+      async (config: AxiosRequestConfig): Promise<any> => config,
       async error => await Promise.reject(error)
     )
   }
@@ -53,8 +48,6 @@ class TauriClient {
   private httpInterceptorsResponse (): void {
     TauriClient.axiosInstance.interceptors.response.use(
       async (response: AxiosResponse): Promise<AxiosResponse> => {
-        // 关闭进度条动画
-        NProgress.done()
         let error_msg = ''
         if (response.status !== 200) {
           error_msg = '服务器响应码不正确，请检查服务器配置'
@@ -70,7 +63,6 @@ class TauriClient {
       },
       (error: AxiosError) => {
         console.log(error)
-        NProgress.done()
       }
     )
   }
@@ -126,7 +118,6 @@ class TauriClient {
     if (isTauriEnv) {
       const params: KV = axiosConfig != null ? { ...axiosConfig.params, ...axiosConfig.data } : {}
       let tauriResult: any = {}
-      NProgress.start()
       try {
         const result: CommonRes = await this.tauriRequest<CommonRes>(method, url, params)
         if (result.code !== 200) {
@@ -136,7 +127,6 @@ class TauriClient {
       } catch (error) {
         console.log('TauriNetworkError', error)
       }
-      NProgress.done()
       return tauriResult
     }
     const config: AxiosRequestConfig = {

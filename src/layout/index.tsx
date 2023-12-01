@@ -1,6 +1,6 @@
-import { type MouseEvent, memo, useEffect, useState, useRef, useCallback, useMemo } from 'react'
-import { message } from 'antd'
+import { type MouseEvent, memo, useEffect, useState, useRef, useCallback, useMemo, lazy } from 'react'
 import GlobalContext from './context'
+import { message } from 'antd'
 import { useAppSelector, useAppDispatch, playNowById, playNowByCustom } from '@/hooks'
 import { fetchRecommendData } from '@/store/cache'
 import { clearPlaylists, setActiveId, setActiveIndex } from '@/store/playlist'
@@ -8,14 +8,15 @@ import { clearPlayerStatus, setPlayStatus } from '@/store/playerStatus'
 import { clearPlayerProgress, setProgress } from '@/store/playerProgress'
 import { setMute, setPlayType, setVolume } from '@/store/playerInstance'
 import player, { PlayType, PlayerEvent, type SongData } from '@/core/player'
+import { CUSTOM_ID } from '@/utils/constant'
+import { footerHeight, siderWidth, topHeight } from './style'
+
 import Header from './header'
 import Content from './content'
 import Footer from './footer'
 import LeftSider from './leftSider'
-import RightQueue from './rightQueue'
-import Detail from './detail'
-import { CUSTOM_ID } from '@/utils/constant'
-import { footerHeight, siderWidth, topHeight } from './style'
+const RightQueue = lazy(async () => await import('./rightQueue'))
+const Detail = lazy(async () => await import('./detail'))
 
 const Layout = memo(() => {
   const {

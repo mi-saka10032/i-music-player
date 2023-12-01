@@ -9,7 +9,7 @@ use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
 pub struct Options<'a> {
-    method: &'a str,
+    // method: &'a str,
     url: &'a str,
     params: Vec<(&'a str, &'a str)>,
     cookie: &'a str,
