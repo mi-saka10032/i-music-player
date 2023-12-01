@@ -1,7 +1,7 @@
 import { Howl, Howler } from 'howler'
 import mitt, { type Emitter } from 'mitt'
 import { PlayType, type SongData, PlayerEvent, type PlayerState, type MittEvents } from './playerType.ts'
-import { getSongUrl } from '@/api'
+import { getHiResSongUrl, getSongUrl } from '@/api'
 import { formatImgUrl } from '@/utils/url.ts'
 
 export class Player {
@@ -47,7 +47,7 @@ export class Player {
     if (value === this._index) return
     this._index = value
     this.emit(PlayerEvent.INDEX_CHANGE, value)
-    const id = this.playlist[value]?.id ?? 0
+    const id = this._playlist[value]?.id ?? 0
     this.emit(PlayerEvent.ID_CHANGE, id)
   }
   /** 曲目索引 */
@@ -199,23 +199,32 @@ export class Player {
     this.index = index
     // 防抖索引，多次切换歌曲但歌曲初始化未完成，将跳过howl的init
     this.debounceIndex = index
-    if (this.playlist[index] == null) return
-    if (this.playlist[index].howl == null) {
+    if (this._playlist[index] == null) return
+    if (this._playlist[index].howl == null) {
       try {
         // 应对自定义歌单，每首歌获取时自带url，不进入该判断逻辑
-        if (this.playlist[index].url == null || this.playlist[index].url?.length === 0) {
+        if (this._playlist[index].url == null || this._playlist[index].url?.length === 0) {
+          const currentId = this._playlist[index].id
           // 应对网易云歌单，每首歌需要单独根据id获取url
-          const { url, time } = await getSongUrl(this.playlist[index].id).then(res => res.data[0])
-          // url不存在时抛出异常
-          if (url?.length > 0) {
-            this.playlist[index].url = url
-            this.playlist[index].time = time
+          const [hiResSong, normalSong] = await Promise.allSettled([
+            getHiResSongUrl(currentId).then(res => res.data),
+            getSongUrl(currentId).then(res => res.data[0])
+          ])
+          if (hiResSong.status === 'fulfilled' && hiResSong.value.url?.length > 0) {
+            // 优先判断 hi-res 无损音质
+            this._playlist[index].url = hiResSong.value.url
+            this._playlist[index].time = hiResSong.value.time
+          } else if (normalSong.status === 'fulfilled' && normalSong.value.url?.length > 0) {
+            // 默认音质兜底
+            this._playlist[index].url = normalSong.value.url
+            this._playlist[index].time = normalSong.value.time
           } else {
+            // url不存在时抛出异常
             throw new Error('invalid audio')
           }
         }
-        this.playlist[index].howl = new Howl({
-          src: [String(this.playlist[index].url)],
+        this._playlist[index].howl = new Howl({
+          src: [String(this._playlist[index].url)],
           html5: true, // 优化音频加载
           pool: 20 // 增大缓冲池
         })
@@ -226,10 +235,10 @@ export class Player {
     }
     if ('mediaSession' in window.navigator) {
       window.navigator.mediaSession.metadata = new window.MediaMetadata({
-        title: this.playlist[index].name,
-        artist: this.playlist[index].artists.map(a => a.name).join(' / '),
-        album: this.playlist[index].album.name,
-        artwork: [{ src: `${formatImgUrl(this.playlist[index].album.picUrl ?? '', 128)}`, sizes: '128x128' }]
+        title: this._playlist[index].name,
+        artist: this._playlist[index].artists.map(a => a.name).join(' / '),
+        album: this._playlist[index].album.name,
+        artwork: [{ src: `${formatImgUrl(this._playlist[index].album.picUrl ?? '', 128)}`, sizes: '128x128' }]
       })
     }
     if (this.debounceIndex !== index) return
@@ -299,7 +308,7 @@ export class Player {
       case PlayType.single:
         break
       case PlayType.sequential:
-        if (this.index < this.playlist.length - 1) {
+        if (this.index < this._playlist.length - 1) {
           this.next()
         }
         break
@@ -369,17 +378,17 @@ export class Player {
   private randomIndex (): number {
     let random: number
     do {
-      random = Math.floor(Math.random() * this.playlist.length)
+      random = Math.floor(Math.random() * this._playlist.length)
     } while (random === this.index)
     return random
   }
 
   private nextIndex (): number {
-    return this.index < this.playlist.length - 1 ? this.index + 1 : 0
+    return this.index < this._playlist.length - 1 ? this.index + 1 : 0
   }
 
   private prevIndex (): number {
-    return this.index > 0 ? this.index - 1 : this.playlist.length - 1
+    return this.index > 0 ? this.index - 1 : this._playlist.length - 1
   }
 
   /** 下一首 */
@@ -396,7 +405,7 @@ export class Player {
 
   /** 播放 */
   public play () {
-    if (this.playlist.length === 0) return
+    if (this._playlist.length === 0) return
     const howl = this.getCurrentHowl()
     if (howl == null) {
       console.warn('invalid audio')

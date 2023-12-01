@@ -8,10 +8,6 @@ import LoadingInstance from '@/components/loadingInstance'
 import { generateZebraClass, serializeNumberTrans, artistsArrayTrans, durationTrans, customSongDataTrans } from '@/utils/formatter'
 import { highlightNameClass, highlightArtistClass, highlightDurationClass } from '@/utils/highlightSongClass'
 import { CONTENT_CONTAINER_ID } from '@/utils/constant'
-import PlayInActiveIcon from '@/assets/svg/play_inactive.svg?react'
-import PlayActiveIcon from '@/assets/svg/play_active.svg?react'
-import FavoriteIcon from '@/assets/svg/favorite.svg?react'
-import DownloadIcon from '@/assets/svg/download.svg?react'
 import { getJaySongs } from '@/api/jay'
 
 interface MusicDetailListsProps {
@@ -128,20 +124,18 @@ const MusicDetailLists = memo((props: MusicDetailListsProps) => {
         <span className="w-[7.5rem] flex justify-between items-center pr-5">
           {
             item.id === activeId
-              ? (
-                  status === 'playing'
-                    ? <PlayActiveIcon className="w-4 h-4" />
-                    : <PlayInActiveIcon className="w-5 h-5" />
-                )
+              ? <i
+                  className={`iconfont ${status === 'playing' ? 'icon-play-active' : 'icon-play-inactive'} text-xl text-primary`}
+                />
               : (
                 <span className="text-sm text-[#cbcbcc] leading-none">
                   {serializeNumberTrans(index)}
                 </span>
                 )
           }
-          <span className="flex items-center">
-            <FavoriteIcon className="w-5 h-5" />
-            <DownloadIcon className="ml-2 w-5 h-5" />
+          <span className="flex items-center text-ctd">
+            <i className="iconfont icon-like mr-2" />
+            <i className="iconfont icon-download" />
           </span>
         </span>
         <span

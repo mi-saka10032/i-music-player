@@ -45,7 +45,7 @@ const DisableHotKeys = memo((props: React.PropsWithChildren<any>) => {
   // 仅生产环境下禁用全局热键
   return (
     import.meta.env.PROD
-      ? <GlobalHotKeys keyMap={keyMap} handlers={handlers} id="hotKey">{props.children}</GlobalHotKeys>
+      ? <GlobalHotKeys keyMap={keyMap} handlers={handlers}>{props.children}</GlobalHotKeys>
       : props.children
   )
 })

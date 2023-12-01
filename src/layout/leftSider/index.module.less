@@ -1,0 +1,19 @@
+@import '../../style/variables.less';
+
+.toggle_scroll {
+  &::-webkit-scrollbar-thumb:hover{
+    background-color: @scroll-color;
+  }
+
+  &::-webkit-scrollbar-track {
+    background-color: @sidebar-bg-color;
+  }
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  &:hover::-webkit-scrollbar {
+    display: block;
+  }
+}

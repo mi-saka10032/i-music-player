@@ -7,7 +7,6 @@ import { type SongData } from '@/core/playerType'
 import styles from './index.module.less'
 import Needle from '@/assets/png/playing_page_needle.png'
 import Disc from '@/assets/png/playing_page_disc.png'
-import ArrowDown from '@/assets/svg/arrow-down.svg?react'
 
 interface DetailProps {
   detailRef: React.MutableRefObject<boolean>
@@ -105,7 +104,7 @@ const Detail = memo((props: DetailProps) => {
   // 正常歌词行渲染
   const lineRenderer = useCallback(({ active, line }: { active: boolean, line: LrcLine }) => {
     return (
-      <div className={`min-h-[12px] py-1.5 text-base ${active ? 'text-lg font-medium text-zinc-950' : 'text-gray-600'}`}>
+      <div className={`min-h-[12px] py-2 ${active ? 'text-lg font-semibold text-zinc-950' : 'text-base text-gray-600'}`}>
         {line.content}
       </div>
     )
@@ -128,9 +127,9 @@ const Detail = memo((props: DetailProps) => {
   }, [props.songItem, props.progress])
 
   return (
-    <div className="relative flex" style={{ height: 'calc(100% - 60px)' }}>
-      <ArrowDown
-        className="absolute z-40 left-5 top-5 w-5 h-5 cursor-pointer"
+    <div className="relative flex h-full">
+      <i
+        className="iconfont icon-arrow-down absolute z-40 left-5 top-5 text-xl text-ctd cursor-pointer"
         onClick={switchDetailStatus}
       />
       <aside className="relative flex justify-center items-center w-1/2">

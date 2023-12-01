@@ -1,7 +1,5 @@
 import { memo, useCallback, type MouseEvent } from 'react'
 import { playCountTrans } from '@/utils/formatter'
-import PlaySpace from '@/assets/svg/play_space.svg?react'
-import PlaySingle from '@/assets/svg/play_single.svg?react'
 
 interface CardProps {
   info: PersonalLists[number]
@@ -26,8 +24,8 @@ const Card = memo(({ info, getPlaylists, gotoDetail }: CardProps) => {
         {
           info.playCount > 0
             ? (
-              <div className="absolute top-1 right-2 flex items-center text-white">
-                <PlaySpace className="w-4 h-4 fill-white mr-1" />
+              <div className="absolute top-1 right-2 flex items-center text-white leading-none">
+                <i className="iconfont icon-play-space" />
                 <span className="text-xs">{playCountTrans(info.playCount)}</span>
               </div>
               )
@@ -37,7 +35,7 @@ const Card = memo(({ info, getPlaylists, gotoDetail }: CardProps) => {
           className="absolute bottom-2.5 right-2.5 flex justify-center items-center w-9 h-9 rounded-full bg-[#eaeaea] opacity-0 group-hover:opacity-100 duration-500"
           onClick={(e: MouseEvent) => { handleClick(e, info.id) }}
         >
-          <PlaySingle className="w-4 h-4" />
+          <i className="iconfont icon-play text-base leading-none text-primary" />
         </div>
       </div>
       <div className="h-[45px] py-1 text-ellipsis-l2">{info.name}</div>

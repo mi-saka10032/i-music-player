@@ -7,6 +7,4 @@ export const getRecommendResource = async () => await tauriClient.get<ResourceLi
  * 推荐歌单
  * @param {Object} params { limit: 1 }
  */
-export const getPersonalized = async (params?: { limit?: number }) => {
-  return await tauriClient.get<PersonalListsRes>('/personalized', params)
-}
+export const getPersonalized = async (params?: { limit?: number }) => await tauriClient.get<PersonalListsRes>('/personalized', params)

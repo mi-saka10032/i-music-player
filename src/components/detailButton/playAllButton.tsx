@@ -1,6 +1,4 @@
 import { memo, useMemo, useState } from 'react'
-import PlayWhiteIcon from '@/assets/svg/play_white.svg?react'
-import PlusWhiteIcon from '@/assets/svg/plus_white.svg?react'
 
 interface PlayAllButtonProps {
   onPlayAll?: () => void
@@ -25,8 +23,8 @@ export const PlayAllButton = memo((props: PlayAllButtonProps) => {
         onMouseLeave={() => { setPlayInter(false) }}
         onClick={props?.onPlayAll}
       >
-        <PlayWhiteIcon className="w-6 h-6" />
-        <span className="ml-1">播放全部</span>
+        <i className="iconfont icon-play text-base leading-none" />
+        <span className="ml-1 text-sm leading-none">播放全部</span>
       </nav>
       <span className="absolute top-0 right-11 w-[1px] h-full bg-[#ee5454]"></span>
       <nav
@@ -35,7 +33,7 @@ export const PlayAllButton = memo((props: PlayAllButtonProps) => {
         onMouseLeave={() => { setCollectEnter(false) }}
         onClick={props?.onCollect}
       >
-        <PlusWhiteIcon className="w-5 h-5" />
+        <i className="iconfont icon-plus text-base leading-none" />
       </nav>
     </button>
   )

@@ -101,6 +101,10 @@ interface SongRes extends CommonRes {
   data: Song[]
 }
 
+interface HiResSongRes extends CommonRes {
+  data: Song
+}
+
 // 歌词详情Response
 interface LyricRes extends CommonRes {
   lrc?: {

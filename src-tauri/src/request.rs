@@ -4,15 +4,16 @@ use regex::Regex;
 use serde_json::json;
 use std::collections::HashMap;
 
-use reqwest::header::{
-    HeaderMap, HeaderValue, CONTENT_TYPE, COOKIE, REFERER, USER_AGENT,
-};
+use reqwest::header::{HeaderMap, HeaderValue, CONTENT_TYPE, COOKIE, REFERER, USER_AGENT};
 
 use crate::crypto::Crypto;
 
 lazy_static! {
     static ref _CSRF: Regex = Regex::new(r"_csrf=(?P<csrf>[^(;|$)]+)").unwrap();
-    static ref DOMAIN: Regex = Regex::new(r#"\s*Domain=[^(;|$)]+;*"#).unwrap();
+    static ref _OS: Regex = Regex::new(r"os=(?P<os>[^(;|$)]+)").unwrap();
+    static ref DOMAIN: Regex = Regex::new(r"DOMAIN=(?P<domain>[^(;|$)]+)").unwrap();
+    static ref MUSIC_U: Regex = Regex::new(r"MUSIC_U=(?P<MUSIC_U>[^(;|$)]+)").unwrap();
+    static ref MUSIC_A: Regex = Regex::new(r"MUSIC_A=(?P<MUSIC_A>[^(;|$)]+)").unwrap();
 }
 
 // pub const BANNER_TYPE: [&str; 4] = [
@@ -98,6 +99,7 @@ pub(crate) fn generate_response(
     query_params: HashMap<&str, &str>,
     request_params: HashMap<&str, &str>,
 ) -> FormatParams {
+    println!("url:{}", url.to_string());
     handle_request(url, method, query_params, request_params)
 }
 
@@ -145,23 +147,22 @@ fn handle_request(
 
     let body = match crypto {
         &"weapi" => {
+            let mut _params = query_params;
+
             let csrf_token = if let Some(caps) = _CSRF.captures(cookie) {
                 caps.name("csrf").unwrap().as_str()
             } else {
                 ""
             };
-
-            let mut _params = query_params;
             _params.insert("csrf_token", csrf_token);
 
-            let text;
             // 使用serde_json进行转化
-            let mut map: HashMap<String, serde_json::Value> = HashMap::new();
+            let mut data: HashMap<String, serde_json::Value> = HashMap::new();
             for (key, value) in _params {
-                map.insert(key.to_string(), json!(value));
+                data.insert(key.to_string(), json!(value));
             }
-            text = serde_json::to_string(&map).unwrap();
-            Crypto::weapi(&text)
+
+            Crypto::weapi(&serde_json::to_string(&data).unwrap())
         }
         &"linuxapi" => {
             let text;
@@ -180,6 +181,57 @@ fn handle_request(
             url = "https://music.163.com/api/linux/forward";
             Crypto::linuxapi(&data)
         }
+        &"eapi" => {
+            let mut _params = query_params;
+            let mut _header = HashMap::new();
+
+            let csrf_token = if let Some(caps) = _CSRF.captures(cookie) {
+                caps.name("csrf").unwrap().as_str()
+            } else {
+                ""
+            };
+            _header.insert("csrf_token", csrf_token);
+
+            let os = if let Some(caps) = _OS.captures(cookie) {
+                caps.name("os").unwrap().as_str()
+            } else {
+                ""
+            };
+            _header.insert("os", os);
+
+            let music_u = if let Some(caps) = MUSIC_U.captures(cookie) {
+                caps.name("MUSIC_U").unwrap().as_str()
+            } else {
+                ""
+            };
+            if !music_u.is_empty() {
+                _header.insert("MUSIC_U", music_u);
+            }
+
+            let music_a = if let Some(caps) = MUSIC_A.captures(cookie) {
+                caps.name("MUSIC_A").unwrap().as_str()
+            } else {
+                ""
+            };
+            if !music_a.is_empty() {
+                _header.insert("MUSIC_A", music_a);
+            }
+
+            _header.insert("Cookie", cookie);
+
+            // eapi特有的url参数
+            let eapi_url = _params.get("url").unwrap_or(&"").to_string();
+
+            // 使用serde_json进行转化
+            let mut data: HashMap<String, serde_json::Value> = HashMap::new();
+            for (key, value) in _params {
+                data.insert(key.to_string(), json!(value));
+            }
+            // 插入header
+            data.insert("header".to_string(), json!(_header));
+
+            Crypto::eapi(&eapi_url, &serde_json::to_string(&data).unwrap())
+        }
         _ => String::from(""),
     };
     let headers_vec: Vec<(String, String)> = headers
@@ -191,10 +243,6 @@ fn handle_request(
             )
         })
         .collect();
-    println!("-----headers={:?}", headers);
-    println!("-----body={:?}", body);
-    println!("-----url={:?}", url);
-
     FormatParams {
         url: url.to_string(),
         method: "POST".to_string(),

@@ -6,8 +6,6 @@ import { type SongData } from '@/core/player'
 import LoadingInstance from '@/components/loadingInstance'
 import { generateZebraClass, artistsArrayTrans, durationTrans } from '@/utils/formatter'
 import { highlightArtistClass, highlightDurationClass, highlightNameClass } from '@/utils/highlightSongClass'
-import PlaySingleIcon from '@/assets/svg/play_single.svg?react'
-import PauseSingleIcon from '@/assets/svg/pause_single.svg?react'
 
 interface RightQueueProps {
   showQueue: boolean
@@ -23,7 +21,7 @@ interface RightQueueProps {
 const RightQueue = memo((props: RightQueueProps) => {
   /** 列表左侧播放/暂停小图标展示 */
   const CoreIcon = useMemo(() => {
-    return props.playStatus === 'paused' ? <PauseSingleIcon className="w-3.5 h-3.5" /> : <PlaySingleIcon className="w-3 h-3" />
+    return <i className={`iconfont ${props.playStatus === 'playing' ? 'icon-play' : 'icon-pause'} text-sm leading-none font-bold text-primary`} />
   }, [props.playStatus])
   /** 列表左侧播放/暂停小图标展示 */
 
@@ -101,7 +99,6 @@ const RightQueue = memo((props: RightQueueProps) => {
 
   return (
     <>
-      <div className="h-[50px]"></div>
       <div className="max-h-[100px] px-5 bg-white shadow-xl">
         <h2 className="py-5 text-xl font-semibold">当前播放</h2>
         <div className="flex justify-between items-center">
@@ -135,7 +132,6 @@ const RightQueue = memo((props: RightQueueProps) => {
           )}
         </AutoSizer>
       </div>
-      <div className="h-[60px]"></div>
     </>
   )
 })

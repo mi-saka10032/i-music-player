@@ -1,5 +1,4 @@
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
-import Arrow from '@/assets/svg/arrow.svg?react'
 import { type SongData } from '@/core/playerType'
 import { durationTrans } from '@/utils/formatter'
 
@@ -56,8 +55,10 @@ const Thumbnail = memo((props: ThumbnailProps) => {
             onClick={switchDetailStatus}
           >
             <img src={picUrl} className="w-12 h-12 rounded-lg group-hover:blur-[2px]"/>
-            <Arrow className="absolute hidden left-0 top-0 w-full h-1/2 fill-white group-hover:block" />
-            <Arrow className="absolute hidden left-0 bottom-0 w-full h-1/2 fill-white group-hover:block rotate-180" />
+            <div className="font-bold text-white text-center hidden group-hover:block">
+              <i className="iconfont icon-arrow-bottom absolute left-0 top-0 w-full h-1/2 rotate-180" />
+              <i className="iconfont icon-arrow-bottom absolute left-0 bottom-0 w-full h-1/2" />
+            </div>
           </div>
           <div className="ml-3">
             <div className="flex items-center text-base">

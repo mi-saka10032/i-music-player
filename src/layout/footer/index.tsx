@@ -3,8 +3,6 @@ import { type PlayType, type SongData } from '@/core/player'
 import ProgressBar from './playBar/progressBar'
 import PlayTypeIcon from './playBar/playTypeIcon'
 import VolumeController from './playBar/volumeController'
-import PlayIcon from '@/assets/svg/play.svg?react'
-import PauseIcon from '@/assets/svg/pause.svg?react'
 import Thumbnail from './thumbnail'
 
 interface FooterProps {
@@ -36,7 +34,7 @@ const Footer = memo((props: FooterProps) => {
 
   // 播放/暂停图标切换
   const DynamicIcon = useMemo<JSX.Element>(() => {
-    return props.playStatus === 'playing' ? <PauseIcon className="w-12 h-12" /> : <PlayIcon className="w-12 h-12" />
+    return <i className={`iconfont ${props.playStatus === 'playing' ? 'icon-pause-circle' : 'icon-play-circle'} text-5xl text-primary`} />
   }, [props.playStatus])
 
   const curProgress = useRef(0)
@@ -88,7 +86,7 @@ const Footer = memo((props: FooterProps) => {
             onTypeChange={props.onTypeChange}
           />
           <i
-            className="iconfont icon-playlist text-ct text-base cursor-pointer"
+            className="iconfont icon-playlist text-gc text-xl cursor-pointer"
             onClick={switchQueueStatus}
           />
           <VolumeController
