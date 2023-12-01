@@ -234,7 +234,7 @@ const Layout = memo(() => {
   return (
     <GlobalContext.Provider value={{ player: playerRef.current }}>
       <div
-        className='relative grid w-full h-full m-0 p-0 overflow-hidden'
+        className='relative grid w-full h-full m-0 p-0 overflow-hidden rounded-2xl'
         style={{
           gridTemplateRows: `${topHeight} 1fr ${footerHeight}`,
           gridTemplateColumns: `${siderWidth} 1fr`
@@ -304,7 +304,7 @@ const Layout = memo(() => {
         </div>
         {/* Detail fixed */}
         <div
-          className={`fixed z-20 left-0 w-full h-full transition-opacity duration-500 bg-[#f8f8f8] ${switchDetailClass}`}
+          className={`fixed z-20 left-0 w-full h-full transition-opacity duration-500 bg-[#f8f8f8] rounded-2xl ${switchDetailClass}`}
           style={{ paddingTop: topHeight, paddingBottom: footerHeight }}
         >
           <Detail

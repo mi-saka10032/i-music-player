@@ -1,4 +1,4 @@
-import { memo, useMemo, useRef, useCallback } from 'react'
+import { memo, useMemo, useRef, useCallback, useEffect } from 'react'
 import ProgressBar from '@/layout/footer/playBar/progressBar'
 
 interface VolumeControllerProps {
@@ -14,6 +14,7 @@ const VolumeController = memo((props: VolumeControllerProps) => {
 
   // 静音前音量缓存
   const lastVolume = useRef(volume)
+  const volumeRef = useRef<HTMLDivElement>(null)
 
   // 静音切换
   const switchMute = useCallback(() => {
@@ -21,7 +22,7 @@ const VolumeController = memo((props: VolumeControllerProps) => {
       props.onVolumeChange(lastVolume.current)
     } else {
       props.onVolumeChange(0)
-      lastVolume.current = volume ?? 10
+      lastVolume.current = volume > 0 ? volume : 10
     }
     props.onMuteChange(!mute)
   }, [mute, volume])
@@ -30,19 +31,35 @@ const VolumeController = memo((props: VolumeControllerProps) => {
   const soundIcon = useMemo(() => {
     if (mute) {
       return 'icon-volume-cross'
-    } else if (volume >= 66) {
+    } else if (volume >= 75) {
       return 'icon-volume-high'
-    } else if (volume >= 33) {
+    } else if (volume >= 50) {
       return 'icon-volume-middle'
-    } else if (volume > 0) {
+    } else if (volume >= 25) {
       return 'icon-volume-low'
-    } else {
+    } else if (volume > 0) {
       return 'icon-volume-zero'
+    } else {
+      return 'icon-volume-cross'
     }
   }, [mute, volume])
 
+  // 滚轮事件控制音量变化(±10)
+  useEffect(() => {
+    function handleScrollVolume (e: WheelEvent) {
+      // 滚轮↑为负值 滚轮↓为正值
+      const newVolume = (e.deltaY < 0 ? 1 : -1) * 10 + volume
+      const realVolume = Math.max(0, Math.min(100, newVolume))
+      props.onVolumeChange(realVolume)
+    }
+    volumeRef.current?.addEventListener('wheel', handleScrollVolume)
+    return () => {
+      volumeRef.current?.removeEventListener('wheel', handleScrollVolume)
+    }
+  }, [volume])
+
   return (
-    <div className="group/volume relative w-5 h-5 flex justify-center items-center">
+    <div ref={volumeRef} className="group/volume relative w-5 h-5 flex justify-center items-center">
       <i
         className={`iconfont ${soundIcon} text-xl text-gc cursor-pointer`}
         onClick={switchMute}

@@ -23,8 +23,8 @@ export const PlayAllButton = memo((props: PlayAllButtonProps) => {
         onMouseLeave={() => { setPlayInter(false) }}
         onClick={props?.onPlayAll}
       >
-        <i className="iconfont icon-play text-xl" />
-        <span className="ml-1">播放全部</span>
+        <i className="iconfont icon-play text-base leading-none" />
+        <span className="ml-1 text-sm leading-none">播放全部</span>
       </nav>
       <span className="absolute top-0 right-11 w-[1px] h-full bg-[#ee5454]"></span>
       <nav
@@ -33,7 +33,7 @@ export const PlayAllButton = memo((props: PlayAllButtonProps) => {
         onMouseLeave={() => { setCollectEnter(false) }}
         onClick={props?.onCollect}
       >
-        <i className="iconfont icon-plus text-xl" />
+        <i className="iconfont icon-plus text-base leading-none" />
       </nav>
     </button>
   )

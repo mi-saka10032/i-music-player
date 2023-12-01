@@ -75,14 +75,18 @@ const SettingsBar = memo(() => {
         isWindows.current
           ? (
             <>
-              <button onClick={() => { void appWindow.minimize() }}>
-                <i className="iconfont icon-min text-xl text-primary" />
+              <button className="hover:text-primary" onClick={() => { void appWindow.minimize() }}>
+                <i className="iconfont icon-min text-xl" title="最小化" />
               </button>
-              <button onClick={() => { void appWindow.toggleMaximize() }}>
-                <i className={`iconfont ${maxState ? 'icon-minimize' : 'icon-max'} text-xl text-primary`} />
+              <button className="hover:text-primary" onClick={() => { void appWindow.toggleMaximize() }}>
+                {
+                  maxState
+                    ? <i className="iconfont icon-minimize text-xl" title="还原" />
+                    : <i className="iconfont icon-max text-xl" title="最大化" />
+                }
               </button>
-              <button onClick={() => { void appWindow.close() }}>
-                <i className="iconfont icon-quit text-xl text-primary" />
+              <button className="hover:text-primary" onClick={() => { void appWindow.close() }}>
+                <i className="iconfont icon-quit text-xl" title="退出" />
               </button>
             </>
             )
