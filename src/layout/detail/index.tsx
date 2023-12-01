@@ -128,7 +128,7 @@ const Detail = memo((props: DetailProps) => {
   }, [props.songItem, props.progress])
 
   return (
-    <div className="relative flex" style={{ height: 'calc(100% - 60px)' }}>
+    <div className="relative flex h-full">
       <ArrowDown
         className="absolute z-40 left-5 top-5 w-5 h-5 cursor-pointer"
         onClick={switchDetailStatus}

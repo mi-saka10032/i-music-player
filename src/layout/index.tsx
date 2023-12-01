@@ -15,6 +15,7 @@ import LeftSider from './leftSider'
 import RightQueue from './rightQueue'
 import Detail from './detail'
 import { CUSTOM_ID } from '@/utils/constant'
+import { footerHeight, siderWidth, topHeight } from './style'
 
 const Layout = memo(() => {
   const {
@@ -79,9 +80,9 @@ const Layout = memo(() => {
   // 详情页的显示隐藏状态state，传递给detail控制detail的显示/隐藏以及header的隐藏/显示
   const [showDetail, setShowDetail] = useState(detailRef.current)
 
-  // 切换显示/隐藏的class类名
+  // 切换显示/隐藏的class & style
   const switchDetailClass = useMemo<string>(() => {
-    return showDetail ? 'opacity-1' : 'opacity-0 top-full'
+    return showDetail ? 'top-0 opacity-1' : 'top-full opacity-0'
   }, [showDetail])
   /** 音乐详情页的显示/隐藏 */
 
@@ -233,23 +234,37 @@ const Layout = memo(() => {
   return (
     <GlobalContext.Provider value={{ player: playerRef.current }}>
       <div
-        className='relative grid grid-cols-[200px_1fr] grid-rows-[1fr_60px] w-full h-full m-0 p-0 overflow-hidden'
+        className='relative grid w-full h-full m-0 p-0 overflow-hidden'
+        style={{
+          gridTemplateRows: `${topHeight} 1fr ${footerHeight}`,
+          gridTemplateColumns: `${siderWidth} 1fr`
+        }}
         onClick={handleContainerClick}
       >
-        <div className="flex absolute z-40 top-[0] left-[0] w-full h-[50px] ">
+        {/* Header 占据网格第1行，第1-3列网格线 */}
+        <div
+          className="flex relative z-40 col-start-1 col-end-3"
+          style={{ height: topHeight }}
+        >
           <Header
             detailRef={detailRef}
             showDetail={showDetail}
             setShowDetail={setShowDetail}
           />
         </div>
-        <div className="pt-[50px] bg-[#ededed] overflow-auto">
+        {/* LeftSider 占据网格第2行，默认第1-2列网格线 */}
+        <div className="bg-[#ededed] overflow-hidden" >
           <LeftSider />
         </div>
-        <div className="flex w-full h-full overflow-hidden">
+        {/* Content 占据网格第2行，默认第2-3列网格线 */}
+        <div className="flex overflow-hidden">
           <Content />
         </div>
-        <div ref={footerRef} className="relative z-40 w-full h-full col-start-1 col-end-3 bg-white rounded-b-2xl">
+        {/* Footer 占据网格第3行，默认第1-3列网格线 */}
+        <div
+          ref={footerRef}
+          className="relative z-40 w-full col-start-1 col-end-3 bg-white rounded-b-2xl"
+        >
           <Footer
             queueStatusRef={queueStatusRef}
             detailRef={detailRef}
@@ -270,9 +285,11 @@ const Layout = memo(() => {
             onVolumeChange={handleDispatchVolume}
         />
         </div>
+        {/* RightQueue fixed */}
         <div
           ref={queueRef}
           className={`fixed top-0 right-0 z-30 flex flex-col w-[30rem] h-full transition-all duration-500 ${switchQueueStatus}`}
+          style={{ paddingTop: topHeight, paddingBottom: footerHeight }}
         >
           <RightQueue
             showQueue={showQueue}
@@ -285,9 +302,10 @@ const Layout = memo(() => {
             clearPlaylist={handleClearPlaylist}
           />
         </div>
+        {/* Detail fixed */}
         <div
-          className={`fixed z-20 flex flex-col w-full left-0 top-[50px] transition-[opacity] duration-500 bg-[#f8f8f8] ${switchDetailClass}`}
-          style={{ height: 'calc(100vh - 50px - 60px)' }}
+          className={`fixed z-20 left-0 w-full h-full transition-opacity duration-500 bg-[#f8f8f8] ${switchDetailClass}`}
+          style={{ paddingTop: topHeight, paddingBottom: footerHeight }}
         >
           <Detail
             detailRef={detailRef}

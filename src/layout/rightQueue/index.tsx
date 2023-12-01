@@ -101,7 +101,6 @@ const RightQueue = memo((props: RightQueueProps) => {
 
   return (
     <>
-      <div className="h-[50px]"></div>
       <div className="max-h-[100px] px-5 bg-white shadow-xl">
         <h2 className="py-5 text-xl font-semibold">当前播放</h2>
         <div className="flex justify-between items-center">
@@ -135,7 +134,6 @@ const RightQueue = memo((props: RightQueueProps) => {
           )}
         </AutoSizer>
       </div>
-      <div className="h-[60px]"></div>
     </>
   )
 })

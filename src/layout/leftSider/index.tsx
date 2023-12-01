@@ -198,7 +198,7 @@ const LeftSider = memo(() => {
   }, [hasLogin])
 
   return (
-    <>
+    <div className="h-full overflow-auto">
       <Popover
         content={<Button danger type="text" size="small" onClick={exit}>退出登录</Button>}
         trigger={ hasLogin ? 'hover' : 'click' }
@@ -255,7 +255,7 @@ const LeftSider = memo(() => {
           menus={subscribedMenu}
         />
       </div>
-    </>
+    </div>
   )
 })
 
