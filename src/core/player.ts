@@ -225,8 +225,8 @@ export class Player {
         }
         this._playlist[index].howl = new Howl({
           src: [String(this._playlist[index].url)],
-          html5: true, // 优化音频加载
-          pool: 20 // 增大缓冲池
+          // html5: true, // 优化音频加载
+          // pool: 20 // 增大缓冲池
         })
       } catch (error) {
         console.warn(error)
