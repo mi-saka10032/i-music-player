@@ -190,11 +190,11 @@ export class Player {
 
   /** 切换曲目（索引） */
   public async setIndex (index: number, autoplay: boolean = true) {
-    if (this.index === index) return
+    if (this._index === index) return
     const beforeHowl = this.getCurrentHowl()
     if (beforeHowl != null) {
       this.removeListeners(beforeHowl)
-      beforeHowl.stop()
+      beforeHowl.unload()
     }
     this.index = index
     // 防抖索引，多次切换歌曲但歌曲初始化未完成，将跳过howl的init
@@ -225,8 +225,8 @@ export class Player {
         }
         this._playlist[index].howl = new Howl({
           src: [String(this._playlist[index].url)],
-          // html5: true, // 优化音频加载
-          // pool: 20 // 增大缓冲池
+          html5: true,
+          preload: 'metadata'
         })
       } catch (error) {
         console.warn(error)
@@ -241,7 +241,15 @@ export class Player {
         artwork: [{ src: `${formatImgUrl(this._playlist[index].album.picUrl ?? '', 128)}`, sizes: '128x128' }]
       })
     }
-    if (this.debounceIndex !== index) return
+    // 根据防抖索引，卸载过期howl
+    if (this.debounceIndex !== index) {
+      const debounce = this._playlist[index]
+      if (debounce?.howl != null) {
+        this.removeListeners(debounce.howl)
+        debounce.howl.unload()
+      }
+      return
+    }
     const howl = this.getCurrentHowl()
     if (howl == null) return
     this.status = 'none'
@@ -308,7 +316,7 @@ export class Player {
       case PlayType.single:
         break
       case PlayType.sequential:
-        if (this.index < this._playlist.length - 1) {
+        if (this._index < this._playlist.length - 1) {
           this.next()
         }
         break
@@ -379,16 +387,16 @@ export class Player {
     let random: number
     do {
       random = Math.floor(Math.random() * this._playlist.length)
-    } while (random === this.index)
+    } while (random === this._index)
     return random
   }
 
   private nextIndex (): number {
-    return this.index < this._playlist.length - 1 ? this.index + 1 : 0
+    return this._index < this._playlist.length - 1 ? this._index + 1 : 0
   }
 
   private prevIndex (): number {
-    return this.index > 0 ? this.index - 1 : this._playlist.length - 1
+    return this._index > 0 ? this._index - 1 : this._playlist.length - 1
   }
 
   /** 下一首 */
