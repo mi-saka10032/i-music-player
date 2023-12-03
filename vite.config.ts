@@ -3,7 +3,6 @@ import path from 'path'
 import react from '@vitejs/plugin-react'
 import svgr from 'vite-plugin-svgr'
 import { createHtmlPlugin } from 'vite-plugin-html'
-import viteImagemin from 'vite-plugin-imagemin'
 
 const resolve = (dir: string) => path.join(__dirname, dir)
 
@@ -13,7 +12,6 @@ export default defineConfig(async ({ mode }) => ({
     react(),
     svgr(),
     createHtmlPlugin(),
-    viteImagemin(),
     splitVendorChunkPlugin()
   ],
 
