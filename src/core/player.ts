@@ -359,7 +359,7 @@ export class Player {
     const howl = this.getCurrentHowl()
     if (howl != null) {
       this.removeListeners(howl)
-      howl.stop()
+      howl.unload()
     }
     this._playlist = []
     this._index = 0
