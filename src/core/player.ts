@@ -195,6 +195,7 @@ export class Player {
     if (beforeHowl != null) {
       this.removeListeners(beforeHowl)
       beforeHowl.unload()
+      this.current.howl = null
     }
     this.index = index
     // 防抖索引，多次切换歌曲但歌曲初始化未完成，将跳过howl的init
@@ -210,36 +211,60 @@ export class Player {
             getHiResSongUrl(currentId).then(res => res.data),
             getSongUrl(currentId).then(res => res.data[0])
           ])
+          const highLevel = { url: '', time: 0 }
+          const defaultLevel = { url: '', time: 0 }
           if (hiResSong.status === 'fulfilled' && hiResSong.value.url?.length > 0) {
             // 优先判断 hi-res 无损音质
-            this._playlist[index].url = hiResSong.value.url
-            this._playlist[index].time = hiResSong.value.time
+            highLevel.url = hiResSong.value.url
+            highLevel.time = hiResSong.value.time
           } else if (normalSong.status === 'fulfilled' && normalSong.value.url?.length > 0) {
             // 默认音质兜底
-            this._playlist[index].url = normalSong.value.url
-            this._playlist[index].time = normalSong.value.time
+            defaultLevel.url = normalSong.value.url
+            defaultLevel.time = normalSong.value.time
           } else {
             // url不存在时抛出异常
             throw new Error('invalid audio')
           }
+          // howl二次实例化，highLevel加载失败后defaultLevel兜底
+          const flag: boolean = await new Promise((resolve) => {
+            this._playlist[index].url = highLevel.url
+            this._playlist[index].time = highLevel.time
+            this._playlist[index].howl = new Howl({
+              src: [highLevel.url],
+              html5: true,
+              preload: 'metadata',
+              onload: () => { resolve(true) },
+              onloaderror: () => { resolve(false) }
+            })
+          })
+          if (!flag) {
+            await new Promise((resolve, reject) => {
+              this._playlist[index].url = defaultLevel.url
+              this._playlist[index].time = defaultLevel.time
+              this._playlist[index].howl = new Howl({
+                src: [defaultLevel.url],
+                html5: true,
+                preload: 'metadata',
+                onload: () => { resolve(true) },
+                onloaderror: (_, err) => { reject(err) }
+              })
+            })
+          }
+        } else {
+          await new Promise((resolve, reject) => {
+            this._playlist[index].howl = new Howl({
+              src: [String(this._playlist[index].url)],
+              html5: true,
+              preload: 'metadata',
+              onload: () => { resolve(true) },
+              onloaderror: (_, err) => { reject(err) }
+            })
+          })
         }
-        this._playlist[index].howl = new Howl({
-          src: [String(this._playlist[index].url)],
-          html5: true,
-          preload: 'metadata'
-        })
       } catch (error) {
         console.warn(error)
         this.emit(PlayerEvent.INVALID, this.state)
       }
-    }
-    if ('mediaSession' in window.navigator) {
-      window.navigator.mediaSession.metadata = new window.MediaMetadata({
-        title: this._playlist[index].name,
-        artist: this._playlist[index].artists.map(a => a.name).join(' / '),
-        album: this._playlist[index].album.name,
-        artwork: [{ src: `${formatImgUrl(this._playlist[index].album.picUrl ?? '', 128)}`, sizes: '128x128' }]
-      })
     }
     // 根据防抖索引，卸载过期howl
     if (this.debounceIndex !== index) {
@@ -247,6 +272,7 @@ export class Player {
       if (debounce?.howl != null) {
         this.removeListeners(debounce.howl)
         debounce.howl.unload()
+        debounce.howl = null
       }
       return
     }
@@ -261,6 +287,14 @@ export class Player {
       this.play()
     }
     this.emit(PlayerEvent.CHANGE, this.state)
+    if ('mediaSession' in window.navigator) {
+      window.navigator.mediaSession.metadata = new window.MediaMetadata({
+        title: this.current.name,
+        artist: this.current.artists.map(a => a.name).join(' / '),
+        album: this.current.album.name,
+        artwork: [{ src: `${formatImgUrl(this.current.album.picUrl ?? '', 128)}`, sizes: '128x128' }]
+      })
+    }
   }
 
   /** 播放进度更新 */
