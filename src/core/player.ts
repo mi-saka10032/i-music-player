@@ -4,6 +4,14 @@ import { PlayType, type SongData, PlayerEvent, type PlayerState, type MittEvents
 import { getHiResSongUrl, getSongUrl } from '@/api'
 import { formatImgUrl } from '@/utils/url.ts'
 
+export interface InitState {
+  volume: number
+  mute: boolean
+  repeatMode: PlayType
+  playlist: SongData[]
+  index: number
+}
+
 export class Player {
   /** pub/sub 事件订阅 */
   private readonly emitter: Emitter<MittEvents<this>> = mitt<MittEvents<this>>()
@@ -18,13 +26,19 @@ export class Player {
   }
   /** 当前曲目 */
 
-  /** 获取当前howl实例 */
-  public getCurrentHowl (): Howl | null {
-    return this.current?.howl ?? null
+  /** 当前howl唯一实例 */
+  private howl: Howl | null = null
+  get currentHowl (): Howl | null {
+    return this.howl
   }
 
+  set currentHowl (value: Howl | null) {
+    this.howl = value
+  }
+  /** 当前howl唯一实例 */
+
   /** 歌单列表 */
-  public _playlist: SongData[] = []
+  private _playlist: SongData[] = []
   get playlist (): SongData[] {
     return this._playlist
   }
@@ -38,7 +52,7 @@ export class Player {
 
   /** 曲目索引 */
   private _index: number = 0
-  private debounceIndex: number = 0
+  private debounce: number = 0
   get index (): number {
     return this._index
   }
@@ -133,7 +147,7 @@ export class Player {
   /** 获取完整播放信息 */
   get state (): PlayerState {
     return {
-      howl: this.getCurrentHowl(),
+      howl: this.currentHowl,
       id: this.current.id,
       status: this.status,
       repeatMode: this.repeatMode,
@@ -144,6 +158,24 @@ export class Player {
     }
   }
   /** 获取完整播放信息 */
+
+  /** 定期清理列表中全部url，126链接存在有效期 */
+  private cleaner: number = 0
+  public initUrlCleaner () {
+    this.cleaner = window.setInterval(() => {
+      this._playlist.forEach(item => {
+        if (item.url != null && item.url.includes('126.net')) {
+          item.url = ''
+        }
+      })
+    }, 1000 * 60 * 10)
+  }
+
+  public removeUrlCleaner () {
+    window.clearInterval(this.cleaner)
+    this.cleaner = 0
+  }
+  /** 定期清理列表中全部url，126链接存在有效期 */
 
   /** 初始化 */
   constructor (playlist: SongData[], index: number = 0, repeatMode = PlayType.loop, volume: number = 100, mute: boolean = false) {
@@ -160,6 +192,8 @@ export class Player {
       mediaSession.setActionHandler('seekto', details => { this.seekTo(details.seekTime) })
       mediaSession.setActionHandler('stop', () => { this.stop() })
     }
+    // 开启定时清理url
+    this.initUrlCleaner()
   }
 
   /** 设置歌曲列表 */
@@ -188,72 +222,60 @@ export class Player {
   }
   /** 切换曲目（ID） */
 
-  /** 切换曲目（索引） */
+  /** 切换曲目（索引） core功能 */
   public async setIndex (index: number, autoplay: boolean = true) {
     if (this._index === index) return
-    const beforeHowl = this.getCurrentHowl()
-    if (beforeHowl != null) {
-      this.removeListeners(beforeHowl)
-      beforeHowl.unload()
-      this.current.howl = null
+    if (this.currentHowl != null) {
+      this.removeListeners()
+      this.currentHowl.unload()
+      this.currentHowl = null
     }
     this.index = index
     // 防抖索引，多次切换歌曲但歌曲初始化未完成，将跳过howl的init
-    this.debounceIndex = index
+    this.debounce = index
     if (this._playlist[index] == null) return
-    if (this._playlist[index].howl == null) {
-      try {
-        // 应对自定义歌单，每首歌获取时自带url，不进入该判断逻辑
-        if (this._playlist[index].url == null || this._playlist[index].url?.length === 0) {
-          const currentId = this._playlist[index].id
-          // 应对网易云歌单，每首歌需要单独根据id获取url
-          const [hiResSong, normalSong] = await Promise.allSettled([
-            getHiResSongUrl(currentId).then(res => res.data),
-            getSongUrl(currentId).then(res => res.data[0])
-          ])
-          const highLevel = { url: '', time: 0 }
-          const defaultLevel = { url: '', time: 0 }
-          if (hiResSong.status === 'fulfilled' && hiResSong.value.url?.length > 0) {
-            // 优先判断 hi-res 无损音质
-            highLevel.url = hiResSong.value.url
-            highLevel.time = hiResSong.value.time
-          } else if (normalSong.status === 'fulfilled' && normalSong.value.url?.length > 0) {
-            // 默认音质兜底
-            defaultLevel.url = normalSong.value.url
-            defaultLevel.time = normalSong.value.time
-          } else {
-            // url不存在时抛出异常
-            throw new Error('invalid audio')
-          }
-          // howl二次实例化，highLevel加载失败后defaultLevel兜底
-          const flag: boolean = await new Promise((resolve) => {
-            this._playlist[index].url = highLevel.url
-            this._playlist[index].time = highLevel.time
-            this._playlist[index].howl = new Howl({
-              src: [highLevel.url],
-              html5: true,
-              preload: 'metadata',
-              onload: () => { resolve(true) },
-              onloaderror: () => { resolve(false) }
-            })
-          })
-          if (!flag) {
-            await new Promise((resolve, reject) => {
-              this._playlist[index].url = defaultLevel.url
-              this._playlist[index].time = defaultLevel.time
-              this._playlist[index].howl = new Howl({
-                src: [defaultLevel.url],
-                html5: true,
-                preload: 'metadata',
-                onload: () => { resolve(true) },
-                onloaderror: (_, err) => { reject(err) }
-              })
-            })
-          }
+    let newHowl: Howl | null = null
+    try {
+      // 应对自定义歌单，每首歌获取时自带url，不进入该判断逻辑
+      if (this._playlist[index].url == null || this._playlist[index].url?.length === 0) {
+        const currentId = this._playlist[index].id
+        // 应对网易云歌单，每首歌需要单独根据id获取url
+        const [hiResSong, normalSong] = await Promise.allSettled([
+          getHiResSongUrl(currentId).then(res => res.data),
+          getSongUrl(currentId).then(res => res.data[0])
+        ])
+        const highLevel = { url: '', time: 0 }
+        const defaultLevel = { url: '', time: 0 }
+        if (hiResSong.status === 'fulfilled' && hiResSong.value.url?.length > 0) {
+          // 优先判断 hi-res 无损音质
+          highLevel.url = hiResSong.value.url
+          highLevel.time = hiResSong.value.time
+        } else if (normalSong.status === 'fulfilled' && normalSong.value.url?.length > 0) {
+          // 默认音质兜底
+          defaultLevel.url = normalSong.value.url
+          defaultLevel.time = normalSong.value.time
         } else {
+          // url不存在时抛出异常
+          throw new Error('invalid audio')
+        }
+        // howl二次实例化，highLevel加载失败后defaultLevel兜底
+        const flag: boolean = await new Promise((resolve) => {
+          this._playlist[index].url = highLevel.url
+          this._playlist[index].time = highLevel.time
+          newHowl = new Howl({
+            src: [highLevel.url],
+            html5: true,
+            preload: 'metadata',
+            onload: () => { resolve(true) },
+            onloaderror: () => { resolve(false) }
+          })
+        })
+        if (!flag) {
           await new Promise((resolve, reject) => {
-            this._playlist[index].howl = new Howl({
-              src: [String(this._playlist[index].url)],
+            this._playlist[index].url = defaultLevel.url
+            this._playlist[index].time = defaultLevel.time
+            newHowl = new Howl({
+              src: [defaultLevel.url],
               html5: true,
               preload: 'metadata',
               onload: () => { resolve(true) },
@@ -261,26 +283,34 @@ export class Player {
             })
           })
         }
-      } catch (error) {
-        console.warn(error)
-        this.emit(PlayerEvent.INVALID, this.state)
+      } else {
+        await new Promise((resolve, reject) => {
+          newHowl = new Howl({
+            src: [String(this._playlist[index].url)],
+            html5: true,
+            preload: 'metadata',
+            onload: () => { resolve(true) },
+            onloaderror: (_, err) => { reject(err) }
+          })
+        })
       }
+    } catch (error) {
+      console.warn(error)
+      this.emit(PlayerEvent.INVALID, this.state)
     }
+    if (newHowl == null) return
     // 根据防抖索引，卸载过期howl
-    if (this.debounceIndex !== index) {
-      const debounce = this._playlist[index]
-      if (debounce?.howl != null) {
-        this.removeListeners(debounce.howl)
-        debounce.howl.unload()
-        debounce.howl = null
-      }
+    if (this.debounce !== index && newHowl != null) {
+      (newHowl as Howl).unload()
+      // 手动释放howl内存
+      newHowl = null
       return
     }
-    const howl = this.getCurrentHowl()
-    if (howl == null) return
     this.status = 'none'
-    howl.loop(this.repeatMode === PlayType.single)
-    this.initListeners(howl)
+    // 新howl赋值
+    this.currentHowl = newHowl as Howl
+    this.currentHowl.loop(this.repeatMode === PlayType.single)
+    this.initListeners()
     this.duration = Number(this.current.time) > 0 ? Number(this.current.time) / 1000 : 0
     this.progress = 0
     if (autoplay) {
@@ -301,10 +331,9 @@ export class Player {
   private requestId: number = 0
   public update () {
     this.step()
-    const howl = this.getCurrentHowl()
-    if (howl == null) return
+    if (this.currentHowl == null) return
     window.clearTimeout(this.requestId)
-    if (howl.playing() || this.status === 'playing') {
+    if (this.currentHowl.playing() || this.status === 'playing') {
       this.requestId = window.setTimeout(() => { this.update() }, 500)
     }
   }
@@ -371,29 +400,32 @@ export class Player {
   }
 
   /** 挂载howl监听事件 */
-  private initListeners (howl: Howl) {
-    howl.on('play', this.onPlay)
-    howl.on('pause', this.onPause)
-    howl.on('stop', this.onStop)
-    howl.on('end', this.onEnd)
-    howl.on('seek', this.onSeek)
+  private initListeners () {
+    if (this.currentHowl != null) {
+      this.currentHowl.on('play', this.onPlay)
+      this.currentHowl.on('pause', this.onPause)
+      this.currentHowl.on('stop', this.onStop)
+      this.currentHowl.on('end', this.onEnd)
+      this.currentHowl.on('seek', this.onSeek)
+    }
   }
 
   /** 卸载howl监听事件 */
-  private removeListeners (howl: Howl) {
-    howl.off('play', this.onPlay)
-    howl.off('pause', this.onPause)
-    howl.off('stop', this.onStop)
-    howl.off('end', this.onEnd)
-    howl.off('seek', this.onSeek)
+  private removeListeners () {
+    if (this.currentHowl != null) {
+      this.currentHowl.off('play', this.onPlay)
+      this.currentHowl.off('pause', this.onPause)
+      this.currentHowl.off('stop', this.onStop)
+      this.currentHowl.off('end', this.onEnd)
+      this.currentHowl.off('seek', this.onSeek)
+    }
   }
 
   /** 重置播放器实例 */
   public reset (): void {
-    const howl = this.getCurrentHowl()
-    if (howl != null) {
-      this.removeListeners(howl)
-      howl.unload()
+    if (this.currentHowl != null) {
+      this.removeListeners()
+      this.currentHowl.unload()
     }
     this._playlist = []
     this._index = 0
@@ -411,9 +443,8 @@ export class Player {
   /** 设置循环模式 */
   public setRepeatMode (mode: PlayType): void {
     this.repeatMode = mode
-    const howl = this.getCurrentHowl()
-    if (howl != null) {
-      howl.loop(mode === PlayType.single)
+    if (this.currentHowl != null) {
+      this.currentHowl.loop(mode === PlayType.single)
     }
   }
 
@@ -448,35 +479,32 @@ export class Player {
   /** 播放 */
   public play () {
     if (this._playlist.length === 0) return
-    const howl = this.getCurrentHowl()
-    if (howl == null) {
+    if (this.currentHowl == null) {
       console.warn('invalid audio')
       this.emit(PlayerEvent.INVALID, this.state)
       return
     }
-    if (howl.playing()) return
-    howl.play()
+    if (this.currentHowl.playing()) return
+    this.currentHowl.play()
+    this.currentHowl.fade(0, this._volume, 500)
   }
 
   /** 停止 */
   public stop (): void {
-    const howl = this.getCurrentHowl()
-    if (howl == null) return
-    howl.stop()
+    if (this.currentHowl == null) return
+    this.currentHowl.stop()
   }
 
   /** 暂停 */
   public pause (): void {
-    const howl = this.getCurrentHowl()
-    if (howl == null) return
-    howl.pause()
+    if (this.currentHowl == null) return
+    this.currentHowl.pause()
   }
 
   /** 播放/暂停切换 */
   public switchPlay (): void {
-    const howl = this.getCurrentHowl()
-    if (howl == null) return
-    if (howl.playing()) {
+    if (this.currentHowl == null) return
+    if (this.currentHowl.playing()) {
       this.pause()
     } else {
       this.play()
@@ -488,9 +516,8 @@ export class Player {
    * @param seekTime 秒
    */
   public seekTo (seekTime?: number) {
-    const howl = this.getCurrentHowl()
-    if (howl != null) {
-      howl.seek(seekTime)
+    if (this.currentHowl != null) {
+      this.currentHowl.seek(seekTime)
     }
   }
 
@@ -505,10 +532,9 @@ export class Player {
 
   /** 步进进度 */
   public step () {
-    const howl = this.getCurrentHowl()
-    if (howl == null) return
-    const seekTime = howl.seek() ?? 0
-    const duration = howl.duration() ?? 0
+    if (this.currentHowl == null) return
+    const seekTime = this.currentHowl.seek() ?? 0
+    const duration = this.currentHowl.duration() ?? 0
     const progress = duration > 0 ? (seekTime / duration) * 100 : 0
     this.progress = Math.max(0, Math.min(100, progress))
     this.duration = duration
@@ -545,14 +571,6 @@ export class Player {
     this.setRepeatMode(state.repeatMode)
     this.setPlaylist(state.playlist, state.index)
   }
-}
-
-export interface InitState {
-  volume: number
-  mute: boolean
-  repeatMode: PlayType
-  playlist: SongData[]
-  index: number
 }
 
 export * from './playerType.ts'

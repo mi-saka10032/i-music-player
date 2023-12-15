@@ -1459,7 +1459,7 @@ dependencies = [
 
 [[package]]
 name = "i-music-player"
-version = "0.0.4"
+version = "0.0.4-alpha"
 dependencies = [
  "base64 0.21.5",
  "hex",

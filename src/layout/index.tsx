@@ -221,6 +221,7 @@ const Layout = memo(() => {
       playerRef.current.off(PlayerEvent.ID_CHANGE, handleDispatchId)
       playerRef.current.off(PlayerEvent.INDEX_CHANGE, handleDispatchIndex)
       playerRef.current.off(PlayerEvent.INVALID, showInvalidTips)
+      playerRef.current.removeUrlCleaner()
     }
   }, [])
 
