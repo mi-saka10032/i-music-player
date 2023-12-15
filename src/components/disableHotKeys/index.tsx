@@ -6,7 +6,7 @@ type Handler = Record<string, (keyEvent?: KeyboardEvent) => void>
 // 禁用浏览器热键，让应用更接近原生
 const DisableHotKeys = memo((props: React.PropsWithChildren<any>) => {
   const keyMap: KeyMap = useMemo(() => ({
-    REFRESH: ['command+r', 'ctrl+r', 'F5'],
+    // REFRESH: ['command+r', 'ctrl+r', 'F5'],
     FIND: ['command+f', 'ctrl+f'],
     NEW_WINDOW: ['command+n', 'ctrl+n'],
     PRINT: ['command+p', 'ctrl+p'],
