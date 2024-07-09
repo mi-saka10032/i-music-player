@@ -20,16 +20,12 @@ enum KeyList {
   playerInstance = 'playerInstance',
   playerProgress = 'playerProgress'
 }
-interface DBResult {
-  id: number
-  name: keyof typeof KeyList
-  value: string
-}
+
 const keyList = Object.values(KeyList)
 
 function update (key: string, state: any) {
   try {
-    void updateDB({ name: key, value: JSON.stringify(state) })
+    void updateDB({ name: key, value: state })
   } catch (error) {
     console.log(error)
   }
@@ -55,25 +51,21 @@ export const setInitialState = () => {
     try {
       const state = getState()
       const cache: RootState = Object.assign({}, state)
-      void Promise.allSettled(keyList.map(async name => await selectDB<DBResult>(name))).then((res) => {
-        res.forEach((item) => {
-          if (item.status === 'fulfilled') {
-            // item.value是selectDB的真正结果
-            const result = item.value
-            if (Array.isArray(result) && result.length > 0) {
-              const { name, value } = result[0]
-              try {
-                cache[name] = Object.assign({}, cache[name], JSON.parse(value))
-              } catch (error) {
-                console.log(error)
-              }
-            }
+      const items = await Promise.allSettled(keyList.map<Promise<[KeyList, any]>>(async name => {
+        const value = await selectDB<any>(name)
+        return [name, value]
+      }))
+      for (const item of items) {
+        if (item.status === 'fulfilled') {
+          const [name, value] = item.value
+          if (value != null) {
+            cache[name] = Object.assign({}, cache[name], value)
           }
-        })
-        dispatch({ type: INITIAL_STATE_LOADED, payload: cache })
-      })
+        }
+      }
+      dispatch({ type: INITIAL_STATE_LOADED, payload: cache })
     } catch (error) {
-      console.error('Error loading initial state from DB:', error)
+      console.error('Error loading initial state from indexedDB:', error)
     }
   }
 }

@@ -3,6 +3,7 @@ import path from 'path'
 import react from '@vitejs/plugin-react'
 import svgr from 'vite-plugin-svgr'
 import { createHtmlPlugin } from 'vite-plugin-html'
+import { visualizer } from 'rollup-plugin-visualizer'
 
 const resolve = (dir: string) => path.join(__dirname, dir)
 
@@ -12,7 +13,8 @@ export default defineConfig(async ({ mode }) => ({
     react(),
     svgr(),
     createHtmlPlugin(),
-    splitVendorChunkPlugin()
+    splitVendorChunkPlugin(),
+    visualizer()
   ],
 
   // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
@@ -54,15 +56,19 @@ export default defineConfig(async ({ mode }) => ({
                   return 'tauri'
                 case `${moduleEntry}react/`:
                   return 'react'
+                case `${moduleEntry}react-dom/`:
+                  return 'react-dom'
                 case `${moduleEntry}react-router-dom/`:
                   return 'react-router'
                 case `${moduleEntry}react-redux/`:
                 case `${moduleEntry}@reduxjs/`:
                   return 'redux'
                 case `${moduleEntry}antd/`:
-                  return 'ui'
+                  return 'antd'
                 case `${moduleEntry}swiper/`:
                   return 'swiper'
+                case `${moduleEntry}localforage/`:
+                  return 'persist'
                 case `${moduleEntry}howler/`:
                 case `${moduleEntry}mitt/`:
                   return 'core'
@@ -72,14 +78,6 @@ export default defineConfig(async ({ mode }) => ({
                   return 'request'
                 case `${moduleEntry}react-hotkeys/`:
                   return 'hot-key'
-                case `${moduleEntry}react-virtualized-auto-sizer/`:
-                  return 'auto-sizer'
-                case `${moduleEntry}react-window/`:
-                  return 'virtualize'
-                case `${moduleEntry}react-lrc/`:
-                  return 'lrc'
-                default:
-                  return 'vendor'
               }
             }
           } else if (id.includes(utilEntry)) {
