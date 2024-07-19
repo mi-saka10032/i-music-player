@@ -6,7 +6,6 @@ interface MusicDetailTabProps {
   isCustom: boolean
   listsIds: number[]
   checkById: (id: number) => void
-  onChange?: () => void
 }
 
 /** MusicDetail位于中部的Tab菜单组件，暂无特殊作用，只为接收MusicLists组件 */
@@ -54,7 +53,6 @@ const MusicDetailTab = memo((props: MusicDetailTabProps) => {
         items={items}
         tabBarStyle={{ padding: '0 2rem', marginBottom: '0' }}
         destroyInactiveTabPane={true}
-        onChange={props?.onChange}
       />
     </ConfigProvider>
   )

@@ -22,7 +22,6 @@ const DisableHotKeys = memo((props: React.PropsWithChildren<any>) => {
 
   const handler = useCallback((event?: KeyboardEvent) => {
     event?.preventDefault()
-    console.log('Browser shortcut detected!')
   }, [])
 
   const handlers = useMemo<Handler>(() => {

@@ -1,8 +1,7 @@
 import { type MouseEvent, memo, useEffect, useState, useRef, useCallback, useMemo, lazy } from 'react'
 import GlobalContext from './context'
 import { message } from 'antd'
-import { useAppSelector, useAppDispatch, playNowById, playNowByCustom } from '@/hooks'
-import { fetchRecommendData } from '@/store/cache'
+import { useAppSelector, useAppDispatch, usePlaylists } from '@/hooks'
 import { clearPlaylists, setActiveId, setActiveIndex } from '@/store/playlist'
 import { clearPlayerStatus, setPlayStatus } from '@/store/playerStatus'
 import { clearPlayerProgress, setProgress } from '@/store/playerProgress'
@@ -36,8 +35,7 @@ const Layout = memo(() => {
     volume
   } = useAppSelector(state => state.playerInstance)
   const dispatch = useAppDispatch()
-  const getPlaylists = playNowById()
-  const getJayPlaylists = playNowByCustom()
+  const { getDefaultPlaylists, getCustomPlaylists } = usePlaylists()
 
   // 生命周期内仅维持一份player实例
   const playerRef = useRef(player)
@@ -190,26 +188,9 @@ const Layout = memo(() => {
   }, [playlists, activeIndex, autoplay])
   /** store数据变化的系列副作用 */
 
-  /** 来自MusicDetail详情页的监听事件 */
-  const checkPlaylistsById = useCallback(({ listId, songId }: { listId: number, songId: number }) => {
-    if (listId === playlistId) {
-      // 详情歌单与当前播放中歌单id相同，查找匹配歌曲ID，执行歌曲切换
-      playerRef.current.setId(songId)
-    } else {
-      // 详情歌单与当前播放中歌单id不同，重新获取歌曲，填入歌曲索引
-      if (listId === CUSTOM_ID) {
-        getJayPlaylists(songId)
-      } else {
-        getPlaylists(listId, songId)
-      }
-    }
-  }, [playlistId])
-  /** 来自MusicDetail详情页的监听事件 */
-
   /** 挂载时触发 */
   useEffect(() => {
     // 获取轮播列表和每日推荐
-    void dispatch(fetchRecommendData())
     playerRef.current.on(PlayerEvent.STATUS_CHANGE, handleDispatchStatus)
     playerRef.current.on(PlayerEvent.PROGRESS_CHANGE, handleDispatchProgress)
     playerRef.current.on(PlayerEvent.ID_CHANGE, handleDispatchId)
@@ -224,14 +205,6 @@ const Layout = memo(() => {
       playerRef.current.removeUrlCleaner()
     }
   }, [])
-
-  useEffect(() => {
-    playerRef.current.on(PlayerEvent.CHECK_BY_ID, checkPlaylistsById)
-    return () => {
-      playerRef.current.off(PlayerEvent.CHECK_BY_ID, checkPlaylistsById)
-    }
-  }, [playlistId])
-  /** 挂载时触发 */
 
   return (
     <GlobalContext.Provider value={{ player: playerRef.current }}>

@@ -1,6 +1,7 @@
 import { type CSSProperties, memo, useEffect, useRef, useState } from 'react'
-import { useAppSelector } from '@/hooks'
-import { getSongDetail } from '@/api'
+import { useAtomValue } from 'jotai'
+import { playerStatusAtom, songActiveIdAtom } from '@/store'
+import { getSongDetail, getJaySongs } from '@/api'
 import { type SongData } from '@/core/playerType'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import VirtualList from '@/components/virtualList'
@@ -8,7 +9,6 @@ import LoadingInstance from '@/components/loadingInstance'
 import { generateZebraClass, serializeNumberTrans, artistsArrayTrans, durationTrans, customSongDataTrans } from '@/utils/formatter'
 import { highlightNameClass, highlightArtistClass, highlightDurationClass } from '@/utils/highlightSongClass'
 import { CONTENT_CONTAINER_ID } from '@/utils/constant'
-import { getJaySongs } from '@/api/jay'
 
 interface MusicDetailListsProps {
   isCustom: boolean
@@ -33,11 +33,12 @@ const MusicDetailLists = memo((props: MusicDetailListsProps) => {
   ListHeader.displayName = 'ListHeader'
 
   // 全局activeId
-  const { activeId } = useAppSelector(state => state.playlist)
+  const songActiveId = useAtomValue(songActiveIdAtom)
   // 全局播放状态 以动态切换小图标
-  const { status } = useAppSelector(state => state.playerStatus)
+  const playerStatus = useAtomValue(playerStatusAtom)
 
   const [loading, setLoading] = useState(false)
+
   const [playlists, setPlaylists] = useState<SongData[]>([])
 
   useEffect(() => {
@@ -123,9 +124,9 @@ const MusicDetailLists = memo((props: MusicDetailListsProps) => {
       >
         <span className="w-[7.5rem] flex justify-between items-center pr-5">
           {
-            item.id === activeId
+            item.id === songActiveId
               ? <i
-                  className={`iconfont ${status === 'playing' ? 'icon-play-active' : 'icon-play-inactive'} text-xl text-primary`}
+                  className={`iconfont ${playerStatus === 'playing' ? 'icon-play-active' : 'icon-play-inactive'} text-xl text-primary`}
                 />
               : (
                 <span className="text-sm text-[#cbcbcc] leading-none">
@@ -140,20 +141,20 @@ const MusicDetailLists = memo((props: MusicDetailListsProps) => {
         </span>
         <span
           title={item.name}
-          className={`flex-1 ${highlightNameClass(activeId, item.id)}`}
+          className={`flex-1 ${highlightNameClass(songActiveId, item.id)}`}
         >
           {item.name}
         </span>
         <span
           title={artistsArrayTrans(item.artists)}
-          className={`w-2/12 ${highlightArtistClass(activeId, item.id)}`}
+          className={`w-2/12 ${highlightArtistClass(songActiveId, item.id)}`}
         >
           {artistsArrayTrans(item.artists)}
         </span>
-        <span className={`w-3/12 ${highlightArtistClass(activeId, item.id)}`}>
+        <span className={`w-3/12 ${highlightArtistClass(songActiveId, item.id)}`}>
           {item.album.name}
         </span>
-        <span className={`w-1/12 ${highlightDurationClass(activeId, item.id)}`}>
+        <span className={`w-1/12 ${highlightDurationClass(songActiveId, item.id)}`}>
           {durationTrans(item.time ?? 0)}
         </span>
       </li>
