@@ -8,6 +8,8 @@ import { useAppSelector, useAppDispatch } from '@/hooks'
 import { getUserPlaylist } from '@/api'
 import DefaultUserIcon from '@/assets/svg/user.svg?react'
 import styles from './index.module.less'
+import { useAtom } from 'jotai'
+import { accountAtom, cookieAtom } from '@/store'
 
 interface LeftSiderMenu {
   to: string
@@ -74,6 +76,8 @@ Menus.displayName = 'Menus'
 const LeftSider = memo(() => {
   const { accountInfo, cookie } = useAppSelector((state) => state.user)
   const dispatch = useAppDispatch()
+  const [aI, setAI] = useAtom(accountAtom)
+  const [co, setCo] = useAtom(cookieAtom)
 
   // 登录状态判断
   const hasLogin = useMemo(() => cookie != null && accountInfo.profile != null, [accountInfo, cookie])

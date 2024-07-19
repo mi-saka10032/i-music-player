@@ -1,11 +1,8 @@
 import { useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { playNowById } from '@/hooks'
 
-export default function useMusicDetail () {
+export function useMusicDetail () {
   const { id } = useParams<{ id: string }>()
-
-  const getPlaylists = playNowById()
 
   const [loading, setLoading] = useState(false)
 
@@ -41,7 +38,6 @@ export default function useMusicDetail () {
     setLoading,
     playlistHeader,
     setPlaylistHeader,
-    listsIds,
-    getPlaylists
+    listsIds
   }
 }

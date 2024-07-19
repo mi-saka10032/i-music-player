@@ -1,11 +1,11 @@
 import { memo, useCallback, useContext, useEffect } from 'react'
-import useMusicDetail from '../hooks/useMusicDetail'
-import { CUSTOM_ID, CUSTOM_IMG, CUSTOM_NAME } from '@/utils/constant'
+import { useAtomValue } from 'jotai'
+import { playlistInfoAtom } from '@/store'
+import GlobalContext from '@/layout/context'
+import { useMusicDetail, usePlaylists } from '@/hooks'
 import MusicDetailHeader from '../components/header'
 import MusicDetailTab from '../components/tab'
-import { playNowByCustom } from '@/hooks'
-import GlobalContext from '@/layout/context'
-import { PlayerEvent } from '@/core/playerType'
+import { CUSTOM_ID, CUSTOM_IMG, CUSTOM_NAME } from '@/utils/constant'
 
 const CustomDetail = memo(() => {
   const {
@@ -17,18 +17,17 @@ const CustomDetail = memo(() => {
 
   const { player } = useContext(GlobalContext)
 
-  const getJayPlaylists = playNowByCustom()
+  const { getCustomPlaylists } = usePlaylists()
 
-  const playAllLists = useCallback(() => {
-    getJayPlaylists()
-  }, [])
+  const playlistInfo = useAtomValue(playlistInfoAtom)
 
-  const checkById = useCallback((currentId: number) => {
-    player.emit(PlayerEvent.CHECK_BY_ID, {
-      listId: CUSTOM_ID,
-      songId: currentId
-    })
-  }, [])
+  const checkById = useCallback((songId: number) => {
+    if (CUSTOM_ID === playlistInfo.playId) {
+      player.setId(songId)
+    } else {
+      getCustomPlaylists(songId)
+    }
+  }, [playlistInfo])
 
   useEffect(() => {
     setPlaylistHeader(playlistHeader => ({
@@ -41,11 +40,7 @@ const CustomDetail = memo(() => {
 
   return (
     <div className="pt-8">
-      <MusicDetailHeader
-        loading={loading}
-        playlistHeader={playlistHeader}
-        onPlayAll={playAllLists}
-       >
+      <MusicDetailHeader loading={loading} playlistHeader={playlistHeader} >
         {/* 自定义的歌单 isCustom: true */}
         <MusicDetailTab listsIds={listsIds} checkById={checkById} isCustom={true} />
       </MusicDetailHeader>
