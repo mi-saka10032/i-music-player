@@ -1,11 +1,10 @@
-import { memo, useMemo, useEffect, useRef, type CSSProperties, useCallback, useContext } from 'react'
+import { memo, useMemo, useEffect, useRef, type CSSProperties, useCallback } from 'react'
 import { useAtomValue } from 'jotai'
 import { autoplayAtom, playerStatusAtom, queueLoadingAtom, songActiveIdAtom, songActiveIndexAtom, songListsAtom, useFetchPlaylists } from '@/store'
-import GlobalContext from '@/layout/context'
 import { Divider, Row, Col, Button } from 'antd'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { type Align, FixedSizeList } from 'react-window'
-import { type SongData } from '@/core/player'
+import { playerInstance, type SongData } from '@/core/player'
 import LoadingInstance from '@/components/loadingInstance'
 import {
   artistsArrayTrans,
@@ -31,8 +30,6 @@ const FixedRow = memo(({
   data: SongData[] }) => {
   const item = data[index]
 
-  const { player } = useContext(GlobalContext)
-
   const playStatus = useAtomValue(playerStatusAtom)
 
   const songActiveId = useAtomValue(songActiveIdAtom)
@@ -42,7 +39,7 @@ const FixedRow = memo(({
   }, [playStatus])
 
   const handleChangeSongId = useCallback((id: number) => {
-    player.setId(id)
+    playerInstance.setId(id)
   }, [])
 
   return item != null
@@ -96,8 +93,6 @@ const FixedRow = memo(({
 FixedRow.displayName = 'FixedRow'
 
 const RightQueue = memo((props: RightQueueProps) => {
-  const { player } = useContext(GlobalContext)
-
   const { clearPlaylists } = useFetchPlaylists()
 
   const autoplay = useAtomValue(autoplayAtom)
@@ -117,7 +112,7 @@ const RightQueue = memo((props: RightQueueProps) => {
   const fixedListRef = useRef<FixedSizeList>(null)
 
   const handleClearPlaylists = useCallback(() => {
-    player.reset()
+    playerInstance.reset()
     clearPlaylists()
   }, [])
 
@@ -136,7 +131,7 @@ const RightQueue = memo((props: RightQueueProps) => {
   useEffect(() => {
     if (songLists.length > 0 && songLists !== lastSongListsRef.current) {
       lastSongListsRef.current = songLists
-      player.setPlaylist(songLists, songActiveIndex, autoplay)
+      playerInstance.setPlaylist(songLists, songActiveIndex, autoplay)
     }
   }, [songLists, songActiveIndex, autoplay])
 

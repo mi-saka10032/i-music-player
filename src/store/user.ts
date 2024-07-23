@@ -1,7 +1,7 @@
+import { useCallback, useEffect, useMemo } from 'react'
+import { useAtom } from 'jotai'
 import { clearCookie, getCookie } from '@/utils'
 import { createAtomWithIndexedDB } from './persist'
-import { useAtom } from 'jotai'
-import { useCallback, useEffect, useMemo } from 'react'
 import { getAccountInfo } from '@/api'
 
 export const cookieAtom = createAtomWithIndexedDB<string>({

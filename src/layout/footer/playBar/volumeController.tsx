@@ -1,13 +1,11 @@
-import { memo, useMemo, useRef, useCallback, useEffect, useContext } from 'react'
+import { memo, useMemo, useRef, useCallback, useEffect } from 'react'
 import { useAtom } from 'jotai'
 import { muteAtom, volumeAtom } from '@/store'
 import ProgressBar from '@/layout/footer/playBar/progressBar'
-import GlobalContext from '@/layout/context'
+import { playerInstance } from '@/core/player'
 
 // 音量控制器，封装原生进度条组件实现
 const VolumeController = memo(() => {
-  const { player } = useContext(GlobalContext)
-
   const [mute, setMute] = useAtom(muteAtom)
 
   const [volume, setVolume] = useAtom(volumeAtom)
@@ -59,11 +57,11 @@ const VolumeController = memo(() => {
   }, [volume])
 
   useEffect(() => {
-    player.setMute(mute)
+    playerInstance.setMute(mute)
   }, [mute])
 
   useEffect(() => {
-    player.setVolume(volume)
+    playerInstance.setVolume(volume)
   }, [volume])
 
   return (

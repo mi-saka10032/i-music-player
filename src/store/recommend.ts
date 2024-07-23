@@ -1,8 +1,8 @@
+import { useCallback } from 'react'
+import { useAtom } from 'jotai'
 import { createAtomWithIndexedDB } from './persist'
 import { getBanners, getPersonalized, getRecommendResource } from '@/api'
 import { getCookie } from '@/utils'
-import { useAtom } from 'jotai'
-import { useCallback } from 'react'
 
 export interface RecommendMap {
   banners: Banners

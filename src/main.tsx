@@ -7,9 +7,9 @@ import './main.css'
 
 const root: HTMLElement = document.getElementById('root')!
 ReactDOM.createRoot(root).render(
-  // <StrictMode>
-  <DisableHotKeys>
-    <App />
-  </DisableHotKeys>
-  // </StrictMode>
+  <StrictMode>
+    <DisableHotKeys>
+      <App />
+    </DisableHotKeys>
+  </StrictMode>
 )

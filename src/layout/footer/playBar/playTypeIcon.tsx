@@ -1,8 +1,7 @@
-import { memo, useCallback, useContext, useEffect, useRef } from 'react'
+import { memo, useCallback, useEffect, useRef } from 'react'
 import { useAtom } from 'jotai'
 import { playTypeAtom } from '@/store'
-import { PlayType } from '@/core/player'
-import GlobalContext from '@/layout/context'
+import { PlayType, playerInstance } from '@/core/player'
 
 // 播放类型组件
 const PlayTypeIcon = memo(() => {
@@ -13,8 +12,6 @@ const PlayTypeIcon = memo(() => {
     PlayType.sequential
   ])
 
-  const { player } = useContext(GlobalContext)
-
   const [playType, setPlayType] = useAtom(playTypeAtom)
 
   const handleSwitchPlayType = useCallback(() => {
@@ -24,7 +21,7 @@ const PlayTypeIcon = memo(() => {
   }, [playType])
 
   useEffect(() => {
-    player.setRepeatMode(playType)
+    playerInstance.setRepeatMode(playType)
   }, [playType])
 
   return (

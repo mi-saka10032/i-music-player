@@ -1,6 +1,6 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useAtomValue, useSetAtom } from 'jotai'
-import { layoutDetailStatusAtom, playerStatusAtom, playlistInfoAtom, progressAtom, songActiveIndexAtom, songListsAtom } from '@/store'
+import { useAtomValue } from 'jotai'
+import { playerStatusAtom, playlistInfoAtom, progressAtom, songActiveIndexAtom, songListsAtom } from '@/store'
 import { Row, Col } from 'antd'
 import { Lrc, type LrcLine, useRecoverAutoScrollImmediately } from 'react-lrc'
 import { getSongLyric } from '@/api'
