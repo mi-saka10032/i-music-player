@@ -1,45 +1,91 @@
-import { memo, useCallback, useMemo, useRef } from 'react'
-import { type PlayType, type SongData } from '@/core/player'
+import { memo, useCallback, useContext, useEffect, useMemo } from 'react'
+import { useAtom, useSetAtom } from 'jotai'
+import { playerStatusAtom, progressAtom, songActiveIdAtom, songActiveIndexAtom } from '@/store'
+import GlobalContext from '@/layout/context'
 import ProgressBar from './playBar/progressBar'
 import PlayTypeIcon from './playBar/playTypeIcon'
 import VolumeController from './playBar/volumeController'
 import Thumbnail from './thumbnail'
+import { PlayerEvent } from '@/core/player'
 
 interface FooterProps {
   queueStatusRef: React.MutableRefObject<boolean>
   detailRef: React.MutableRefObject<boolean>
-  playStatus: MediaSessionPlaybackState
-  type: PlayType
-  mute: boolean
-  volume: number
-  progress: number
-  thumbnailItem: SongData | null
   setShowQueue: React.Dispatch<React.SetStateAction<boolean>>
   setShowDetail: React.Dispatch<React.SetStateAction<boolean>>
-  onSwitchPlay: () => void
-  onPrev: () => void
-  onNext: () => void
-  onProgressChange: (progress: number) => void
-  onTypeChange: (type: PlayType) => void
-  onMuteChange: (mute: boolean) => void
-  onVolumeChange: (progress: number) => void
 }
 
 const Footer = memo((props: FooterProps) => {
-  // 切换RightQueue显示/隐藏
+  const { player } = useContext(GlobalContext)
+
+  const setSongActiveId = useSetAtom(songActiveIdAtom)
+
+  const setSongActiveIndex = useSetAtom(songActiveIndexAtom)
+
+  const [playStatus, setPlayStatus] = useAtom(playerStatusAtom)
+
+  const [progress, setProgress] = useAtom(progressAtom)
+
+  const dynamicIconClass = useMemo(() => {
+    return playStatus === 'playing' ? 'icon-pause-circle' : 'icon-play-circle'
+  }, [playStatus])
+
   const switchQueueStatus = useCallback(() => {
     props.queueStatusRef.current = !props.queueStatusRef.current
     props.setShowQueue(props.queueStatusRef.current)
   }, [])
 
-  // 播放/暂停图标切换
-  const DynamicIcon = useMemo<JSX.Element>(() => {
-    return <i className={`iconfont ${props.playStatus === 'playing' ? 'icon-pause-circle' : 'icon-play-circle'} text-5xl text-primary`} />
-  }, [props.playStatus])
+  const handleProgressTo = useCallback(async (progress: number) => {
+    await setProgress(progress)
+    player.progressTo(progress)
+  }, [])
 
-  const curProgress = useRef(0)
-  const shareProgress = useCallback((newPercent: number) => {
-    curProgress.current = newPercent
+  const switchPlayStatus = useCallback(() => {
+    if (progress !== player.progress) {
+      player.progressTo(progress)
+    }
+    player.switchPlay()
+  }, [progress])
+
+  const handleChangePrev = useCallback(async () => {
+    await setProgress(0)
+    player.prev()
+  }, [])
+
+  const handleChangeNext = useCallback(async () => {
+    await setProgress(0)
+    player.next()
+  }, [])
+
+  const handleDispatchStatus = useCallback((status: MediaSessionPlaybackState) => {
+    setPlayStatus(status)
+  }, [])
+
+  const handleDispatchProgress = useCallback((progress: number) => {
+    void setProgress(progress)
+  }, [])
+
+  const handleDispatchId = useCallback((id: number) => {
+    void setSongActiveId(id)
+  }, [])
+
+  const handleDispatchIndex = useCallback((index: number) => {
+    void setSongActiveIndex(index)
+  }, [])
+
+  console.log('footer footer footer')
+
+  useEffect(() => {
+    player.on(PlayerEvent.STATUS_CHANGE, handleDispatchStatus)
+    player.on(PlayerEvent.PROGRESS_CHANGE, handleDispatchProgress)
+    player.on(PlayerEvent.ID_CHANGE, handleDispatchId)
+    player.on(PlayerEvent.INDEX_CHANGE, handleDispatchIndex)
+    return () => {
+      player.off(PlayerEvent.STATUS_CHANGE, handleDispatchStatus)
+      player.off(PlayerEvent.PROGRESS_CHANGE, handleDispatchProgress)
+      player.off(PlayerEvent.ID_CHANGE, handleDispatchId)
+      player.off(PlayerEvent.INDEX_CHANGE, handleDispatchIndex)
+    }
   }, [])
 
   return (
@@ -48,8 +94,7 @@ const Footer = memo((props: FooterProps) => {
         <div className="absolute left-2 top-1/2 -translate-y-1/2">
           <Thumbnail
             key="Thumbnail"
-            thumbnailItem={props.thumbnailItem}
-            progress={curProgress.current}
+            progress={progress}
             detailRef={props.detailRef}
             setShowDetail={props.setShowDetail}
           />
@@ -57,22 +102,21 @@ const Footer = memo((props: FooterProps) => {
         <div className="absolute w-full top-0 left-0">
           <ProgressBar
             key="ProgressBar"
-            percent={props.progress}
-            onShare={shareProgress}
-            onChange={props.onProgressChange}
+            percent={progress}
+            onChange={handleProgressTo}
           />
         </div>
         <div className="flex space-x-6 absolute-middle-full">
           {/* <button>
             <i className="iconfont icon-like_full text-primary text-base" />
           </button> */}
-          <button onClick={props.onPrev}>
+          <button onClick={handleChangePrev}>
             <i className="iconfont icon-previous text-primary text-base" />
           </button>
-          <button onClick={props.onSwitchPlay}>
-            { DynamicIcon }
+          <button onClick={switchPlayStatus}>
+            <i className={`iconfont text-5xl text-primary ${dynamicIconClass}`} />
           </button>
-          <button onClick={props.onNext}>
+          <button onClick={handleChangeNext}>
             <i className="iconfont icon-next text-primary text-base"/>
           </button>
           {/* <button>
@@ -80,22 +124,12 @@ const Footer = memo((props: FooterProps) => {
           </button> */}
         </div>
         <div className="flex items-center space-x-6 absolute right-6 h-full">
-          <PlayTypeIcon
-            key="PlayTypeIcon"
-            type={props.type}
-            onTypeChange={props.onTypeChange}
-          />
+          <PlayTypeIcon key="PlayTypeIcon" />
           <i
             className="iconfont icon-playlist text-gc text-xl cursor-pointer"
             onClick={switchQueueStatus}
           />
-          <VolumeController
-            key="VolumeController"
-            mute={props.mute}
-            volume={props.volume}
-            onMuteChange={props.onMuteChange}
-            onVolumeChange={props.onVolumeChange}
-          />
+          <VolumeController key="VolumeController" />
         </div>
       </div>
     </>

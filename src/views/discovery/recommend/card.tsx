@@ -1,5 +1,5 @@
 import { memo, useCallback, type MouseEvent } from 'react'
-import { playCountTrans } from '@/utils/formatter'
+import { playCountTrans } from '@/utils'
 
 interface CardProps {
   info: PersonalLists[number]

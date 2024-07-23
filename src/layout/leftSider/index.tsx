@@ -2,14 +2,10 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { Popover, Button, message } from 'antd'
 import { focusWindow, getLoginWindow, initLogin } from '@/utils'
-import { fetchAccountInfo, setCookie, setAccountInfo } from '@/store/user'
-import { fetchRecommendData } from '@/store/cache'
-import { useAppSelector, useAppDispatch } from '@/hooks'
+import { useAccount, useRecommend } from '@/store'
 import { getUserPlaylist } from '@/api'
 import DefaultUserIcon from '@/assets/svg/user.svg?react'
 import styles from './index.module.less'
-import { useAtom } from 'jotai'
-import { accountAtom, cookieAtom } from '@/store'
 
 interface LeftSiderMenu {
   to: string
@@ -19,7 +15,7 @@ interface LeftSiderMenu {
 }
 
 interface MenusProps {
-  hasLogin: boolean
+  logged: boolean
   menus: LeftSiderMenu[]
 }
 
@@ -32,7 +28,7 @@ const Menus = memo((props: MenusProps) => {
   // 判断link菜单是否允许跳转
   const linkJudge = useCallback(({ event, needLogin, to }: LeftSiderMenu & { event: React.MouseEvent }) => {
     event.preventDefault()
-    if (needLogin && !props.hasLogin) {
+    if (needLogin && !props.logged) {
       void messageApi.open({
         type: 'warning',
         content: '请先登录',
@@ -41,7 +37,7 @@ const Menus = memo((props: MenusProps) => {
     } else {
       navigate(to)
     }
-  }, [props.hasLogin])
+  }, [props.logged])
 
   return (
     <>
@@ -74,13 +70,10 @@ Menus.displayName = 'Menus'
 
 /** 左侧边栏组件 */
 const LeftSider = memo(() => {
-  const { accountInfo, cookie } = useAppSelector((state) => state.user)
-  const dispatch = useAppDispatch()
-  const [aI, setAI] = useAtom(accountAtom)
-  const [co, setCo] = useAtom(cookieAtom)
+  const { accountInfo, logged, clearAccountInfo, fetchAccountInfo, setCookie } = useAccount()
 
-  // 登录状态判断
-  const hasLogin = useMemo(() => cookie != null && accountInfo.profile != null, [accountInfo, cookie])
+  const { fetchRecommendMap } = useRecommend()
+
   // 退出登录popover显示状态
   const [logout, setLogout] = useState(false)
 
@@ -103,7 +96,7 @@ const LeftSider = memo(() => {
 
   // 监听数据变化以切换显示用户名和头像
   const userInfo = useMemo(() => {
-    if (hasLogin) {
+    if (logged) {
       return {
         avatarUrl: accountInfo.profile?.avatarUrl,
         nickname: accountInfo.profile?.nickname
@@ -114,11 +107,11 @@ const LeftSider = memo(() => {
         nickname: '未登录'
       }
     }
-  }, [hasLogin])
+  }, [logged])
 
   // 判断cookie来创建登录弹窗
   const handleLogin = useCallback((newOpen: boolean) => {
-    if (hasLogin) {
+    if (logged) {
       setLogout(newOpen)
       return
     }
@@ -131,34 +124,25 @@ const LeftSider = memo(() => {
     // 该登录函数将持续pending直到登录弹窗关闭为止
     void initLogin()
       .then(res => {
-        dispatch(setCookie(res.cookie))
-        void dispatch(fetchAccountInfo())
-        void dispatch(fetchRecommendData())
+        void setCookie(res.cookie)
+        void fetchAccountInfo()
+        void fetchRecommendMap()
       })
       .catch(error => {
         console.log(error)
       })
-  }, [hasLogin])
+  }, [logged])
 
   // 正式退出
   const exit = useCallback(() => {
-    dispatch(setCookie(''))
-    dispatch(setAccountInfo({ code: 0 }))
     setCreatedMenu([])
     setShowCreated(false)
     setSubscribedMenu([])
     setShowSubscribed(false)
+    clearAccountInfo()
     setLogout(false)
-    void dispatch(fetchRecommendData())
-    console.log('退出登录')
-  }, [hasLogin])
-
-  // 挂载时判断cookie有效性，来调取用户信息
-  useEffect(() => {
-    if (cookie.length > 0) {
-      void dispatch(fetchAccountInfo())
-    }
-  }, [])
+    void fetchRecommendMap()
+  }, [logged])
 
   // 用户登录后获取喜欢音乐、歌单信息
   useEffect(() => {
@@ -200,13 +184,13 @@ const LeftSider = memo(() => {
       .catch(err => {
         console.log(err)
       })
-  }, [hasLogin])
+  }, [logged])
 
   return (
     <div className={`h-full overflow-auto ${styles.toggle_scroll}`}>
       <Popover
         content={<Button danger type="text" size="small" onClick={exit}>退出登录</Button>}
-        trigger={ hasLogin ? 'hover' : 'click' }
+        trigger={ logged ? 'hover' : 'click' }
         placement="rightTop"
         open={logout}
         onOpenChange={handleLogin}
@@ -230,12 +214,12 @@ const LeftSider = memo(() => {
       </Popover>
       {/* 通用菜单 */}
       <Menus
-        hasLogin={hasLogin}
+        logged={logged}
         menus={commonMenu}
       />
       <div className="px-6 py-2 text-sm leading-none text-[#999]">我的音乐</div>
       <Menus
-        hasLogin={hasLogin}
+        logged={logged}
         menus={myMusicMenu}
       />
       <div
@@ -243,27 +227,40 @@ const LeftSider = memo(() => {
         onClick={() => { setShowCreated(!showCreated) }}
       >
         创建的歌单
+        {
+          logged && createdMenu.length > 0
+            ? (<i className="triangle ml-1 group-hover/created:border-l-[#333]" />)
+            : null
+        }
         <i className="triangle ml-1 group-hover/created:border-l-[#333]" />
       </div>
-      <div className={showCreated ? '' : 'hidden'}>
-        <Menus
-          hasLogin={hasLogin}
-          menus={createdMenu}
-        />
-      </div>
+      {
+        showCreated
+          ? (<Menus
+              logged={logged}
+              menus={createdMenu}
+            />)
+          : null
+      }
       <div
         className="flex items-center px-6 py-2 text-sm leading-none text-[#999] group/sub cursor-pointer"
         onClick={() => { setShowSubscribed(!showSubscribed) }}
       >
         收藏的歌单
-        <i className="triangle ml-1 group-hover/sub:border-l-[#333]" />
+        {
+          logged && subscribedMenu.length > 0
+            ? (<i className="triangle ml-1 group-hover/sub:border-l-[#333]" />)
+            : null
+        }
       </div>
-      <div className={showSubscribed ? '' : 'hidden'}>
-        <Menus
-          hasLogin={hasLogin}
-          menus={subscribedMenu}
-        />
-      </div>
+      {
+        showCreated
+          ? (<Menus
+              logged={logged}
+              menus={subscribedMenu}
+          />)
+          : null
+      }
     </div>
   )
 })

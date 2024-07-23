@@ -60,11 +60,10 @@ export default defineConfig(async ({ mode }) => ({
                   return 'react-dom'
                 case `${moduleEntry}react-router-dom/`:
                   return 'react-router'
-                case `${moduleEntry}react-redux/`:
-                case `${moduleEntry}@reduxjs/`:
-                  return 'redux'
                 case `${moduleEntry}antd/`:
                   return 'antd'
+                case `${moduleEntry}jotai/`:
+                  return 'store'
                 case `${moduleEntry}swiper/`:
                   return 'swiper'
                 case `${moduleEntry}localforage/`:

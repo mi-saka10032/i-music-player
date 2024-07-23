@@ -1,157 +1,136 @@
-import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit'
-import { getPlaylistDetail, getSongDetail } from '@/api'
-import { getJaySongs } from '@/api/jay'
+import { useCallback } from 'react'
+import { atom, useSetAtom } from 'jotai'
+import { createAtomWithIndexedDB } from './persist'
 import { type SongData } from '@/core/player'
-import { normalSongDataTrans, customSongDataTrans } from '@/utils/formatter'
+import { getJaySongs, getPlaylistDetail, getSongDetail } from '@/api'
+import { normalSongDataTrans, customSongDataTrans } from '@/utils'
+import { durationAtom, playerStatusAtom, progressAtom } from './playerController'
 
-export interface PlaylistState {
-  // 右边栏loading
-  playlistLoading: boolean
-  // 播放开关
-  autoplay: boolean
-  // 歌单id
-  playlistId: number
-  // 歌单name
-  playlistName: string
-  // 播放列表（不含链接）
-  playlists: SongData[]
-  // 歌曲索引
-  activeIndex: number
-  // 歌曲id
+interface PlaylistInfo {
+  playId: number
+  playName: string
+}
+
+export interface FetchPlaylistDetailRes extends PlaylistInfo {
+  songLists: SongData[]
   activeId: number
 }
 
-const initialState: PlaylistState = {
-  playlistLoading: false,
-  autoplay: false,
-  playlistId: 0,
-  playlistName: '',
-  playlists: [],
-  activeIndex: 0,
-  activeId: 0
-}
+export const autoplayAtom = atom(false)
 
-interface FetchPlaylistDetailRes {
-  playlistId: number
-  playlistName: string
-  playlists: SongData[]
-  activeId: number
-}
+export const queueLoadingAtom = atom(false)
 
-export const fetchPlaylistDetail = createAsyncThunk('playlist/fetchPlaylistDetail',
-  async ({ playlistId, songId }: { playlistId: number, songId: number }): Promise<FetchPlaylistDetailRes> => {
+export const playlistInfoAtom = createAtomWithIndexedDB<PlaylistInfo>({
+  cacheName: 'playlistInfo',
+  initialValue: {
+    playId: 0,
+    playName: ''
+  }
+})
+
+export const songListsAtom = createAtomWithIndexedDB<SongData[]>({
+  cacheName: 'songLists',
+  initialValue: []
+})
+
+export const songActiveIdAtom = createAtomWithIndexedDB<number>({
+  cacheName: 'songActiveId',
+  initialValue: 0
+})
+
+export const songActiveIndexAtom = createAtomWithIndexedDB<number>({
+  cacheName: 'songActiveIndex',
+  initialValue: 0
+})
+
+export function useFetchPlaylists () {
+  const setLoading = useSetAtom(queueLoadingAtom)
+  const setAutoplay = useSetAtom(autoplayAtom)
+  const setPlayerStatus = useSetAtom(playerStatusAtom)
+  const setProgress = useSetAtom(progressAtom)
+  const setDuration = useSetAtom(durationAtom)
+  const setPlaylistInfo = useSetAtom(playlistInfoAtom)
+  const setSongLists = useSetAtom(songListsAtom)
+  const setSongActiveId = useSetAtom(songActiveIdAtom)
+  const setSongActiveIndex = useSetAtom(songActiveIndexAtom)
+
+  const setPreWork = useCallback(() => {
+    // 开启列表栏loading
+    setLoading(true)
+    // 使用自动播放
+    setAutoplay(true)
+    // 清理播放状态
+    setPlayerStatus('none')
+    void setDuration(0)
+    void setProgress(0)
+  }, [])
+
+  const setPostWork = useCallback((payload: FetchPlaylistDetailRes) => {
+    setLoading(false)
+    void setPlaylistInfo({
+      playId: payload.playId,
+      playName: payload.playName
+    })
+    void setSongLists(payload.songLists)
+    if (payload.activeId === 0) {
+      void setSongActiveIndex(0)
+    } else {
+      const index = payload.songLists.findIndex((item) => item.id === payload.activeId)
+      const actualIndex = index !== -1 ? index : 0
+      void setSongActiveIndex(actualIndex)
+      if (actualIndex > 0) {
+        void setSongActiveId(payload.activeId)
+      }
+    }
+  }, [])
+
+  const getDefaultPlaylists = useCallback(async (playlistId: number, songId: number = 0) => {
+    setPreWork()
+    // 立刻获取完整歌单列表
     const result = await getPlaylistDetail(playlistId)
     // 遍历trackIds获取完整id，再拉取一次全量歌曲信息
     const allIds = result.playlist.trackIds.map(item => item.id)
     const completeSongs = await getSongDetail(allIds)
-    return {
-      playlistId: result.playlist.id,
-      playlistName: result.playlist.name,
-      playlists: normalSongDataTrans(completeSongs),
-      activeId: songId
-    }
-  })
 
-export const fetchJayPlaylistDetail = createAsyncThunk('playlist/fetchJayPlaylistDetail',
-  async (songId: number): Promise<FetchPlaylistDetailRes> => {
+    setPostWork({
+      playId: result.playlist.id,
+      playName: result.playlist.name,
+      songLists: normalSongDataTrans(completeSongs),
+      activeId: songId
+    })
+  }, [])
+
+  const getCustomPlaylists = useCallback(async (songId: number = 0) => {
+    setPreWork()
+    // 获取个人自定义歌单
     const { customId, customName, list } = await getJaySongs()
-    return {
-      playlistId: customId,
-      playlistName: customName,
-      playlists: customSongDataTrans(list),
+
+    setPostWork({
+      playId: customId,
+      playName: customName,
+      songLists: customSongDataTrans(list),
       activeId: songId
-    }
-  })
+    })
+  }, [])
 
-const playlistSlice = createSlice({
-  name: 'playlist',
-  initialState,
-  reducers: {
-    setAutoplay (state, action: PayloadAction<boolean>) {
-      if (state.autoplay === action.payload) return
-      console.log(action)
-      state.autoplay = action.payload
-    },
-    setLoading (state, action: PayloadAction<boolean>) {
-      if (state.playlistLoading === action.payload) return
-      console.log(action)
-      state.playlistLoading = action.payload
-    },
-    setActiveId (state, action: PayloadAction<number>) {
-      if (state.activeId === action.payload) return
-      console.log(action)
-      state.activeId = action.payload
-    },
-    setActiveIndex (state, action: PayloadAction<number>) {
-      if (state.activeIndex === action.payload) return
-      console.log(action)
-      state.activeIndex = action.payload
-    },
-    setPlaylists (state, action: PayloadAction<SongData[]>) {
-      if (state.playlists === action.payload || action.payload?.length === 0) return
-      console.log(action)
-      state.playlists = action.payload
-    },
-    setPlaylistId (state, action: PayloadAction<number>) {
-      if (state.playlistId === action.payload) return
-      console.log(action)
-      state.playlistId = action.payload
-    },
-    setPlaylistName (state, action: PayloadAction<string>) {
-      if (state.playlistName === action.payload) return
-      console.log(action)
-      state.playlistName = action.payload
-    },
-    clearPlaylists (state, action: PayloadAction) {
-      console.log(action)
-      state.playlistLoading = false
-      state.autoplay = false
-      state.playlistId = 0
-      state.playlistName = ''
-      state.playlists = []
-      state.activeIndex = 0
-      state.activeId = 0
-    }
-  },
-  extraReducers: (builder) => {
-    builder
-      .addCase(fetchPlaylistDetail.fulfilled, (state, { payload }) => {
-        console.log('set playlists', payload)
-        state.playlistLoading = false
-        state.playlistId = payload.playlistId
-        state.playlistName = payload.playlistName
-        state.playlists = payload.playlists
-        if (payload.activeId === 0) {
-          state.activeIndex = 0
-        } else {
-          const activeIndex = payload.playlists.findIndex(item => item.id === payload.activeId)
-          state.activeIndex = activeIndex !== -1 ? activeIndex : 0
-        }
-      })
-      .addCase(fetchJayPlaylistDetail.fulfilled, (state, { payload }) => {
-        console.log('set jay playlists', payload)
-        state.playlistLoading = false
-        state.playlistId = payload.playlistId
-        state.playlistName = payload.playlistName
-        state.playlists = payload.playlists
-        if (payload.activeId === 0) {
-          state.activeIndex = 0
-        } else {
-          const activeIndex = payload.playlists.findIndex(item => item.id === payload.activeId)
-          state.activeIndex = activeIndex !== -1 ? activeIndex : 0
-        }
-      })
+  const clearPlaylists = useCallback(() => {
+    setLoading(false)
+    setAutoplay(false)
+    setPlayerStatus('none')
+    void setDuration(0)
+    void setProgress(0)
+    void setPlaylistInfo({
+      playId: 0,
+      playName: ''
+    })
+    void setSongLists([])
+    void setSongActiveId(0)
+    void setSongActiveIndex(0)
+  }, [])
+
+  return {
+    clearPlaylists,
+    getDefaultPlaylists,
+    getCustomPlaylists
   }
-})
-
-export const playlistReducer = playlistSlice.reducer
-export const {
-  setAutoplay,
-  setLoading,
-  setPlaylists,
-  setPlaylistId,
-  setPlaylistName,
-  clearPlaylists,
-  setActiveId,
-  setActiveIndex
-} = playlistSlice.actions
+}

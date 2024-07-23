@@ -1,5 +1,5 @@
 import { memo } from 'react'
-import { playCountTrans } from '@/utils/formatter'
+import { playCountTrans } from '@/utils'
 
 interface CollectButtonProps {
   shareCount: number

@@ -1,8 +1,8 @@
 import { memo, useCallback, useContext, useEffect } from 'react'
 import { useAtomValue } from 'jotai'
-import { playlistInfoAtom } from '@/store'
+import { playlistInfoAtom, useFetchPlaylists } from '@/store'
 import GlobalContext from '@/layout/context'
-import { useMusicDetail, usePlaylists } from '@/hooks'
+import { useMusicDetail } from '@/hooks'
 import MusicDetailHeader from '../components/header'
 import MusicDetailTab from '../components/tab'
 import { getPlaylistDetail } from '@/api'
@@ -19,18 +19,21 @@ const MusicDetail = memo(() => {
 
   const { player } = useContext(GlobalContext)
 
-  const { getDefaultPlaylists } = usePlaylists()
+  const { getDefaultPlaylists } = useFetchPlaylists()
 
   const playlistInfo = useAtomValue(playlistInfoAtom)
 
   const checkById = useCallback((songId: number) => {
-    const currentListId = Number(id)
-    if (currentListId === playlistInfo.playId) {
+    if (id === playlistInfo.playId) {
       player.setId(songId)
     } else {
-      getDefaultPlaylists(currentListId, songId)
+      void getDefaultPlaylists(id, songId)
     }
   }, [id, playlistInfo])
+
+  const handlePlayAll = useCallback(() => {
+    void getDefaultPlaylists(id)
+  }, [id])
 
   useEffect(() => {
     setLoading(true)
@@ -67,7 +70,7 @@ const MusicDetail = memo(() => {
 
   return (
     <div className="pt-8">
-      <MusicDetailHeader loading={loading} playlistHeader={playlistHeader}>
+      <MusicDetailHeader loading={loading} playlistHeader={playlistHeader} onPlayAll={handlePlayAll}>
         <MusicDetailTab listsIds={listsIds} checkById={checkById} isCustom={false} />
       </MusicDetailHeader>
     </div>

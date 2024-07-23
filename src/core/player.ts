@@ -2,7 +2,7 @@ import { Howl, Howler } from 'howler'
 import mitt, { type Emitter } from 'mitt'
 import { PlayType, type SongData, PlayerEvent, type PlayerState, type MittEvents } from './playerType.ts'
 import { getHiResSongUrl, getSongUrl } from '@/api'
-import { formatImgUrl } from '@/utils/url.ts'
+import { formatImgUrl } from '@/utils'
 
 export interface InitState {
   volume: number
@@ -296,6 +296,7 @@ export class Player {
       }
     } catch (error) {
       console.warn(error)
+      this.status = 'none'
       this.emit(PlayerEvent.INVALID, this.state)
     }
     if (newHowl == null) return
@@ -481,6 +482,7 @@ export class Player {
     if (this._playlist.length === 0) return
     if (this.currentHowl == null) {
       console.warn('invalid audio')
+      this.status = 'none'
       this.emit(PlayerEvent.INVALID, this.state)
       return
     }
@@ -575,4 +577,4 @@ export class Player {
 
 export * from './playerType.ts'
 
-export default new Player([])
+export const playerInstance = new Player([])

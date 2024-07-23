@@ -1,13 +1,14 @@
 import { atom } from 'jotai'
-import { selectDB, updateDB } from '@/utils/db'
+import { selectDB, updateDB } from '@/utils'
 
 interface PersistParam<T> {
   cacheName: string
   initialValue: T
   debounceMS?: number
+  throttleMS?: number
 }
 
-export const createAtomWithIndexedDB = <T>({ cacheName, initialValue, debounceMS }: PersistParam<T>) => {
+export const createAtomWithIndexedDB = <T>({ cacheName, initialValue, debounceMS, throttleMS }: PersistParam<T>) => {
   let lock = true
 
   let initResolver: () => void
@@ -21,7 +22,7 @@ export const createAtomWithIndexedDB = <T>({ cacheName, initialValue, debounceMS
   const baseAtom = atom<T>(initialValue)
 
   const cacheAtom = atom(
-    async (get) => get(baseAtom),
+    (get) => get(baseAtom),
     async (_, set, value: T) => {
       lock = false
       await initPromise
@@ -32,6 +33,11 @@ export const createAtomWithIndexedDB = <T>({ cacheName, initialValue, debounceMS
           void updateDB({ name: cacheName, value })
           timer = 0
         }, debounceMS)
+      } else if (throttleMS != null && throttleMS > 0 && timer === 0) {
+        timer = window.setTimeout(() => {
+          void updateDB({ name: cacheName, value })
+          timer = 0
+        }, throttleMS)
       } else {
         void updateDB({ name: cacheName, value })
       }

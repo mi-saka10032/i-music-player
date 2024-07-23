@@ -1,11 +1,11 @@
 import { memo, useCallback, useContext, useEffect } from 'react'
 import { useAtomValue } from 'jotai'
-import { playlistInfoAtom } from '@/store'
+import { playlistInfoAtom, useFetchPlaylists } from '@/store'
 import GlobalContext from '@/layout/context'
-import { useMusicDetail, usePlaylists } from '@/hooks'
+import { useMusicDetail } from '@/hooks'
 import MusicDetailHeader from '../components/header'
 import MusicDetailTab from '../components/tab'
-import { CUSTOM_ID, CUSTOM_IMG, CUSTOM_NAME } from '@/utils/constant'
+import { CUSTOM_ID, CUSTOM_IMG, CUSTOM_NAME } from '@/utils'
 
 const CustomDetail = memo(() => {
   const {
@@ -17,7 +17,7 @@ const CustomDetail = memo(() => {
 
   const { player } = useContext(GlobalContext)
 
-  const { getCustomPlaylists } = usePlaylists()
+  const { getCustomPlaylists } = useFetchPlaylists()
 
   const playlistInfo = useAtomValue(playlistInfoAtom)
 
@@ -25,9 +25,13 @@ const CustomDetail = memo(() => {
     if (CUSTOM_ID === playlistInfo.playId) {
       player.setId(songId)
     } else {
-      getCustomPlaylists(songId)
+      void getCustomPlaylists(songId)
     }
   }, [playlistInfo])
+
+  const handlePlayAll = useCallback(() => {
+    void getCustomPlaylists()
+  }, [])
 
   useEffect(() => {
     setPlaylistHeader(playlistHeader => ({
@@ -40,7 +44,7 @@ const CustomDetail = memo(() => {
 
   return (
     <div className="pt-8">
-      <MusicDetailHeader loading={loading} playlistHeader={playlistHeader} >
+      <MusicDetailHeader loading={loading} playlistHeader={playlistHeader} onPlayAll={handlePlayAll} >
         {/* 自定义的歌单 isCustom: true */}
         <MusicDetailTab listsIds={listsIds} checkById={checkById} isCustom={true} />
       </MusicDetailHeader>
