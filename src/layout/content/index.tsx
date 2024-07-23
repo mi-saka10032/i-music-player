@@ -1,6 +1,6 @@
 import { memo } from 'react'
 import { Outlet } from 'react-router-dom'
-import { CONTENT_CONTAINER_ID } from '@/utils/constant'
+import { CONTENT_CONTAINER_ID } from '@/utils'
 
 const Content = memo(() => {
   return (

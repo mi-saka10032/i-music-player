@@ -1,6 +1,6 @@
 import tauriClient from '@/request'
 import { Body, fetch } from '@tauri-apps/api/http'
-import { CUSTOM_ID, CUSTOM_NAME } from '@/utils/constant'
+import { CUSTOM_ID, CUSTOM_NAME } from '@/utils'
 
 interface JaySongsPayload {
   singerName: string

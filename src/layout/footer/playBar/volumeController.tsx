@@ -1,16 +1,16 @@
-import { memo, useMemo, useRef, useCallback, useEffect } from 'react'
+import { memo, useMemo, useRef, useCallback, useEffect, useContext } from 'react'
+import { useAtom } from 'jotai'
+import { muteAtom, volumeAtom } from '@/store'
 import ProgressBar from '@/layout/footer/playBar/progressBar'
-
-interface VolumeControllerProps {
-  mute: boolean
-  volume: number
-  onMuteChange: (mute: boolean) => void
-  onVolumeChange: (progress: number) => void
-}
+import GlobalContext from '@/layout/context'
 
 // 音量控制器，封装原生进度条组件实现
-const VolumeController = memo((props: VolumeControllerProps) => {
-  const { mute, volume } = props
+const VolumeController = memo(() => {
+  const { player } = useContext(GlobalContext)
+
+  const [mute, setMute] = useAtom(muteAtom)
+
+  const [volume, setVolume] = useAtom(volumeAtom)
 
   // 静音前音量缓存
   const lastVolume = useRef(volume)
@@ -19,12 +19,12 @@ const VolumeController = memo((props: VolumeControllerProps) => {
   // 静音切换
   const switchMute = useCallback(() => {
     if (mute) {
-      props.onVolumeChange(lastVolume.current)
+      void setVolume(lastVolume.current)
     } else {
-      props.onVolumeChange(0)
+      void setVolume(0)
       lastVolume.current = volume > 0 ? volume : 10
     }
-    props.onMuteChange(!mute)
+    void setMute(!mute)
   }, [mute, volume])
 
   // 音量图标
@@ -50,12 +50,20 @@ const VolumeController = memo((props: VolumeControllerProps) => {
       // 滚轮↑为负值 滚轮↓为正值
       const newVolume = (e.deltaY < 0 ? 1 : -1) * 10 + volume
       const realVolume = Math.max(0, Math.min(100, newVolume))
-      props.onVolumeChange(realVolume)
+      void setVolume(realVolume)
     }
     volumeRef.current?.addEventListener('wheel', handleScrollVolume)
     return () => {
       volumeRef.current?.removeEventListener('wheel', handleScrollVolume)
     }
+  }, [volume])
+
+  useEffect(() => {
+    player.setMute(mute)
+  }, [mute])
+
+  useEffect(() => {
+    player.setVolume(volume)
   }, [volume])
 
   return (
@@ -68,7 +76,7 @@ const VolumeController = memo((props: VolumeControllerProps) => {
         <div className="h-20">
           <ProgressBar
             percent={volume}
-            onInput={props.onVolumeChange}
+            onInput={setVolume}
             barWidth="4px"
             pointSize="10px"
             alwaysPoint

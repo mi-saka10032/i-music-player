@@ -33,7 +33,7 @@ export function useMusicDetail () {
   }, [playlistHeader])
 
   return {
-    id,
+    id: Number(id),
     loading,
     setLoading,
     playlistHeader,

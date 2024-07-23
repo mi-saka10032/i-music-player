@@ -1,15 +1,24 @@
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
+import { durationTrans } from '@/utils'
+import { useAtomValue } from 'jotai'
+import { songActiveIndexAtom, songListsAtom } from '@/store'
 import { type SongData } from '@/core/playerType'
-import { durationTrans } from '@/utils/formatter'
 
 interface ThumbnailProps {
-  thumbnailItem: SongData | null
   progress: number
   detailRef: React.MutableRefObject<boolean>
   setShowDetail: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 const Thumbnail = memo((props: ThumbnailProps) => {
+  const songLists = useAtomValue(songListsAtom)
+
+  const songActiveIndex = useAtomValue(songActiveIndexAtom)
+
+  const thumbnailItem = useMemo<SongData | null>(() => {
+    return songLists[songActiveIndex] ?? null
+  }, [songLists, songActiveIndex])
+
   // 切换Detail显示/隐藏
   const switchDetailStatus = useCallback(() => {
     props.detailRef.current = !props.detailRef.current
@@ -19,31 +28,31 @@ const Thumbnail = memo((props: ThumbnailProps) => {
   const [isShow, setShow] = useState(false)
 
   const picUrl = useMemo<string>(() => {
-    return props.thumbnailItem != null ? props.thumbnailItem.album?.picUrl : ''
-  }, [props.thumbnailItem])
+    return thumbnailItem != null ? thumbnailItem.album?.picUrl : ''
+  }, [thumbnailItem])
 
   const songName = useMemo<string>(() => {
-    return props.thumbnailItem != null ? props.thumbnailItem.name : ''
-  }, [props.thumbnailItem])
+    return thumbnailItem != null ? thumbnailItem.name : ''
+  }, [thumbnailItem])
 
   const artistsName = useMemo<string>(() => {
-    const artists = props.thumbnailItem != null && Array.isArray(props.thumbnailItem.artists) ? props.thumbnailItem.artists : []
+    const artists = thumbnailItem != null && Array.isArray(thumbnailItem.artists) ? thumbnailItem.artists : []
     return artists.map(item => item.name).join(' / ')
-  }, [props.thumbnailItem])
+  }, [thumbnailItem])
 
   const duration = useMemo<string>(() => {
-    const time = props.thumbnailItem?.time ?? 0
+    const time = thumbnailItem?.time ?? 0
     return durationTrans(time)
-  }, [props.thumbnailItem])
+  }, [thumbnailItem])
 
   const currentTime = useMemo<string>(() => {
-    const time = props.thumbnailItem?.time ?? 0
+    const time = thumbnailItem?.time ?? 0
     return durationTrans(time * props.progress / 100)
-  }, [props.thumbnailItem, props.progress])
+  }, [thumbnailItem, props.progress])
 
   useEffect(() => {
-    setShow(props.thumbnailItem != null)
-  }, [props.thumbnailItem])
+    setShow(thumbnailItem != null)
+  }, [thumbnailItem])
 
   return (
     isShow
@@ -66,7 +75,7 @@ const Thumbnail = memo((props: ThumbnailProps) => {
               <span className="max-w-[8rem] text-ellipsis text-sm ml-2 text-neutral-500" title={artistsName}>{artistsName}</span>
             </div>
             {
-              Number(props.thumbnailItem?.time) > 0
+              Number(thumbnailItem?.time) > 0
                 ? (
                   <div className="flex items-center text-base text-[#cecece]">
                     <span>{currentTime}</span>

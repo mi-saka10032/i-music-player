@@ -1,19 +1,18 @@
 import { memo, useCallback, useEffect, useMemo, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { useAtom, useAtomValue } from 'jotai'
-import { fetchRecommendMap, recommendAtom, accountAtom } from '@/store'
-import { usePlaylists } from '@/hooks'
+import { useAtomValue } from 'jotai'
+import { useRecommend, accountAtom, useFetchPlaylists } from '@/store'
 import Card from './card'
 import SwiperComponent from '@/components/swiper'
-import { CUSTOM_IMG } from '@/utils/constant'
+import { CUSTOM_IMG } from '@/utils'
 
 const Recommend = memo(() => {
   const navigate = useNavigate()
 
   const accountInfo = useAtomValue(accountAtom)
-  const [recommendMap, setRecommendMap] = useAtom(recommendAtom)
+  const { recommendMap, fetchRecommendMap } = useRecommend()
 
-  const { getDefaultPlaylists, getCustomPlaylists } = usePlaylists()
+  const { getDefaultPlaylists, getCustomPlaylists } = useFetchPlaylists()
 
   const gotoMusicDetail = useCallback((id: number) => {
     navigate(`/musicDetail/${id}`)
@@ -57,13 +56,8 @@ const Recommend = memo(() => {
     }
   }, [accountInfo, recommendMap])
 
-  const initRecommendMap = useCallback(async () => {
-    const data = await fetchRecommendMap()
-    void setRecommendMap(data)
-  }, [])
-
   useEffect(() => {
-    void initRecommendMap()
+    void fetchRecommendMap()
   }, [])
 
   return (

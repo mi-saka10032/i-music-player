@@ -1,4 +1,4 @@
-import { type CSSProperties, memo, useEffect, useRef, useState } from 'react'
+import { type CSSProperties, memo, useEffect, useRef, useState, useCallback } from 'react'
 import { useAtomValue } from 'jotai'
 import { playerStatusAtom, songActiveIdAtom } from '@/store'
 import { getSongDetail, getJaySongs } from '@/api'
@@ -6,9 +6,17 @@ import { type SongData } from '@/core/playerType'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import VirtualList from '@/components/virtualList'
 import LoadingInstance from '@/components/loadingInstance'
-import { generateZebraClass, serializeNumberTrans, artistsArrayTrans, durationTrans, customSongDataTrans } from '@/utils/formatter'
-import { highlightNameClass, highlightArtistClass, highlightDurationClass } from '@/utils/highlightSongClass'
-import { CONTENT_CONTAINER_ID } from '@/utils/constant'
+import {
+  CONTENT_CONTAINER_ID,
+  generateZebraClass,
+  serializeNumberTrans,
+  artistsArrayTrans,
+  durationTrans,
+  customSongDataTrans,
+  highlightNameClass,
+  highlightArtistClass,
+  highlightDurationClass
+} from '@/utils'
 
 interface MusicDetailListsProps {
   isCustom: boolean
@@ -41,9 +49,12 @@ const MusicDetailLists = memo((props: MusicDetailListsProps) => {
 
   const [playlists, setPlaylists] = useState<SongData[]>([])
 
+  const handleSwitchSong = useCallback((songId: number) => {
+    props.checkById(songId)
+  }, [props.checkById])
+
   useEffect(() => {
     if (props.isCustom) {
-      // 自定义歌曲调用其他接口
       setLoading(true)
       getJaySongs()
         .then(res => {
@@ -56,7 +67,6 @@ const MusicDetailLists = memo((props: MusicDetailListsProps) => {
           setLoading(false)
         })
     } else {
-      // 初始挂载时读取前200首
       if (props.listsIds.length > 0) {
         setLoading(true)
         getSongDetail(props.listsIds)
@@ -120,7 +130,7 @@ const MusicDetailLists = memo((props: MusicDetailListsProps) => {
         key={item.id + index}
         className={`relative flex items-center w-full h-[36px] px-8 py-[8px] group ${generateZebraClass(index)}`}
         style={style}
-        onDoubleClick={() => { props.checkById(item.id) }}
+        onDoubleClick={() => { handleSwitchSong(item.id) }}
       >
         <span className="w-[7.5rem] flex justify-between items-center pr-5">
           {

@@ -1,16 +1,16 @@
-import React from 'react'
+import { type MemoExoticComponent, type LazyExoticComponent, memo, Suspense } from 'react'
 import ErrorBoundary from '../errorBoundary'
 import LoadingInstance from '../loadingInstance'
 
 // 懒加载容器
-export const LazyImportComponent = React.memo((props: {
-  lazyChildren: React.LazyExoticComponent<React.MemoExoticComponent<() => JSX.Element>>
+export const LazyImportComponent = memo((props: {
+  lazyChildren: LazyExoticComponent<MemoExoticComponent<() => JSX.Element>>
 }) => {
   return (
     <ErrorBoundary>
-      <React.Suspense fallback={<LoadingInstance loading={true} />}>
+      <Suspense fallback={<LoadingInstance loading={true} />}>
         <props.lazyChildren />
-      </React.Suspense>
+      </Suspense>
     </ErrorBoundary>
   )
 })

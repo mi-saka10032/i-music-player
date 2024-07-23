@@ -1,43 +1,59 @@
-import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit'
-import { getAccountInfo } from '@/api/user'
-import { getCookie, clearCookie } from '@/utils'
+import { clearCookie, getCookie } from '@/utils'
+import { createAtomWithIndexedDB } from './persist'
+import { useAtom } from 'jotai'
+import { useCallback, useEffect, useMemo } from 'react'
+import { getAccountInfo } from '@/api'
 
-export interface UserState {
-  cookie: string
-  accountInfo: AccountInfoRes
-}
-
-const initialState: UserState = {
-  cookie: getCookie() ?? '',
-  accountInfo: { code: 0 }
-}
-
-export const fetchAccountInfo = createAsyncThunk(
-  'user/getAccountInfoStatus',
-  async () => await getAccountInfo()
-)
-
-const userSlice = createSlice({
-  name: 'user',
-  initialState,
-  reducers: {
-    setCookie (state, action: PayloadAction<string>) {
-      const curCookie = action.payload
-      state.cookie = curCookie
-      if (curCookie.length === 0) {
-        clearCookie()
-      }
-    },
-    setAccountInfo (state, action: PayloadAction<AccountInfoRes>) {
-      state.accountInfo = action.payload
-    }
-  },
-  extraReducers: (builder) => {
-    builder.addCase(fetchAccountInfo.fulfilled, (state, { payload }) => {
-      state.accountInfo = payload
-    })
-  }
+export const cookieAtom = createAtomWithIndexedDB<string>({
+  cacheName: 'cookie',
+  initialValue: getCookie() ?? ''
 })
 
-export const userReducer = userSlice.reducer
-export const { setCookie, setAccountInfo } = userSlice.actions
+export const accountAtom = createAtomWithIndexedDB<AccountInfoRes>({
+  cacheName: 'account',
+  initialValue: { code: 0 }
+})
+
+export function useCookie () {
+  const [cookie, setCookie] = useAtom(cookieAtom)
+
+  return {
+    cookie,
+    setCookie,
+    clearCookie
+  }
+}
+
+export function useAccount () {
+  const [cookie, setCookie] = useAtom(cookieAtom)
+
+  const [accountInfo, setAccountInfo] = useAtom(accountAtom)
+
+  const fetchAccountInfo = useCallback(async () => {
+    const result = await getAccountInfo()
+    void setAccountInfo(result)
+  }, [])
+
+  const clearAccountInfo = useCallback(() => {
+    void setAccountInfo({ code: 0 })
+    void setCookie('')
+    clearCookie()
+  }, [])
+
+  const logged = useMemo(() => cookie.length > 0 && accountInfo.profile != null, [accountInfo, cookie])
+
+  useEffect(() => {
+    if (cookie.length > 0) {
+      void fetchAccountInfo()
+    }
+  }, [])
+
+  return {
+    accountInfo,
+    cookie,
+    logged,
+    clearAccountInfo,
+    fetchAccountInfo,
+    setCookie
+  }
+}

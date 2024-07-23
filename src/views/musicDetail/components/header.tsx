@@ -1,5 +1,5 @@
-import { type PropsWithChildren, memo, useCallback } from 'react'
-import { millSecondsTransDate, playCountTrans } from '@/utils/formatter'
+import { type PropsWithChildren, memo } from 'react'
+import { millSecondsTransDate, playCountTrans } from '@/utils'
 import { detailCoverStyle, DetailFallback, detailNameStyle } from '@/components/detailFallback'
 import {
   PlayAllButton,
@@ -7,20 +7,14 @@ import {
   ShareButton,
   DownloadButton
 } from '@/components/detailButton'
-import { usePlaylists } from '@/hooks'
 
 type MusicDetailHeaderProps = PropsWithChildren<{
   loading: boolean
   playlistHeader: PlayListDetail
+  onPlayAll: () => void
 }>
 
 const MusicDetailHeader = memo((props: PropsWithChildren<MusicDetailHeaderProps>) => {
-  const { getDefaultPlaylists } = usePlaylists()
-
-  const handlePlay = useCallback(() => {
-    getDefaultPlaylists(Number(props.playlistHeader.id))
-  }, [])
-
   return props.loading
     ? <DetailFallback />
     : (
@@ -56,7 +50,7 @@ const MusicDetailHeader = memo((props: PropsWithChildren<MusicDetailHeaderProps>
               }
             </section>
             <nav className="flex items-center space-x-2 text-sm">
-              <PlayAllButton onPlayAll={handlePlay} />
+              <PlayAllButton onPlayAll={props.onPlayAll} />
               <CollectButton subscribedCount={props.playlistHeader.subscribedCount ?? 0} />
               <ShareButton shareCount={props.playlistHeader.shareCount ?? 0} />
               <DownloadButton />

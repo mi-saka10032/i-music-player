@@ -1,8 +1,10 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useAtomValue, useSetAtom } from 'jotai'
+import { layoutDetailStatusAtom, playerStatusAtom, playlistInfoAtom, progressAtom, songActiveIndexAtom, songListsAtom } from '@/store'
 import { Row, Col } from 'antd'
 import { Lrc, type LrcLine, useRecoverAutoScrollImmediately } from 'react-lrc'
 import { getSongLyric } from '@/api'
-import { staticLyricTrans } from '@/utils/formatter'
+import { staticLyricTrans } from '@/utils'
 import { type SongData } from '@/core/playerType'
 import styles from './index.module.less'
 import Needle from '@/assets/png/playing_page_needle.png'
@@ -11,53 +13,59 @@ import Disc from '@/assets/png/playing_page_disc.png'
 interface DetailProps {
   detailRef: React.MutableRefObject<boolean>
   setShowDetail: React.Dispatch<React.SetStateAction<boolean>>
-  playlistId: number
-  playlistName: string
-  songItem: SongData | null
-  playStatus: MediaSessionPlaybackState
-  progress: number
 }
 
+const DiscImage = memo(({ src }: { src: string }) => {
+  return src?.length > 0
+    ? (<img src={src} className="absolute-middle-full z-30 w-[14.5rem] h-[14.5rem] rounded-full" />)
+    : null
+})
+DiscImage.displayName = 'DiscImage'
+
 const Detail = memo((props: DetailProps) => {
-  // 切换Detail显示/隐藏
-  const switchDetailStatus = useCallback(() => {
-    props.detailRef.current = false
-    props.setShowDetail(props.detailRef.current)
-  }, [])
+  const playStatus = useAtomValue(playerStatusAtom)
+
+  const progress = useAtomValue(progressAtom)
+
+  const playlistInfo = useAtomValue(playlistInfoAtom)
+
+  const songLists = useAtomValue(songListsAtom)
+
+  const songActiveIndex = useAtomValue(songActiveIndexAtom)
+
+  const songItem = useMemo<SongData | null>(() => {
+    return songLists[songActiveIndex] ?? null
+  }, [songLists, songActiveIndex])
 
   // 探针旋转状态判断
   const needRotating = useMemo<string>(() => {
-    return props.playStatus === 'playing' ? 'rotate(0)' : 'rotate(-45deg)'
-  }, [props.playStatus])
+    return playStatus === 'playing' ? 'rotate(0)' : 'rotate(-45deg)'
+  }, [playStatus])
 
   // 碟片旋转状态判断
   const discRotating = useMemo<React.CSSProperties>(() => {
     return {
       animationDuration: '20s',
-      animationPlayState: props.playStatus === 'playing' ? 'running' : 'paused'
+      animationPlayState: playStatus === 'playing' ? 'running' : 'paused'
     }
-  }, [props.playStatus])
-
-  // 图片组件缓存
-  const DiscImage = memo(({ src }: { src: string }) => {
-    return src?.length > 0
-      ? (
-        <img src={src} className="absolute-middle-full z-30 w-[14.5rem] h-[14.5rem] rounded-full" />
-        )
-      : null
-  })
-  DiscImage.displayName = 'DiscImage'
+  }, [playStatus])
 
   // album图片路径缓存
   const imagePath = useMemo<string>(() => {
-    if (props.songItem == null) return ''
-    return props.songItem?.album?.picUrl ?? ''
-  }, [props.songItem])
+    if (songItem == null) return ''
+    return songItem?.album?.picUrl ?? ''
+  }, [songItem])
 
   const artistsName = useMemo<string>(() => {
-    const artists = props.songItem != null && Array.isArray(props.songItem.artists) ? props.songItem.artists : []
+    const artists = songItem != null && Array.isArray(songItem.artists) ? songItem.artists : []
     return artists.map(item => item.name).join(' / ')
-  }, [props.songItem])
+  }, [songItem])
+
+  // 当前歌词时间毫秒数
+  const currentMillisecond = useMemo<number>(() => {
+    const duration = songItem?.time ?? 0
+    return duration * progress / 100
+  }, [songItem, progress])
 
   // 歌词正则表达
   const lrcReg = useRef(/\[\d{2}:\d{2}\.\d{2,3}\]/)
@@ -79,11 +87,11 @@ const Detail = memo((props: DetailProps) => {
 
   // 根据songId获取歌词
   useEffect(() => {
-    if (props.songItem != null && props.songItem?.id > 0) {
-      if (props.songItem.lyric != null && props.songItem.lyric?.length > 0) {
-        checkAndSetLyric(props.songItem.lyric)
+    if (songItem != null && songItem?.id > 0) {
+      if (songItem.lyric != null && songItem.lyric?.length > 0) {
+        checkAndSetLyric(songItem.lyric)
       } else {
-        getSongLyric(props.songItem.id)
+        getSongLyric(songItem.id)
           .then(res => {
             if (res.lrc?.lyric != null && res.lrc.lyric.length > 0) {
               checkAndSetLyric(res.lrc.lyric)
@@ -99,7 +107,7 @@ const Detail = memo((props: DetailProps) => {
           })
       }
     }
-  }, [props.songItem])
+  }, [songItem])
 
   // 正常歌词行渲染
   const lineRenderer = useCallback(({ active, line }: { active: boolean, line: LrcLine }) => {
@@ -120,17 +128,16 @@ const Detail = memo((props: DetailProps) => {
     ))
   }, [])
 
-  // 当前歌词时间毫秒数
-  const currentMillisecond = useMemo<number>(() => {
-    const duration = props.songItem?.time ?? 0
-    return duration * props.progress / 100
-  }, [props.songItem, props.progress])
+  const hideDetail = useCallback(() => {
+    props.detailRef.current = false
+    props.setShowDetail(props.detailRef.current)
+  }, [])
 
   return (
     <div className="relative flex h-full">
       <i
         className="iconfont icon-arrow-down absolute z-40 left-5 top-5 text-xl text-ctd cursor-pointer"
-        onClick={switchDetailStatus}
+        onClick={hideDetail}
       />
       <aside className="relative flex justify-center items-center w-1/2">
         {/* 唱片探针 */}
@@ -152,10 +159,10 @@ const Detail = memo((props: DetailProps) => {
       </aside>
       <main className={`w-1/2 pt-6 pr-32 pb-16 flex flex-col ${styles.vague}`}>
         {
-        props.songItem != null
+        songItem != null
           ? (
             <>
-              <h1 className="mb-5 font-sans text-2xl font-medium text-slate-900">{props.songItem.name}</h1>
+              <h1 className="mb-5 font-sans text-2xl font-medium text-slate-900">{songItem.name}</h1>
               <Row
                 className="w-full mb-8 text-gray-600"
                 justify={'space-between'}
@@ -166,7 +173,7 @@ const Detail = memo((props: DetailProps) => {
                 <Col span={9} className="flex items-center text-sm">
                   <span>专辑：</span>
                   <span className="flex-1 text-ellipsis super_link">
-                    {props.songItem.album.name}
+                    {songItem.album.name}
                   </span>
                 </Col>
                 <Col span={8} className="text-ellipsis text-sm">
@@ -178,7 +185,7 @@ const Detail = memo((props: DetailProps) => {
                 <Col span={7} className="text-ellipsis text-sm">
                   <span>来源：</span>
                   <span className="flex-1 text-ellipsis super_link">
-                    {props.playlistName}
+                    {playlistInfo.playName}
                   </span>
                 </Col>
               </Row>

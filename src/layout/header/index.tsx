@@ -2,12 +2,10 @@ import { type PropsWithChildren, memo, useMemo } from 'react'
 import RouteStackControl from '@/components/route-stack-control'
 import NavBar from '@/layout/header/navBar'
 import SettingsBar from './settings-bar'
-import { siderWidth } from "../style";
+import { siderWidth } from '../style'
 
 interface HeaderProps {
-  detailRef: React.MutableRefObject<boolean>
   showDetail: boolean
-  setShowDetail: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 const Header = memo((props: PropsWithChildren<HeaderProps>) => {
