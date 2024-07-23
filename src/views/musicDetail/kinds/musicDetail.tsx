@@ -1,11 +1,11 @@
-import { memo, useCallback, useContext, useEffect } from 'react'
+import { memo, useCallback, useEffect } from 'react'
 import { useAtomValue } from 'jotai'
 import { playlistInfoAtom, useFetchPlaylists } from '@/store'
-import GlobalContext from '@/layout/context'
 import { useMusicDetail } from '@/hooks'
 import MusicDetailHeader from '../components/header'
 import MusicDetailTab from '../components/tab'
 import { getPlaylistDetail } from '@/api'
+import { playerInstance } from '@/core/player'
 
 const MusicDetail = memo(() => {
   const {
@@ -17,15 +17,13 @@ const MusicDetail = memo(() => {
     listsIds
   } = useMusicDetail()
 
-  const { player } = useContext(GlobalContext)
-
   const { getDefaultPlaylists } = useFetchPlaylists()
 
   const playlistInfo = useAtomValue(playlistInfoAtom)
 
   const checkById = useCallback((songId: number) => {
     if (id === playlistInfo.playId) {
-      player.setId(songId)
+      playerInstance.setId(songId)
     } else {
       void getDefaultPlaylists(id, songId)
     }

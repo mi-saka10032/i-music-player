@@ -1,6 +1,5 @@
 import { type MouseEvent, memo, useEffect, useState, useRef, useCallback, useMemo, lazy } from 'react'
 import { message } from 'antd'
-import GlobalContext from '@/layout/context'
 import { PlayerEvent, playerInstance } from '@/core/player'
 import { footerHeight, siderWidth, topHeight } from './style'
 
@@ -12,9 +11,6 @@ const RightQueue = lazy(async () => await import('./rightQueue'))
 const Detail = lazy(async () => await import('./detail'))
 
 const Layout = memo(() => {
-  // 生命周期内仅维持一份player实例
-  const playerRef = useRef(playerInstance)
-
   /** 列表栏的显示/隐藏 */
   // 列表栏的显示隐藏状态ref，传递给footer做修改，以避免footer不必要的更新
   const queueStatusRef = useRef(false)
@@ -63,68 +59,66 @@ const Layout = memo(() => {
 
   /** 挂载时触发 */
   useEffect(() => {
-    playerRef.current.on(PlayerEvent.INVALID, showInvalidTips)
+    playerInstance.on(PlayerEvent.INVALID, showInvalidTips)
     return () => {
-      playerRef.current.off(PlayerEvent.INVALID, showInvalidTips)
-      playerRef.current.removeUrlCleaner()
+      playerInstance.off(PlayerEvent.INVALID, showInvalidTips)
+      playerInstance.removeUrlCleaner()
     }
   }, [])
 
   return (
-    <GlobalContext.Provider value={{ player: playerRef.current }}>
-      <div
-        className='relative grid w-full h-full m-0 p-0 overflow-hidden rounded-2xl'
-        style={{
-          gridTemplateRows: `${topHeight} 1fr ${footerHeight}`,
-          gridTemplateColumns: `${siderWidth} 1fr`
-        }}
-        onClick={operateQueueStatus}
+    <div
+      className='relative grid w-full h-full m-0 p-0 overflow-hidden rounded-2xl'
+      style={{
+        gridTemplateRows: `${topHeight} 1fr ${footerHeight}`,
+        gridTemplateColumns: `${siderWidth} 1fr`
+      }}
+      onClick={operateQueueStatus}
       >
-        {/* Header 占据网格第1行，第1-3列网格线 */}
-        <div
-          className="flex relative z-40 col-start-1 col-end-3"
-          style={{ height: topHeight }}
+      {/* Header 占据网格第1行，第1-3列网格线 */}
+      <div
+        className="flex relative z-40 col-start-1 col-end-3"
+        style={{ height: topHeight }}
         >
-          <Header showDetail={showDetail} />
-        </div>
-        {/* LeftSider 占据网格第2行，默认第1-2列网格线 */}
-        <div className="bg-[#ededed] overflow-hidden" >
-          <LeftSider />
-        </div>
-        {/* Content 占据网格第2行，默认第2-3列网格线 */}
-        <div className="flex overflow-hidden">
-          <Content />
-        </div>
-        {/* Footer 占据网格第3行，默认第1-3列网格线 */}
-        <div
-          ref={footerRef}
-          className="relative z-40 w-full col-start-1 col-end-3 bg-white rounded-b-2xl"
-        >
-          <Footer
-            queueStatusRef={queueStatusRef}
-            detailRef={detailRef}
-            setShowQueue={setShowQueue}
-            setShowDetail={setShowDetail}
-        />
-        </div>
-        {/* RightQueue fixed */}
-        <div
-          ref={queueRef}
-          className={`fixed top-0 right-0 z-30 flex flex-col w-[30rem] h-full transition-all duration-500 ${switchQueueClass}`}
-          style={{ paddingTop: topHeight, paddingBottom: footerHeight }}
-        >
-          <RightQueue showQueue={showQueue} />
-        </div>
-        {/* Detail fixed */}
-        <div
-          className={`fixed z-20 left-0 w-full h-full transition-opacity duration-500 bg-[#f8f8f8] rounded-2xl ${switchDetailClass}`}
-          style={{ paddingTop: topHeight, paddingBottom: footerHeight }}
-        >
-          <Detail detailRef={detailRef} setShowDetail={setShowDetail} />
-        </div>
-        {contextHolder}
+        <Header showDetail={showDetail} />
       </div>
-    </GlobalContext.Provider>
+      {/* LeftSider 占据网格第2行，默认第1-2列网格线 */}
+      <div className="bg-[#ededed] overflow-hidden" >
+        <LeftSider />
+      </div>
+      {/* Content 占据网格第2行，默认第2-3列网格线 */}
+      <div className="flex overflow-hidden">
+        <Content />
+      </div>
+      {/* Footer 占据网格第3行，默认第1-3列网格线 */}
+      <div
+        ref={footerRef}
+        className="relative z-40 w-full col-start-1 col-end-3 bg-white rounded-b-2xl"
+        >
+        <Footer
+          queueStatusRef={queueStatusRef}
+          detailRef={detailRef}
+          setShowQueue={setShowQueue}
+          setShowDetail={setShowDetail}
+        />
+      </div>
+      {/* RightQueue fixed */}
+      <div
+        ref={queueRef}
+        className={`fixed top-0 right-0 z-30 flex flex-col w-[30rem] h-full transition-all duration-500 ${switchQueueClass}`}
+        style={{ paddingTop: topHeight, paddingBottom: footerHeight }}
+        >
+        <RightQueue showQueue={showQueue} />
+      </div>
+      {/* Detail fixed */}
+      <div
+        className={`fixed z-20 left-0 w-full h-full transition-opacity duration-500 bg-[#f8f8f8] rounded-2xl ${switchDetailClass}`}
+        style={{ paddingTop: topHeight, paddingBottom: footerHeight }}
+        >
+        <Detail detailRef={detailRef} setShowDetail={setShowDetail} />
+      </div>
+      {contextHolder}
+    </div>
   )
 })
 

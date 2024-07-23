@@ -1,12 +1,11 @@
-import { memo, useCallback, useContext, useEffect, useMemo } from 'react'
+import { memo, useCallback, useEffect, useMemo } from 'react'
 import { useAtom, useSetAtom } from 'jotai'
 import { playerStatusAtom, progressAtom, songActiveIdAtom, songActiveIndexAtom } from '@/store'
-import GlobalContext from '@/layout/context'
 import ProgressBar from './playBar/progressBar'
 import PlayTypeIcon from './playBar/playTypeIcon'
 import VolumeController from './playBar/volumeController'
 import Thumbnail from './thumbnail'
-import { PlayerEvent } from '@/core/player'
+import { PlayerEvent, playerInstance } from '@/core/player'
 
 interface FooterProps {
   queueStatusRef: React.MutableRefObject<boolean>
@@ -16,8 +15,6 @@ interface FooterProps {
 }
 
 const Footer = memo((props: FooterProps) => {
-  const { player } = useContext(GlobalContext)
-
   const setSongActiveId = useSetAtom(songActiveIdAtom)
 
   const setSongActiveIndex = useSetAtom(songActiveIndexAtom)
@@ -37,24 +34,24 @@ const Footer = memo((props: FooterProps) => {
 
   const handleProgressTo = useCallback(async (progress: number) => {
     await setProgress(progress)
-    player.progressTo(progress)
+    playerInstance.progressTo(progress)
   }, [])
 
   const switchPlayStatus = useCallback(() => {
-    if (progress !== player.progress) {
-      player.progressTo(progress)
+    if (progress !== playerInstance.progress) {
+      playerInstance.progressTo(progress)
     }
-    player.switchPlay()
+    playerInstance.switchPlay()
   }, [progress])
 
   const handleChangePrev = useCallback(async () => {
     await setProgress(0)
-    player.prev()
+    playerInstance.prev()
   }, [])
 
   const handleChangeNext = useCallback(async () => {
     await setProgress(0)
-    player.next()
+    playerInstance.next()
   }, [])
 
   const handleDispatchStatus = useCallback((status: MediaSessionPlaybackState) => {
@@ -73,18 +70,16 @@ const Footer = memo((props: FooterProps) => {
     void setSongActiveIndex(index)
   }, [])
 
-  console.log('footer footer footer')
-
   useEffect(() => {
-    player.on(PlayerEvent.STATUS_CHANGE, handleDispatchStatus)
-    player.on(PlayerEvent.PROGRESS_CHANGE, handleDispatchProgress)
-    player.on(PlayerEvent.ID_CHANGE, handleDispatchId)
-    player.on(PlayerEvent.INDEX_CHANGE, handleDispatchIndex)
+    playerInstance.on(PlayerEvent.STATUS_CHANGE, handleDispatchStatus)
+    playerInstance.on(PlayerEvent.PROGRESS_CHANGE, handleDispatchProgress)
+    playerInstance.on(PlayerEvent.ID_CHANGE, handleDispatchId)
+    playerInstance.on(PlayerEvent.INDEX_CHANGE, handleDispatchIndex)
     return () => {
-      player.off(PlayerEvent.STATUS_CHANGE, handleDispatchStatus)
-      player.off(PlayerEvent.PROGRESS_CHANGE, handleDispatchProgress)
-      player.off(PlayerEvent.ID_CHANGE, handleDispatchId)
-      player.off(PlayerEvent.INDEX_CHANGE, handleDispatchIndex)
+      playerInstance.off(PlayerEvent.STATUS_CHANGE, handleDispatchStatus)
+      playerInstance.off(PlayerEvent.PROGRESS_CHANGE, handleDispatchProgress)
+      playerInstance.off(PlayerEvent.ID_CHANGE, handleDispatchId)
+      playerInstance.off(PlayerEvent.INDEX_CHANGE, handleDispatchIndex)
     }
   }, [])
 
