@@ -1,4 +1,5 @@
 import { memo, useMemo, useState } from 'react'
+import { PLAY_ALL_BUTTON_ID } from '@/common/constants'
 
 interface PlayAllButtonProps {
   onPlayAll?: () => void
@@ -18,6 +19,7 @@ export const PlayAllButton = memo((props: PlayAllButtonProps) => {
   return (
     <button className="relative flex items-center h-10 rounded-[1.25rem] text-white bg-[#ec4141]">
       <nav
+        id={PLAY_ALL_BUTTON_ID}
         className={`pl-4 pr-2.5 flex items-center h-full rounded-l-[1.25rem] ${switchTripleBG[0]}`}
         onMouseEnter={() => { setPlayInter(true) }}
         onMouseLeave={() => { setPlayInter(false) }}

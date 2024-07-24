@@ -4,7 +4,7 @@ import { createAtomWithIndexedDB } from './persist'
 import { type SongData } from '@/core/player'
 import { getJaySongs, getPlaylistDetail, getSongDetail } from '@/api'
 import { normalSongDataTrans, customSongDataTrans } from '@/utils'
-import { durationAtom, playerStatusAtom, progressAtom } from './playerController'
+import { playerStatusAtom, progressAtom } from './playerController'
 
 interface PlaylistInfo {
   playId: number
@@ -48,25 +48,12 @@ export function useFetchPlaylists () {
   const setAutoplay = useSetAtom(autoplayAtom)
   const setPlayerStatus = useSetAtom(playerStatusAtom)
   const setProgress = useSetAtom(progressAtom)
-  const setDuration = useSetAtom(durationAtom)
   const setPlaylistInfo = useSetAtom(playlistInfoAtom)
   const setSongLists = useSetAtom(songListsAtom)
   const setSongActiveId = useSetAtom(songActiveIdAtom)
   const setSongActiveIndex = useSetAtom(songActiveIndexAtom)
 
-  const setPreWork = useCallback(() => {
-    // 开启列表栏loading
-    setLoading(true)
-    // 使用自动播放
-    setAutoplay(true)
-    // 清理播放状态
-    setPlayerStatus('none')
-    void setDuration(0)
-    void setProgress(0)
-  }, [])
-
   const setPostWork = useCallback((payload: FetchPlaylistDetailRes) => {
-    setLoading(false)
     void setPlaylistInfo({
       playId: payload.playId,
       playName: payload.playName
@@ -82,42 +69,51 @@ export function useFetchPlaylists () {
         void setSongActiveId(payload.activeId)
       }
     }
+    setAutoplay(true)
   }, [])
 
   const getDefaultPlaylists = useCallback(async (playlistId: number, songId: number = 0) => {
-    setPreWork()
-    // 立刻获取完整歌单列表
-    const result = await getPlaylistDetail(playlistId)
-    // 遍历trackIds获取完整id，再拉取一次全量歌曲信息
-    const allIds = result.playlist.trackIds.map(item => item.id)
-    const completeSongs = await getSongDetail(allIds)
+    setLoading(true)
+    try {
+      const result = await getPlaylistDetail(playlistId)
+      const allIds = result.playlist.trackIds.map(item => item.id)
+      const completeSongs = await getSongDetail(allIds)
 
-    setPostWork({
-      playId: result.playlist.id,
-      playName: result.playlist.name,
-      songLists: normalSongDataTrans(completeSongs),
-      activeId: songId
-    })
+      setPostWork({
+        playId: result.playlist.id,
+        playName: result.playlist.name,
+        songLists: normalSongDataTrans(completeSongs),
+        activeId: songId
+      })
+    } catch (error) {
+      console.log(error)
+    } finally {
+      setLoading(false)
+    }
   }, [])
 
   const getCustomPlaylists = useCallback(async (songId: number = 0) => {
-    setPreWork()
-    // 获取个人自定义歌单
-    const { customId, customName, list } = await getJaySongs()
+    setLoading(true)
+    try {
+      const { customId, customName, list } = await getJaySongs()
 
-    setPostWork({
-      playId: customId,
-      playName: customName,
-      songLists: customSongDataTrans(list),
-      activeId: songId
-    })
+      setPostWork({
+        playId: customId,
+        playName: customName,
+        songLists: customSongDataTrans(list),
+        activeId: songId
+      })
+    } catch (error) {
+      console.log(error)
+    } finally {
+      setLoading(false)
+    }
   }, [])
 
   const clearPlaylists = useCallback(() => {
     setLoading(false)
     setAutoplay(false)
     setPlayerStatus('none')
-    void setDuration(0)
     void setProgress(0)
     void setPlaylistInfo({
       playId: 0,

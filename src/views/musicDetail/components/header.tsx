@@ -1,6 +1,7 @@
 import { type PropsWithChildren, memo } from 'react'
 import { millSecondsTransDate, playCountTrans } from '@/utils'
 import { detailCoverStyle, DetailFallback, detailNameStyle } from '@/components/detailFallback'
+import LoadingContainer from '@/components/loadingContainer'
 import {
   PlayAllButton,
   CollectButton,
@@ -14,22 +15,24 @@ type MusicDetailHeaderProps = PropsWithChildren<{
   onPlayAll: () => void
 }>
 
-const MusicDetailHeader = memo((props: PropsWithChildren<MusicDetailHeaderProps>) => {
-  return props.loading
-    ? <DetailFallback />
-    : (
-      <>
-        <div className="flex px-8 mb-8 w-full font-sans">
-          <img src={props.playlistHeader?.coverImgUrl} style={detailCoverStyle} />
-          <div className="flex-1 space-y-4">
-            <header className="flex items-center">
-              <span className="p-1 text-sm leading-none text-[#ed4141] border border-[#ed4141] rounded">歌单</span>
-              <h1 className="ml-2.5 text-2xl font-semibold leading-none text-[#333] truncate" style={detailNameStyle}>
-                {props.playlistHeader.name}
-              </h1>
-            </header>
-            <section className="flex items-center space-x-2 text-sm">
-              {
+const MusicDetailHeader = memo((props: MusicDetailHeaderProps) => {
+  if (props.loading) {
+    return <DetailFallback />
+  }
+
+  return (
+    <LoadingContainer loading={props.loading} fallback={<DetailFallback />}>
+      <div className="flex px-8 mb-8 w-full font-sans">
+        <img src={props.playlistHeader?.coverImgUrl} style={detailCoverStyle} />
+        <div className="flex-1 space-y-4">
+          <header className="flex items-center">
+            <span className="p-1 text-sm leading-none text-[#ed4141] border border-[#ed4141] rounded">歌单</span>
+            <h1 className="ml-2.5 text-2xl font-semibold leading-none text-[#333] truncate" style={detailNameStyle}>
+              {props.playlistHeader.name}
+            </h1>
+          </header>
+          <section className="flex items-center space-x-2 text-sm">
+            {
                 props.playlistHeader.creator.avatarUrl.length > 0
                   ? (
                     <>
@@ -39,7 +42,7 @@ const MusicDetailHeader = memo((props: PropsWithChildren<MusicDetailHeaderProps>
                     )
                   : null
               }
-              {
+            {
                 props.playlistHeader.createTime > 0
                   ? (
                     <span className="text-gray-600">
@@ -48,16 +51,16 @@ const MusicDetailHeader = memo((props: PropsWithChildren<MusicDetailHeaderProps>
                     )
                   : null
               }
-            </section>
-            <nav className="flex items-center space-x-2 text-sm">
-              <PlayAllButton onPlayAll={props.onPlayAll} />
-              <CollectButton subscribedCount={props.playlistHeader.subscribedCount ?? 0} />
-              <ShareButton shareCount={props.playlistHeader.shareCount ?? 0} />
-              <DownloadButton />
-            </nav>
-            <article className="flex flex-col space-y-2 text-sm">
-              <div className="flex items-center">
-                {
+          </section>
+          <nav className="flex items-center space-x-2 text-sm">
+            <PlayAllButton onPlayAll={props.onPlayAll} />
+            <CollectButton subscribedCount={props.playlistHeader.subscribedCount ?? 0} />
+            <ShareButton shareCount={props.playlistHeader.shareCount ?? 0} />
+            <DownloadButton />
+          </nav>
+          <article className="flex flex-col space-y-2 text-sm">
+            <div className="flex items-center">
+              {
                   props.playlistHeader.tags.length > 0
                     ? (
                       <>
@@ -78,9 +81,9 @@ const MusicDetailHeader = memo((props: PropsWithChildren<MusicDetailHeaderProps>
                       )
                     : null
                 }
-              </div>
-              <div className="flex items-center">
-                {
+            </div>
+            <div className="flex items-center">
+              {
                   props.playlistHeader.trackIds.length > 0
                     ? (
                       <>
@@ -90,7 +93,7 @@ const MusicDetailHeader = memo((props: PropsWithChildren<MusicDetailHeaderProps>
                       )
                     : null
                 }
-                {
+              {
                   props.playlistHeader.playCount > 0
                     ? (
                       <>
@@ -100,9 +103,9 @@ const MusicDetailHeader = memo((props: PropsWithChildren<MusicDetailHeaderProps>
                       )
                     : null
                 }
-              </div>
-              <div className="flex items-center">
-                {
+            </div>
+            <div className="flex items-center">
+              {
                 props.playlistHeader.description != null && props.playlistHeader.description?.length > 0
                   ? (
                     <>
@@ -114,13 +117,13 @@ const MusicDetailHeader = memo((props: PropsWithChildren<MusicDetailHeaderProps>
                     )
                   : null
                }
-              </div>
-            </article>
-          </div>
+            </div>
+          </article>
         </div>
-        { props.children }
-      </>
-      )
+      </div>
+      { props.children }
+    </LoadingContainer>
+  )
 })
 
 MusicDetailHeader.displayName = 'MusicDetailHeader'

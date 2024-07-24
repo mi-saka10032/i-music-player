@@ -9,7 +9,6 @@ import { playerInstance } from '@/core/player'
 
 const CustomDetail = memo(() => {
   const {
-    loading,
     playlistHeader,
     listsIds,
     setPlaylistHeader
@@ -42,7 +41,7 @@ const CustomDetail = memo(() => {
 
   return (
     <div className="pt-8">
-      <MusicDetailHeader loading={loading} playlistHeader={playlistHeader} onPlayAll={handlePlayAll} >
+      <MusicDetailHeader loading={false} playlistHeader={playlistHeader} onPlayAll={handlePlayAll} >
         {/* 自定义的歌单 isCustom: true */}
         <MusicDetailTab listsIds={listsIds} checkById={checkById} isCustom={true} />
       </MusicDetailHeader>

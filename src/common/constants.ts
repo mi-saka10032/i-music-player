@@ -9,3 +9,5 @@ export const LOGIN_SUCCESS: string = 'login-success'
 
 /** 初始化state */
 export const INITIAL_STATE_LOADED: string = 'INITIAL_STATE_LOADED'
+
+export const PLAY_ALL_BUTTON_ID: string = 'UNIQUE_PLAY_ALL'

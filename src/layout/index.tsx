@@ -2,6 +2,7 @@ import { type MouseEvent, memo, useEffect, useState, useRef, useCallback, useMem
 import { message } from 'antd'
 import { PlayerEvent, playerInstance } from '@/core/player'
 import { footerHeight, siderWidth, topHeight } from './style'
+import { PLAY_ALL_BUTTON_ID } from '@/common/constants'
 
 import Header from './header'
 import Content from './content'
@@ -19,7 +20,9 @@ const Layout = memo(() => {
 
   const footerRef = useRef<HTMLDivElement>(null)
 
-  const queueRef = useRef<HTMLDivElement>(null)
+  const rightQueueRef = useRef<HTMLDivElement>(null)
+
+  const leftSiderRef = useRef<HTMLDivElement>(null)
 
   const switchQueueClass = useMemo<string>(() => {
     return showQueue ? 'opacity-1' : 'translate-x-[30rem] opacity-0'
@@ -27,9 +30,21 @@ const Layout = memo(() => {
 
   const operateQueueStatus = useCallback((e: MouseEvent) => {
     const target = e.target as HTMLElement
-    const footer = footerRef.current as HTMLElement
-    const queue = queueRef.current as HTMLElement
-    if (!(footer.contains(target) || queue.contains(target)) && showQueue) {
+
+    const footerEle = footerRef.current as HTMLElement
+
+    const rightQueueEle = rightQueueRef.current as HTMLElement
+
+    const leftSiderEle = leftSiderRef.current as HTMLElement
+
+    const uniquePlayAllBtn = document.getElementById(PLAY_ALL_BUTTON_ID) as HTMLElement
+
+    if (!(
+      footerEle.contains(target) ||
+      rightQueueEle.contains(target) ||
+      leftSiderEle.contains(target) ||
+      (uniquePlayAllBtn !== null && uniquePlayAllBtn.contains(target))
+    ) && showQueue) {
       queueStatusRef.current = false
       setShowQueue(queueStatusRef.current)
     }
@@ -83,7 +98,7 @@ const Layout = memo(() => {
         <Header showDetail={showDetail} />
       </div>
       {/* LeftSider 占据网格第2行，默认第1-2列网格线 */}
-      <div className="bg-[#ededed] overflow-hidden" >
+      <div ref={leftSiderRef} className="bg-[#ededed] overflow-hidden" >
         <LeftSider />
       </div>
       {/* Content 占据网格第2行，默认第2-3列网格线 */}
@@ -104,7 +119,7 @@ const Layout = memo(() => {
       </div>
       {/* RightQueue fixed */}
       <div
-        ref={queueRef}
+        ref={rightQueueRef}
         className={`fixed top-0 right-0 z-30 flex flex-col w-[30rem] h-full transition-all duration-500 ${switchQueueClass}`}
         style={{ paddingTop: topHeight, paddingBottom: footerHeight }}
         >

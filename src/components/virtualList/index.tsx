@@ -49,7 +49,16 @@ const VirtualList = memo(
           <div style={{ position: 'relative', width: '100%', height: totalHeight }} />
           <div style={{ position: 'absolute', top: offsetY, width: '100%' }}>
             {/* children组件渲染 */}
-            {visibleItemsData.map((item, index) => <props.children key={(item.id ?? 0) + '' + index} index={startNode + index} style={{ height: itemSize }} data={props.itemData} />)}
+            {
+              visibleItemsData.map((item, index) =>
+                <props.children
+                  key={(item.id ?? 0) + '' + index}
+                  index={startNode + index}
+                  style={{ height: itemSize }}
+                  data={props.itemData}
+                />
+              )
+            }
           </div>
         </div>
       )

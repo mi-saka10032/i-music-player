@@ -4,8 +4,6 @@ import { useParams } from 'react-router-dom'
 export function useMusicDetail () {
   const { id } = useParams<{ id: string }>()
 
-  const [loading, setLoading] = useState(false)
-
   const [playlistHeader, setPlaylistHeader] = useState<PlayListDetail>({
     id: 0,
     name: '',
@@ -34,8 +32,6 @@ export function useMusicDetail () {
 
   return {
     id: Number(id),
-    loading,
-    setLoading,
     playlistHeader,
     setPlaylistHeader,
     listsIds

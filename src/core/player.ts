@@ -148,7 +148,7 @@ export class Player {
   get state (): PlayerState {
     return {
       howl: this.currentHowl,
-      id: this.current.id,
+      id: this.current?.id ?? 0,
       status: this.status,
       repeatMode: this.repeatMode,
       volume: this.volume,
@@ -307,7 +307,6 @@ export class Player {
       newHowl = null
       return
     }
-    this.status = 'none'
     // 新howl赋值
     this.currentHowl = newHowl as Howl
     this.currentHowl.loop(this.repeatMode === PlayType.single)
@@ -388,7 +387,6 @@ export class Player {
       default:
         break
     }
-    this.status = 'none'
     this.emit(PlayerEvent.END, this.state)
     if ('mediaSession' in window.navigator) {
       window.navigator.mediaSession.playbackState = this.status

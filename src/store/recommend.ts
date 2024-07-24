@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, startTransition } from 'react'
 import { useAtom } from 'jotai'
 import { createAtomWithIndexedDB } from './persist'
 import { getBanners, getPersonalized, getRecommendResource } from '@/api'
@@ -37,7 +37,9 @@ export function useRecommend () {
       fetchList.push(getPersonalized().then(res => data.personalizedPlaylist = res.result?.slice(0, 10)))
     }
     await Promise.allSettled(fetchList)
-    void setRecommendMap(data)
+    startTransition(() => {
+      void setRecommendMap(data)
+    })
   }, [])
 
   return {

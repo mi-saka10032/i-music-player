@@ -26,13 +26,4 @@ export const progressAtom = createAtomWithIndexedDB<number>({
   throttleMS: 1000
 })
 
-export const durationAtom = createAtomWithIndexedDB<number>({
-  cacheName: 'duration',
-  initialValue: 0
-})
-
 export const playerStatusAtom = atom<MediaSessionPlaybackState>('none')
-
-export const layoutDetailStatusAtom = atom<boolean>(false)
-
-export const rightQueueStatusAtom = atom<boolean>(false)
