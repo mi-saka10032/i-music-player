@@ -5,6 +5,7 @@ import { getSongDetail, getJaySongs } from '@/api'
 import { type SongData } from '@/core/playerType'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import VirtualList from '@/components/virtualList'
+import LoadingContainer from '@/components/loadingContainer'
 import LoadingInstance from '@/components/loadingInstance'
 import {
   CONTENT_CONTAINER_ID,
@@ -17,6 +18,7 @@ import {
   highlightArtistClass,
   highlightDurationClass
 } from '@/utils'
+import { useEffectLoading } from '@/hooks'
 
 interface MusicDetailListsProps {
   isCustom: boolean
@@ -45,49 +47,29 @@ const MusicDetailLists = memo((props: MusicDetailListsProps) => {
   // 全局播放状态 以动态切换小图标
   const playerStatus = useAtomValue(playerStatusAtom)
 
-  const [loading, setLoading] = useState(false)
-
   const [playlists, setPlaylists] = useState<SongData[]>([])
 
   const handleSwitchSong = useCallback((songId: number) => {
     props.checkById(songId)
   }, [props.checkById])
 
-  useEffect(() => {
+  const initPlaylists = useCallback(async () => {
     if (props.isCustom) {
-      setLoading(true)
-      getJaySongs()
-        .then(res => {
-          setPlaylists(customSongDataTrans(res.list))
-        })
-        .catch(err => {
-          console.log(err)
-        })
-        .finally(() => {
-          setLoading(false)
-        })
-    } else {
-      if (props.listsIds.length > 0) {
-        setLoading(true)
-        getSongDetail(props.listsIds)
-          .then(res => {
-            setPlaylists(res.map(item => ({
-              id: item.id,
-              name: item.name,
-              artists: item.ar,
-              album: item.al,
-              time: item.dt
-            })))
-          })
-          .catch(err => {
-            console.log(err)
-          })
-          .finally(() => {
-            setLoading(false)
-          })
-      }
+      const res = await getJaySongs()
+      setPlaylists(customSongDataTrans(res.list))
+    } else if (props.listsIds.length > 0) {
+      const res = await getSongDetail(props.listsIds)
+      setPlaylists(res.map(item => ({
+        id: item.id,
+        name: item.name,
+        artists: item.ar,
+        album: item.al,
+        time: item.dt
+      })))
     }
   }, [props.isCustom, props.listsIds])
+
+  const { loading } = useEffectLoading([props.isCustom, props.listsIds], initPlaylists)
 
   // list动态高度设置
   const listRef = useRef<HTMLUListElement>(null)
@@ -176,22 +158,23 @@ const MusicDetailLists = memo((props: MusicDetailListsProps) => {
     <>
       <ListHeader />
       <ul ref={listRef} className="relative" style={{ minHeight: containerHeight }}>
-        <LoadingInstance loading={loading} />
-        <AutoSizer>
-          {({ width, height }: { width: number, height: number }) => (
-            <VirtualList
-              className={`${!loading && playlists.length > 0 ? '' : 'hidden'}`}
-              width={width}
-              height={height}
-              itemData={playlists}
-              itemCount={playlists.length}
-              itemSize={fixedItemHeight.current}
-              scrollPosition={scrollPosition}
-            >
-              { FixedRow }
-            </VirtualList>
-          )}
-        </AutoSizer>
+        <LoadingContainer loading={loading} fallback={<LoadingInstance />}>
+          <AutoSizer>
+            {({ width, height }: { width: number, height: number }) => (
+              <VirtualList
+                className={`${playlists.length > 0 ? '' : 'hidden'}`}
+                width={width}
+                height={height}
+                itemData={playlists}
+                itemCount={playlists.length}
+                itemSize={fixedItemHeight.current}
+                scrollPosition={scrollPosition}
+              >
+                { FixedRow }
+              </VirtualList>
+            )}
+          </AutoSizer>
+        </LoadingContainer>
       </ul>
     </>
   )
