@@ -33,7 +33,7 @@ const Footer = memo((props: FooterProps) => {
   }, [])
 
   const handleProgressTo = useCallback(async (progress: number) => {
-    await setProgress(progress)
+    setProgress(progress)
     playerInstance.progressTo(progress)
   }, [])
 
@@ -45,12 +45,12 @@ const Footer = memo((props: FooterProps) => {
   }, [progress])
 
   const handleChangePrev = useCallback(async () => {
-    await setProgress(0)
+    setProgress(0)
     playerInstance.prev()
   }, [])
 
   const handleChangeNext = useCallback(async () => {
-    await setProgress(0)
+    setProgress(0)
     playerInstance.next()
   }, [])
 
@@ -59,15 +59,15 @@ const Footer = memo((props: FooterProps) => {
   }, [])
 
   const handleDispatchProgress = useCallback((progress: number) => {
-    void setProgress(progress)
+    setProgress(progress)
   }, [])
 
   const handleDispatchId = useCallback((id: number) => {
-    void setSongActiveId(id)
+    setSongActiveId(id)
   }, [])
 
   const handleDispatchIndex = useCallback((index: number) => {
-    void setSongActiveIndex(index)
+    setSongActiveIndex(index)
   }, [])
 
   useEffect(() => {

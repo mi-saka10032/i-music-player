@@ -1,6 +1,7 @@
 import { memo, useMemo, useEffect, useRef, type CSSProperties, useCallback } from 'react'
 import { useAtomValue } from 'jotai'
-import { playerStatusAtom, queueLoadingAtom, songActiveIdAtom, songActiveIndexAtom, songListsAtom, useFetchPlaylists } from '@/store'
+import { playerStatusAtom, queueLoadingAtom, songActiveIdAtom, songActiveIndexAtom, songListsAtom } from '@/store'
+import { useFetchPlaylists } from '@/hooks'
 import { Divider, Row, Col, Button } from 'antd'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { type Align, FixedSizeList } from 'react-window'

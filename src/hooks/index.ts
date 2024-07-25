@@ -1,2 +1,5 @@
 export * from './useMusicDetail'
 export * from './useEffectLoading'
+export * from './useFetchPlaylists'
+export * from './useAccount'
+export * from './useRecommend'

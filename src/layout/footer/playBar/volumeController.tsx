@@ -12,17 +12,19 @@ const VolumeController = memo(() => {
 
   // 静音前音量缓存
   const lastVolume = useRef(volume)
+
   const volumeRef = useRef<HTMLDivElement>(null)
 
   // 静音切换
   const switchMute = useCallback(() => {
     if (mute) {
-      void setVolume(lastVolume.current)
+      lastVolume.current = lastVolume.current > 0 ? lastVolume.current : 10
+      setVolume(lastVolume.current)
     } else {
-      void setVolume(0)
       lastVolume.current = volume > 0 ? volume : 10
+      setVolume(0)
     }
-    void setMute(!mute)
+    setMute(!mute)
   }, [mute, volume])
 
   // 音量图标
@@ -48,7 +50,7 @@ const VolumeController = memo(() => {
       // 滚轮↑为负值 滚轮↓为正值
       const newVolume = (e.deltaY < 0 ? 1 : -1) * 10 + volume
       const realVolume = Math.max(0, Math.min(100, newVolume))
-      void setVolume(realVolume)
+      setVolume(realVolume)
     }
     volumeRef.current?.addEventListener('wheel', handleScrollVolume)
     return () => {
