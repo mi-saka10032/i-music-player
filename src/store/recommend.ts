@@ -16,8 +16,11 @@ const initialMap: RecommendMap = {
   recommendList: []
 }
 
+export const RECOMMEND_CACHE_NAME = 'recommend'
+
 export const recommendAtom = createAtomWithIndexedDB<RecommendMap>({
-  cacheName: 'recommend',
+  cacheName: RECOMMEND_CACHE_NAME,
+  enableInitialCache: true,
   initialValue: initialMap
 })
 

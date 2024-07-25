@@ -4,13 +4,19 @@ import { clearCookie, getCookie } from '@/utils'
 import { createAtomWithIndexedDB } from './persist'
 import { getAccountInfo } from '@/api'
 
+export const COOKIE_CACHE_NAME = 'cookie'
+
 export const cookieAtom = createAtomWithIndexedDB<string>({
-  cacheName: 'cookie',
+  cacheName: COOKIE_CACHE_NAME,
+  enableInitialCache: true,
   initialValue: getCookie() ?? ''
 })
 
+export const ACCOUNT_CACHE_NAME = 'account'
+
 export const accountAtom = createAtomWithIndexedDB<AccountInfoRes>({
-  cacheName: 'account',
+  cacheName: ACCOUNT_CACHE_NAME,
+  enableInitialCache: true,
   initialValue: { code: 0 }
 })
 

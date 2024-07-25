@@ -198,6 +198,9 @@ export class Player {
 
   /** 设置歌曲列表 */
   public setPlaylist (playlist: SongData[], index: number = 0, autoplay: boolean = false) {
+    if (playlist.length === 0) {
+      return
+    }
     this.reset()
     this.playlist = playlist.map(item => {
       return {
