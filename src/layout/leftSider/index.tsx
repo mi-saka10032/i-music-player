@@ -2,7 +2,7 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { Popover, Button, message } from 'antd'
 import { focusWindow, getLoginWindow, initLogin } from '@/utils'
-import { useAccount, useRecommend } from '@/store'
+import { useAccount, useRecommend } from '@/hooks'
 import { getUserPlaylist } from '@/api'
 import DefaultUserIcon from '@/assets/svg/user.svg?react'
 import styles from './index.module.less'
@@ -124,7 +124,7 @@ const LeftSider = memo(() => {
     // 该登录函数将持续pending直到登录弹窗关闭为止
     void initLogin()
       .then(res => {
-        void setCookie(res.cookie)
+        setCookie(res.cookie)
         void fetchAccountInfo()
         void fetchRecommendMap()
       })
@@ -229,10 +229,9 @@ const LeftSider = memo(() => {
         创建的歌单
         {
           logged && createdMenu.length > 0
-            ? (<i className="triangle ml-1 group-hover/created:border-l-[#333]" />)
+            ? (<i className={`triangle ml-1 group-hover/created:border-l-[#333] ${showCreated ? 'rotate-90' : ''}`} />)
             : null
         }
-        <i className="triangle ml-1 group-hover/created:border-l-[#333]" />
       </div>
       {
         showCreated
@@ -249,12 +248,12 @@ const LeftSider = memo(() => {
         收藏的歌单
         {
           logged && subscribedMenu.length > 0
-            ? (<i className="triangle ml-1 group-hover/sub:border-l-[#333]" />)
+            ? (<i className={`triangle ml-1 group-hover/sub:border-l-[#333] ${showSubscribed ? 'rotate-90' : ''}`} />)
             : null
         }
       </div>
       {
-        showCreated
+        showSubscribed
           ? (<Menus
               logged={logged}
               menus={subscribedMenu}

@@ -17,7 +17,7 @@ const PlayTypeIcon = memo(() => {
   const handleSwitchPlayType = useCallback(() => {
     const index = playTypeRef.current.findIndex((item) => item === playType)
     const newType = playTypeRef.current[index + 1] ?? playTypeRef.current[0]
-    void setPlayType(newType)
+    setPlayType(newType)
   }, [playType])
 
   useEffect(() => {
