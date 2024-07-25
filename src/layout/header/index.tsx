@@ -1,5 +1,5 @@
 import { type PropsWithChildren, memo, useMemo } from 'react'
-import RouteStackControl from '@/components/route-stack-control'
+import RouteStackControl from '@/components/routeStackControl'
 import NavBar from '@/layout/header/navBar'
 import SettingsBar from './settings-bar'
 import { siderWidth } from '../style'

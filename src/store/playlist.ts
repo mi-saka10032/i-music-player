@@ -6,7 +6,7 @@ import { getJaySongs, getPlaylistDetail, getSongDetail } from '@/api'
 import { normalSongDataTrans, customSongDataTrans } from '@/utils'
 import { playerStatusAtom, progressAtom } from './playerController'
 
-interface PlaylistInfo {
+export interface PlaylistInfo {
   playId: number
   playName: string
 }
@@ -16,36 +16,45 @@ export interface FetchPlaylistDetailRes extends PlaylistInfo {
   activeId: number
 }
 
-export const autoplayAtom = atom(false)
-
-export const queueLoadingAtom = atom(false)
+export const PLAYLIST_INFO_CACHE_NAME = 'playlistInfo'
 
 export const playlistInfoAtom = createAtomWithIndexedDB<PlaylistInfo>({
-  cacheName: 'playlistInfo',
+  cacheName: PLAYLIST_INFO_CACHE_NAME,
+  enableInitialCache: false,
   initialValue: {
     playId: 0,
     playName: ''
   }
 })
 
+export const SONG_LISTS_CACHE_NAME = 'songLists'
+
 export const songListsAtom = createAtomWithIndexedDB<SongData[]>({
-  cacheName: 'songLists',
+  cacheName: SONG_LISTS_CACHE_NAME,
+  enableInitialCache: false,
   initialValue: []
 })
 
+export const SONG_ACTIVE_ID_CACHE_NAME = 'songActiveId'
+
 export const songActiveIdAtom = createAtomWithIndexedDB<number>({
-  cacheName: 'songActiveId',
+  cacheName: SONG_ACTIVE_ID_CACHE_NAME,
+  enableInitialCache: false,
   initialValue: 0
 })
 
+export const SONG_ACTIVE_INDEX_CACHE_NAME = 'songActiveIndex'
+
 export const songActiveIndexAtom = createAtomWithIndexedDB<number>({
-  cacheName: 'songActiveIndex',
+  cacheName: SONG_ACTIVE_INDEX_CACHE_NAME,
+  enableInitialCache: false,
   initialValue: 0
 })
+
+export const queueLoadingAtom = atom(false)
 
 export function useFetchPlaylists () {
   const setLoading = useSetAtom(queueLoadingAtom)
-  const setAutoplay = useSetAtom(autoplayAtom)
   const setPlayerStatus = useSetAtom(playerStatusAtom)
   const setProgress = useSetAtom(progressAtom)
   const setPlaylistInfo = useSetAtom(playlistInfoAtom)
@@ -54,22 +63,21 @@ export function useFetchPlaylists () {
   const setSongActiveIndex = useSetAtom(songActiveIndexAtom)
 
   const setPostWork = useCallback((payload: FetchPlaylistDetailRes) => {
-    void setPlaylistInfo({
+    setPlaylistInfo({
       playId: payload.playId,
       playName: payload.playName
     })
-    void setSongLists(payload.songLists)
+    setSongLists(payload.songLists)
     if (payload.activeId === 0) {
-      void setSongActiveIndex(0)
+      setSongActiveIndex(0)
     } else {
       const index = payload.songLists.findIndex((item) => item.id === payload.activeId)
       const actualIndex = index !== -1 ? index : 0
-      void setSongActiveIndex(actualIndex)
+      setSongActiveIndex(actualIndex)
       if (actualIndex > 0) {
-        void setSongActiveId(payload.activeId)
+        setSongActiveId(payload.activeId)
       }
     }
-    setAutoplay(true)
   }, [])
 
   const getDefaultPlaylists = useCallback(async (playlistId: number, songId: number = 0) => {
@@ -112,16 +120,15 @@ export function useFetchPlaylists () {
 
   const clearPlaylists = useCallback(() => {
     setLoading(false)
-    setAutoplay(false)
     setPlayerStatus('none')
-    void setProgress(0)
-    void setPlaylistInfo({
+    setProgress(0)
+    setPlaylistInfo({
       playId: 0,
       playName: ''
     })
-    void setSongLists([])
-    void setSongActiveId(0)
-    void setSongActiveIndex(0)
+    setSongLists([])
+    setSongActiveId(0)
+    setSongActiveIndex(0)
   }, [])
 
   return {

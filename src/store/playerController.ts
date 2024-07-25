@@ -2,26 +2,38 @@ import { atom } from 'jotai'
 import { createAtomWithIndexedDB } from './persist'
 import { PlayType } from '@/core/player'
 
+export const PLAY_TYPE_CACHE_NAME = 'playType'
+
 export const playTypeAtom = createAtomWithIndexedDB<PlayType>({
-  cacheName: 'playType',
+  enableInitialCache: true,
+  cacheName: PLAY_TYPE_CACHE_NAME,
   initialValue: PlayType.loop,
   debounceMS: 250
 })
 
+export const MUTE_CACHE_NAME = 'mute'
+
 export const muteAtom = createAtomWithIndexedDB<boolean>({
-  cacheName: 'mute',
+  cacheName: MUTE_CACHE_NAME,
+  enableInitialCache: true,
   initialValue: false,
   debounceMS: 250
 })
 
+export const VOLUME_CACHE_NAME = 'volume'
+
 export const volumeAtom = createAtomWithIndexedDB<number>({
-  cacheName: 'volume',
+  cacheName: VOLUME_CACHE_NAME,
+  enableInitialCache: true,
   initialValue: 60,
   debounceMS: 250
 })
 
+export const PROGRESS_CACHE_NAME = 'progress'
+
 export const progressAtom = createAtomWithIndexedDB<number>({
-  cacheName: 'progress',
+  cacheName: PROGRESS_CACHE_NAME,
+  enableInitialCache: true,
   initialValue: 0,
   throttleMS: 1000
 })

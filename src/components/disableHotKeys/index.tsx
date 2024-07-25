@@ -1,10 +1,10 @@
-import { memo, useCallback, useEffect, useMemo } from 'react'
+import { type PropsWithChildren, memo, useCallback, useEffect, useMemo } from 'react'
 import { GlobalHotKeys, type KeyMap } from 'react-hotkeys'
 
 type Handler = Record<string, (keyEvent?: KeyboardEvent) => void>
 
 // 禁用浏览器热键，让应用更接近原生
-const DisableHotKeys = memo((props: React.PropsWithChildren<any>) => {
+const DisableHotKeys = memo((props: PropsWithChildren<unknown>) => {
   const keyMap: KeyMap = useMemo(() => ({
     // REFRESH: ['command+r', 'ctrl+r', 'F5'],
     FIND: ['command+f', 'ctrl+f'],
@@ -43,9 +43,13 @@ const DisableHotKeys = memo((props: React.PropsWithChildren<any>) => {
 
   // 仅生产环境下禁用全局热键
   return (
-    import.meta.env.PROD
-      ? <GlobalHotKeys keyMap={keyMap} handlers={handlers}>{props.children}</GlobalHotKeys>
-      : props.children
+    <>
+      {
+      import.meta.env.PROD
+        ? <GlobalHotKeys keyMap={keyMap} handlers={handlers}>{props.children}</GlobalHotKeys>
+        : props.children
+      }
+    </>
   )
 })
 

@@ -3,19 +3,14 @@ import { selectDB, updateDB } from '@/utils'
 
 interface PersistParam<T> {
   cacheName: string
+  enableInitialCache: boolean
   initialValue: T
   debounceMS?: number
   throttleMS?: number
 }
 
-export const createAtomWithIndexedDB = <T>({ cacheName, initialValue, debounceMS, throttleMS }: PersistParam<T>) => {
+export const createAtomWithIndexedDB = <T>({ enableInitialCache, cacheName, initialValue, debounceMS, throttleMS }: PersistParam<T>) => {
   let lock = true
-
-  let initResolver: () => void
-
-  const initPromise = new Promise<void>(resolve => {
-    initResolver = resolve
-  })
 
   let timer = 0
 
@@ -23,10 +18,11 @@ export const createAtomWithIndexedDB = <T>({ cacheName, initialValue, debounceMS
 
   const cacheAtom = atom(
     (get) => get(baseAtom),
-    async (_, set, value: T) => {
-      lock = false
-      await initPromise
+    (_, set, value: T) => {
+      if (lock) return
+
       set(baseAtom, value)
+
       if (debounceMS != null && debounceMS > 0) {
         window.clearTimeout(timer)
         timer = window.setTimeout(() => {
@@ -45,14 +41,19 @@ export const createAtomWithIndexedDB = <T>({ cacheName, initialValue, debounceMS
   )
 
   baseAtom.onMount = (setAtom) => {
+    if (!enableInitialCache) {
+      lock = false
+      return
+    }
+
     void selectDB<T>(cacheName)
       .then((value) => {
-        if (lock && value != null) {
+        if (value != null) {
           setAtom(value)
         }
       })
       .finally(() => {
-        initResolver()
+        lock = false
       })
   }
 

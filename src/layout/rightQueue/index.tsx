@@ -1,6 +1,6 @@
 import { memo, useMemo, useEffect, useRef, type CSSProperties, useCallback } from 'react'
 import { useAtomValue } from 'jotai'
-import { autoplayAtom, playerStatusAtom, queueLoadingAtom, songActiveIdAtom, songActiveIndexAtom, songListsAtom, useFetchPlaylists } from '@/store'
+import { playerStatusAtom, queueLoadingAtom, songActiveIdAtom, songActiveIndexAtom, songListsAtom, useFetchPlaylists } from '@/store'
 import { Divider, Row, Col, Button } from 'antd'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { type Align, FixedSizeList } from 'react-window'
@@ -100,11 +100,7 @@ const RightQueue = memo((props: RightQueueProps) => {
   // 固定行渲染列表Ref
   const fixedListRef = useRef<FixedSizeList>(null)
 
-  const lastSongListsRef = useRef<SongData[]>([])
-
   const { clearPlaylists } = useFetchPlaylists()
-
-  const autoplay = useAtomValue(autoplayAtom)
 
   const queueLoading = useAtomValue(queueLoadingAtom)
 
@@ -130,13 +126,6 @@ const RightQueue = memo((props: RightQueueProps) => {
       fixedListRef.current?.scrollToItem(songActiveIndex, align)
     }
   }, [props.showQueue, songLists, songActiveIndex])
-
-  useEffect(() => {
-    if (songListsSize > 0 && songLists !== lastSongListsRef.current) {
-      lastSongListsRef.current = songLists
-      playerInstance.setPlaylist(songLists, songActiveIndex, autoplay)
-    }
-  }, [songLists, songActiveIndex, autoplay])
 
   return (
     <>
