@@ -15,3 +15,7 @@ export function formatImgUrl (url: string, sizes: number | string) {
   const param = `param=${sizes}y${sizes}`
   return `${url}${url.includes('?') ? '&' : '?'}${param}`
 }
+
+export function replaceHttpsUrl (url: string) {
+  return url.replace(/^http/, 'https')
+}

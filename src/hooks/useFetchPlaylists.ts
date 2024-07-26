@@ -87,6 +87,7 @@ export function useFetchPlaylists () {
   }, [])
 
   const clearPlaylists = useCallback(() => {
+    playerInstance.reset()
     setLoading(false)
     setPlayerStatus('none')
     setProgress(0)
