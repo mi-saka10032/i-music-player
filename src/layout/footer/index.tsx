@@ -1,6 +1,7 @@
 import { memo, useCallback, useEffect, useMemo } from 'react'
 import { useAtom, useSetAtom } from 'jotai'
 import { playerStatusAtom, progressAtom, songActiveIdAtom, songActiveIndexAtom } from '@/store'
+import { message } from 'antd'
 import ProgressBar from './playBar/progressBar'
 import PlayTypeIcon from './playBar/playTypeIcon'
 import VolumeController from './playBar/volumeController'
@@ -78,6 +79,16 @@ const Footer = memo((props: FooterProps) => {
     setSongActiveIndex(index)
   }, [])
 
+  const [messageApi, contextHolder] = message.useMessage()
+
+  const showInvalidTips = useCallback(() => {
+    void messageApi.open({
+      type: 'error',
+      content: '音乐已失效或没有版权',
+      duration: 1
+    })
+  }, [])
+
   useEffect(() => {
     playerInstance.on(PlayerEvent.PLAY, handlePlay)
     playerInstance.on(PlayerEvent.PAUSE, handlePause)
@@ -85,6 +96,7 @@ const Footer = memo((props: FooterProps) => {
     playerInstance.on(PlayerEvent.PROGRESS_CHANGE, handleDispatchProgress)
     playerInstance.on(PlayerEvent.ID_CHANGE, handleDispatchId)
     playerInstance.on(PlayerEvent.INDEX_CHANGE, handleDispatchIndex)
+    playerInstance.on(PlayerEvent.INVALID, showInvalidTips)
     return () => {
       playerInstance.off(PlayerEvent.PLAY, handlePlay)
       playerInstance.off(PlayerEvent.PAUSE, handlePause)
@@ -92,6 +104,7 @@ const Footer = memo((props: FooterProps) => {
       playerInstance.off(PlayerEvent.PROGRESS_CHANGE, handleDispatchProgress)
       playerInstance.off(PlayerEvent.ID_CHANGE, handleDispatchId)
       playerInstance.off(PlayerEvent.INDEX_CHANGE, handleDispatchIndex)
+      playerInstance.off(PlayerEvent.INVALID, showInvalidTips)
     }
   }, [])
 
@@ -139,6 +152,7 @@ const Footer = memo((props: FooterProps) => {
           <VolumeController key="VolumeController" />
         </div>
       </div>
+      { contextHolder }
     </>
   )
 })
