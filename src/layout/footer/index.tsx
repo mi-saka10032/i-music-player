@@ -54,8 +54,16 @@ const Footer = memo((props: FooterProps) => {
     playerInstance.next()
   }, [])
 
-  const handleDispatchStatus = useCallback((status: MediaSessionPlaybackState) => {
-    setPlayStatus(status)
+  const handlePlay = useCallback(() => {
+    setPlayStatus('playing')
+  }, [])
+
+  const handlePause = useCallback(() => {
+    setPlayStatus('paused')
+  }, [])
+
+  const handleInvalid = useCallback(() => {
+    setPlayStatus('none')
   }, [])
 
   const handleDispatchProgress = useCallback((progress: number) => {
@@ -71,12 +79,16 @@ const Footer = memo((props: FooterProps) => {
   }, [])
 
   useEffect(() => {
-    playerInstance.on(PlayerEvent.STATUS_CHANGE, handleDispatchStatus)
+    playerInstance.on(PlayerEvent.PLAY, handlePlay)
+    playerInstance.on(PlayerEvent.PAUSE, handlePause)
+    playerInstance.on(PlayerEvent.INVALID, handleInvalid)
     playerInstance.on(PlayerEvent.PROGRESS_CHANGE, handleDispatchProgress)
     playerInstance.on(PlayerEvent.ID_CHANGE, handleDispatchId)
     playerInstance.on(PlayerEvent.INDEX_CHANGE, handleDispatchIndex)
     return () => {
-      playerInstance.off(PlayerEvent.STATUS_CHANGE, handleDispatchStatus)
+      playerInstance.off(PlayerEvent.PLAY, handlePlay)
+      playerInstance.off(PlayerEvent.PAUSE, handlePause)
+      playerInstance.off(PlayerEvent.INVALID, handleInvalid)
       playerInstance.off(PlayerEvent.PROGRESS_CHANGE, handleDispatchProgress)
       playerInstance.off(PlayerEvent.ID_CHANGE, handleDispatchId)
       playerInstance.off(PlayerEvent.INDEX_CHANGE, handleDispatchIndex)

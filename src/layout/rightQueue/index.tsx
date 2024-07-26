@@ -111,11 +111,6 @@ const RightQueue = memo((props: RightQueueProps) => {
 
   const songListsSize = useMemo(() => songLists.length, [songLists])
 
-  const handleClearPlaylists = useCallback(() => {
-    playerInstance.reset()
-    clearPlaylists()
-  }, [])
-
   // 切换显示时，存在播放列表，对当前播放的歌曲位置进行滚动条复位
   useEffect(() => {
     if (
@@ -137,7 +132,7 @@ const RightQueue = memo((props: RightQueueProps) => {
           <Button
             type="link"
             className="py-0 text-sm"
-            onClick={handleClearPlaylists}
+            onClick={clearPlaylists}
           >
             清空列表
           </Button>

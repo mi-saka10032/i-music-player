@@ -21,7 +21,6 @@ export enum PlayerEvent {
   STOP = 'STOP',
   END = 'END',
   SEEK = 'SEEK',
-  CHANGE = 'CHANGE',
   PLAYLIST_CHANGE = 'PLAYLIST_CHANGE',
   INDEX_CHANGE = 'INDEX_CHANGE',
   ID_CHANGE = 'ID_CHANGE',
@@ -62,6 +61,7 @@ export interface PlayerState {
   status: MediaSessionPlaybackState
   duration: number
   progress: number
+  timestamp?: number
 }
 
 export interface PlayData {
@@ -72,9 +72,9 @@ export interface PlayData {
 }
 
 export interface SongData extends PlayData {
+  hiresUrl?: string
   url?: string
   /** time (ms) */
   time?: number
-  howl?: Howl | null
   lyric?: string
 }
