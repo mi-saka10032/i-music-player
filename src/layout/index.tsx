@@ -1,6 +1,4 @@
-import { type MouseEvent, memo, useEffect, useState, useRef, useCallback, useMemo, lazy } from 'react'
-import { message } from 'antd'
-import { PlayerEvent, playerInstance } from '@/core/player'
+import { type MouseEvent, memo, useState, useRef, useCallback, useMemo, lazy } from 'react'
 import { footerHeight, siderWidth, topHeight } from './style'
 import { PLAY_ALL_BUTTON_ID } from '@/common/constants'
 
@@ -62,25 +60,6 @@ const Layout = memo(() => {
   }, [showDetail])
   /** 音乐详情页的显示/隐藏 */
 
-  // 无效音频的提示信息API
-  const [messageApi, contextHolder] = message.useMessage()
-
-  const showInvalidTips = useCallback(() => {
-    void messageApi.open({
-      type: 'error',
-      content: '音乐已失效或没有版权'
-    })
-  }, [])
-
-  /** 挂载时触发 */
-  useEffect(() => {
-    playerInstance.on(PlayerEvent.INVALID, showInvalidTips)
-    return () => {
-      playerInstance.off(PlayerEvent.INVALID, showInvalidTips)
-      playerInstance.removeUrlCleaner()
-    }
-  }, [])
-
   return (
     <div
       className='relative grid w-full h-full m-0 p-0 overflow-hidden rounded-2xl'
@@ -132,7 +111,6 @@ const Layout = memo(() => {
         >
         <Detail detailRef={detailRef} setShowDetail={setShowDetail} />
       </div>
-      {contextHolder}
     </div>
   )
 })

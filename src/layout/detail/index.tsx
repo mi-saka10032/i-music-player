@@ -1,7 +1,6 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useAtomValue } from 'jotai'
 import { playerStatusAtom, playlistInfoAtom, progressAtom, songActiveIndexAtom, songListsAtom } from '@/store'
-import { Row, Col } from 'antd'
 import { Lrc, type LrcLine, useRecoverAutoScrollImmediately } from 'react-lrc'
 import { getSongLyric } from '@/api'
 import { staticLyricTrans } from '@/utils'
@@ -163,32 +162,26 @@ const Detail = memo((props: DetailProps) => {
           ? (
             <>
               <h1 className="mb-5 font-sans text-2xl font-medium text-slate-900">{songItem.name}</h1>
-              <Row
-                className="w-full mb-8 text-gray-600"
-                justify={'space-between'}
-                align={'middle'}
-                gutter={0}
-                wrap={false}
-              >
-                <Col span={9} className="flex items-center text-sm">
+              <ul className="flex justify-between items-center w-full mb-8 text-gray-600">
+                <li className="w-5/12 flex items-center text-sm">
                   <span>专辑：</span>
                   <span className="flex-1 text-ellipsis super_link">
                     {songItem.album.name}
                   </span>
-                </Col>
-                <Col span={8} className="text-ellipsis text-sm">
+                </li>
+                <li className="w-4/12 text-ellipsis text-sm">
                   <span>歌手：</span>
                   <span className="flex-1 text-ellipsis super_link">
                     {artistsName}
                   </span>
-                </Col>
-                <Col span={7} className="text-ellipsis text-sm">
+                </li>
+                <li className="w-3/12 text-ellipsis text-sm">
                   <span>来源：</span>
                   <span className="flex-1 text-ellipsis super_link">
                     {playlistInfo.playName}
                   </span>
-                </Col>
-              </Row>
+                </li>
+              </ul>
               {
                 lrc.length > 0
                   ? (

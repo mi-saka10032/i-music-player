@@ -2,7 +2,7 @@ import { memo, useMemo, useEffect, useRef, type CSSProperties, useCallback } fro
 import { useAtomValue } from 'jotai'
 import { playerStatusAtom, queueLoadingAtom, songActiveIdAtom, songActiveIndexAtom, songListsAtom } from '@/store'
 import { useFetchPlaylists } from '@/hooks'
-import { Divider, Row, Col, Button } from 'antd'
+import { Divider, Button } from 'antd'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { type Align, FixedSizeList } from 'react-window'
 import { playerInstance, type SongData } from '@/core/player'
@@ -46,49 +46,32 @@ const FixedRow = memo(({
 
   return item != null
     ? (
-      <Row
+      <div
         key={item.id}
-        className={`relative w-full px-[16px] py-[8px] group ${generateZebraClass(index)}`}
+        className={`relative flex justify-between items-center space-x-1 w-full px-[8px] group ${generateZebraClass(index)}`}
         style={style}
-        justify={'space-between'}
-        align={'middle'}
-        gutter={16}
-        wrap={false}
         onDoubleClick={() => { handleChangeSongId(item.id) }}
-    >
-        {
-        item.id === songActiveId
-          ? (
-            <div
-              key={`icon:${item.id}`}
-              className={'absolute-middle-y left-3'}
-            >
-              <i className={`iconfont text-sm leading-none font-bold text-primary ${isPlayingClass}`} />
-            </div>
-            )
-          : null
-      }
-        <Col
+      >
+        <i
+          key={`icon:${item.id}`}
+          className={`iconfont text-[12px] font-bold text-primary ${isPlayingClass} ${item.id === songActiveId ? 'visible' : 'invisible'}`}
+        />
+        <div
           title={item.name}
-          span={14}
-          className={highlightNameClass(songActiveId, item.id)}
-      >
+          className={`w-6/12 ${highlightNameClass(songActiveId, item.id)}`}
+        >
           {item.name}
-        </Col>
-        <Col
+        </div>
+        <div
           title={artistsArrayTrans(item.artists)}
-          span={6}
-          className={highlightArtistClass(songActiveId, item.id)}
-      >
+          className={`w-4/12 ${highlightArtistClass(songActiveId, item.id)}`}
+        >
           {artistsArrayTrans(item.artists)}
-        </Col>
-        <Col
-          span={4}
-          className={highlightDurationClass(songActiveId, item.id)}
-      >
+        </div>
+        <div className={`w-1/12 ${highlightDurationClass(songActiveId, item.id)}`}>
           {durationTrans(item.time ?? 0)}
-        </Col>
-      </Row>
+        </div>
+      </div>
       )
     : null
 })
@@ -137,7 +120,7 @@ const RightQueue = memo((props: RightQueueProps) => {
             清空列表
           </Button>
         </div>
-        <Divider className="mt-4 mb-0" />
+        <Divider className="mt-4 mb-0" type="horizontal" dashed={true} />
       </div>
       <div id="container" className="relative flex-1 min-h-[460px] bg-white">
         <LoadingContainer loading={queueLoading} fallback={<LoadingInstance />}>

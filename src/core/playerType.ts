@@ -61,7 +61,6 @@ export interface PlayerState {
   status: MediaSessionPlaybackState
   duration: number
   progress: number
-  timestamp?: number
 }
 
 export interface PlayData {
@@ -77,4 +76,26 @@ export interface SongData extends PlayData {
   /** time (ms) */
   time?: number
   lyric?: string
+  timestamp?: number
+}
+
+export interface InitState {
+  volume: number
+  mute: boolean
+  repeatMode: PlayType
+  playlist: SongData[]
+  index: number
+}
+
+export interface SongOption {
+  duration: number
+  hires: string
+  standard: string
+}
+
+export interface HackOption {
+  autoplay: boolean
+  src: string[]
+  mute: boolean
+  volume: number
 }
