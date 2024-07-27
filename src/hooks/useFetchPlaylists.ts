@@ -10,7 +10,7 @@ import {
   songActiveIndexAtom,
   songListsAtom
 } from '@/store'
-import { playerInstance, type SongData } from '@/core/player'
+import { playerInstance } from '@/core'
 import { getJaySongs, getPlaylistDetail, getSongDetail } from '@/api'
 import { customSongDataTrans, normalSongDataTrans } from '@/utils'
 

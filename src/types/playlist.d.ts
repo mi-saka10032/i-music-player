@@ -117,3 +117,21 @@ interface AllSongsRes extends CommonRes {
   songs: TracksLists
 }
 /** ---------- 歌单与歌曲 ---------- */
+
+/** Core Type */
+interface PlayData {
+  id: number
+  name: string
+  artists: AR[]
+  album: AL
+}
+
+interface SongData extends PlayData {
+  hiresUrl?: string
+  url?: string
+  /** time (ms) */
+  time?: number
+  lyric?: string
+  timestamp?: number
+}
+/** Core Type */

@@ -1,6 +1,5 @@
 import { atom } from 'jotai'
 import { createAtomWithIndexedDB } from './persist'
-import { type SongData } from '@/core/player'
 
 export interface PlaylistInfo {
   playId: number

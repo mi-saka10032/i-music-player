@@ -5,7 +5,7 @@ import { useMusicDetail, useEffectLoading, useFetchPlaylists } from '@/hooks'
 import MusicDetailHeader from '../components/header'
 import MusicDetailTab from '../components/tab'
 import { getPlaylistDetail } from '@/api'
-import { playerInstance } from '@/core/player'
+import { playerInstance } from '@/core'
 
 const MusicDetail = memo(() => {
   const {

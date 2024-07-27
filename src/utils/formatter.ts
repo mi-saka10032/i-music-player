@@ -1,5 +1,3 @@
-import { type SongData } from '@/core/playerType'
-
 // 时长格式化
 export function durationTrans (millSeconds: number): string {
   const seconds: number = millSeconds / 1000

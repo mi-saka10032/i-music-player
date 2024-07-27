@@ -1,7 +1,7 @@
 import { memo, useCallback, useEffect, useRef } from 'react'
 import { useAtom } from 'jotai'
 import { playTypeAtom } from '@/store'
-import { PlayType, playerInstance } from '@/core/player'
+import { PlayType, playerInstance } from '@/core'
 
 // 播放类型组件
 const PlayTypeIcon = memo(() => {

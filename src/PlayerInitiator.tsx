@@ -25,7 +25,7 @@ import {
   accountAtom
 } from '@/store'
 import { selectDB } from './utils'
-import { type SongData, playerInstance } from './core/player'
+import { playerInstance } from './core'
 import { useEffectLoading } from './hooks'
 import LoadingContainer from './components/loadingContainer'
 import LoadingInstance from './components/loadingInstance'

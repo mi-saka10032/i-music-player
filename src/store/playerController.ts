@@ -1,6 +1,6 @@
 import { atom } from 'jotai'
 import { createAtomWithIndexedDB } from './persist'
-import { PlayType } from '@/core/player'
+import { PlayType } from '@/core'
 
 export const PLAY_TYPE_CACHE_NAME = 'playType'
 

@@ -6,7 +6,7 @@ import ProgressBar from './playBar/progressBar'
 import PlayTypeIcon from './playBar/playTypeIcon'
 import VolumeController from './playBar/volumeController'
 import Thumbnail from './thumbnail'
-import { PlayerEvent, playerInstance } from '@/core/player'
+import { PlayerEvent, playerInstance } from '@/core'
 
 interface FooterProps {
   queueStatusRef: React.MutableRefObject<boolean>

@@ -5,7 +5,7 @@ import { useFetchPlaylists } from '@/hooks'
 import { Divider, Button } from 'antd'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { type Align, FixedSizeList } from 'react-window'
-import { playerInstance, type SongData } from '@/core/player'
+import { playerInstance } from '@/core'
 import LoadingContainer from '@/components/loadingContainer'
 import LoadingInstance from '@/components/loadingInstance'
 import {

@@ -2,7 +2,6 @@ import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { useAtomValue } from 'jotai'
 import { songActiveIndexAtom, songListsAtom } from '@/store'
 import { durationTrans } from '@/utils'
-import { type SongData } from '@/core/playerType'
 
 interface ThumbnailProps {
   progress: number

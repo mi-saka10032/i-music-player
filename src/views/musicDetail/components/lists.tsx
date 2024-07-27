@@ -2,7 +2,6 @@ import { type CSSProperties, memo, useEffect, useRef, useState, useCallback } fr
 import { useAtomValue } from 'jotai'
 import { playerStatusAtom, songActiveIdAtom } from '@/store'
 import { getSongDetail, getJaySongs } from '@/api'
-import { type SongData } from '@/core/playerType'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import VirtualList from '@/components/virtualList'
 import LoadingContainer from '@/components/loadingContainer'
