@@ -4,7 +4,6 @@ import { playerStatusAtom, playlistInfoAtom, progressAtom, songActiveIndexAtom, 
 import { Lrc, type LrcLine, useRecoverAutoScrollImmediately } from 'react-lrc'
 import { getSongLyric } from '@/api'
 import { staticLyricTrans } from '@/utils'
-import { type SongData } from '@/core/playerType'
 import styles from './index.module.less'
 import Needle from '@/assets/png/playing_page_needle.png'
 import Disc from '@/assets/png/playing_page_disc.png'

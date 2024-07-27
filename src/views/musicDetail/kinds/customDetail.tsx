@@ -5,7 +5,7 @@ import { useFetchPlaylists, useMusicDetail } from '@/hooks'
 import MusicDetailHeader from '../components/header'
 import MusicDetailTab from '../components/tab'
 import { CUSTOM_ID, CUSTOM_IMG, CUSTOM_NAME } from '@/utils'
-import { playerInstance } from '@/core/player'
+import { playerInstance } from '@/core'
 
 const CustomDetail = memo(() => {
   const {

@@ -1,10 +1,10 @@
-import { Howl, Howler } from 'howler'
+import { Howler } from 'howler'
+import { HackHowl } from './hackHowl.ts'
+import { MediaSessionInstance } from './MediaSession.ts'
 import mitt, { type Emitter } from 'mitt'
 import {
-  type SongData,
   type PlayerState,
   type MittEvents,
-  type HackOption,
   type SongOption,
   type InitState,
   PlayerEvent,
@@ -15,33 +15,6 @@ import { formatImgUrl, replaceHttpsUrl } from '@/utils'
 
 // use web audio
 Howler.usingWebAudio = true
-
-const hasMediaSession = 'mediaSession' in window.navigator
-
-// HACK HOWL
-class HackHowl extends Howl {
-  public _autoplay: boolean = false
-
-  public _duration: number = 0
-
-  public _sprite: object = {}
-
-  public _src: string[] = []
-
-  public changeSrc ({ autoplay, src, mute, volume }: HackOption) {
-    this.unload()
-    this._duration = 0 // init duration
-    this._sprite = {} // init sprite
-    this._src = src // change src
-    this.load() // => update duration, sprite
-    this.mute(mute)
-    this.volume(volume)
-    this._autoplay = autoplay
-    if (autoplay) {
-      this.play()
-    }
-  }
-}
 
 export class Player {
   /** pub/sub 事件订阅 */
@@ -201,7 +174,7 @@ export class Player {
       return
     }
 
-    const hackOption: HackOption = {
+    const hackOption = {
       autoplay: this.autoplay,
       src: [replaceHttpsUrl(url)],
       mute: this.mute,
@@ -222,21 +195,6 @@ export class Player {
     }
   }
 
-  /** 重置播放器实例 */
-  public reset (): void {
-    this.cleanHowl()
-    this._playlist = []
-    this._index = 0
-    this._status = 'none'
-    this._duration = 0
-    this._progress = 0
-    this.emit(PlayerEvent.RESET, this)
-    if (hasMediaSession) {
-      window.navigator.mediaSession.playbackState = this.status
-      window.navigator.mediaSession.metadata = null
-    }
-  }
-
   /** 获取完整播放信息 */
   get state (): PlayerState {
     return {
@@ -251,21 +209,34 @@ export class Player {
     }
   }
 
+  private readonly mediaSessionInstance: MediaSessionInstance
+
   /** 初始化 */
   constructor (playlist: SongData[], index: number = 0, repeatMode = PlayType.loop, volume: number = 100, mute: boolean = false) {
     this.setPlaylist(playlist, index)
     this.setRepeatMode(repeatMode)
     this.setVolume(volume)
     this.setMute(mute)
-    if (hasMediaSession) {
-      const mediaSession = window.navigator.mediaSession
-      mediaSession.setActionHandler('nexttrack', () => { this.next() })
-      mediaSession.setActionHandler('pause', () => { this.pause() })
-      mediaSession.setActionHandler('play', () => { this.play() })
-      mediaSession.setActionHandler('previoustrack', () => { this.prev() })
-      mediaSession.setActionHandler('seekto', details => { this.seekTo(details.seekTime) })
-      mediaSession.setActionHandler('stop', () => { this.stop() })
-    }
+    this.mediaSessionInstance = new MediaSessionInstance({
+      next: () => { this.next() },
+      pause: () => { this.pause() },
+      play: () => { this.play() },
+      prev: () => { this.prev() },
+      seekTo: (seekTime?: number) => { this.seekTo(seekTime) },
+      stop: () => { this.stop() }
+    })
+  }
+
+  /** 重置播放器实例 */
+  public reset (): void {
+    this.cleanHowl()
+    this._playlist = []
+    this._index = 0
+    this._status = 'none'
+    this._duration = 0
+    this._progress = 0
+    this.emit(PlayerEvent.RESET, this)
+    this.mediaSessionInstance.reset()
   }
 
   /** 设置歌曲列表 */
@@ -363,14 +334,12 @@ export class Player {
       this.playInvalid(error)
     }
 
-    if (hasMediaSession) {
-      window.navigator.mediaSession.metadata = new window.MediaMetadata({
-        title: curPlaylist.name,
-        artist: curPlaylist.artists.map(a => a.name).join(' / '),
-        album: curPlaylist.album.name,
-        artwork: [{ src: `${formatImgUrl(curPlaylist.album.picUrl ?? '', 128)}`, sizes: '128x128' }]
-      })
-    }
+    this.mediaSessionInstance.updateMetadata({
+      title: curPlaylist.name,
+      artist: curPlaylist.artists.map(a => a.name).join(' / '),
+      album: curPlaylist.album.name,
+      artwork: [{ src: `${formatImgUrl(curPlaylist.album.picUrl ?? '', 128)}`, sizes: '128x128' }]
+    })
   }
 
   /** 步进进度 */
@@ -384,12 +353,10 @@ export class Player {
 
     this.progress = Math.max(0, Math.min(100, progress))
 
-    if (hasMediaSession) {
-      window.navigator.mediaSession.setPositionState({
-        duration,
-        position: seekTime
-      })
-    }
+    this.mediaSessionInstance.updateProgress({
+      duration,
+      position: seekTime
+    })
   }
 
   private requestId: number = 0
@@ -399,7 +366,7 @@ export class Player {
     if (this.currentHowl == null) return
     window.clearTimeout(this.requestId)
     if (this.currentHowl.playing() || this.status === 'playing') {
-      this.requestId = window.setTimeout(() => { this.update() }, 500)
+      this.requestId = window.setTimeout(() => { this.update() }, 300)
     }
   }
 
@@ -408,27 +375,21 @@ export class Player {
     this.status = 'playing'
     this.update()
     this.emit(PlayerEvent.PLAY, this.state)
-    if (hasMediaSession) {
-      window.navigator.mediaSession.playbackState = this.status
-    }
+    this.mediaSessionInstance.updateStatus(this.status)
   }
 
   /** pause 监听回调 */
   private readonly onPause = () => {
     this.status = 'paused'
     this.emit(PlayerEvent.PAUSE, this.state)
-    if (hasMediaSession) {
-      window.navigator.mediaSession.playbackState = this.status
-    }
+    this.mediaSessionInstance.updateStatus(this.status)
   }
 
   /** stop 监听回调 */
   private readonly onStop = () => {
     this.status = 'none'
     this.emit(PlayerEvent.STOP, this.state)
-    if (hasMediaSession) {
-      window.navigator.mediaSession.playbackState = this.status
-    }
+    this.mediaSessionInstance.updateStatus(this.status)
   }
 
   /** end 监听回调 */
@@ -450,9 +411,7 @@ export class Player {
         break
     }
     this.emit(PlayerEvent.END, this.state)
-    if (hasMediaSession) {
-      window.navigator.mediaSession.playbackState = this.status
-    }
+    this.mediaSessionInstance.updateStatus(this.status)
   }
 
   /** seek 监听回调 */
@@ -592,7 +551,5 @@ export class Player {
     this.setPlaylist(state.playlist, state.index)
   }
 }
-
-export * from './playerType.ts'
 
 export const playerInstance = new Player([])

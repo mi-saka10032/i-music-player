@@ -2,7 +2,7 @@ import { memo, useMemo, useRef, useCallback, useEffect } from 'react'
 import { useAtom } from 'jotai'
 import { muteAtom, volumeAtom } from '@/store'
 import ProgressBar from '@/layout/footer/playBar/progressBar'
-import { playerInstance } from '@/core/player'
+import { playerInstance } from '@/core'
 
 // 音量控制器，封装原生进度条组件实现
 const VolumeController = memo(() => {

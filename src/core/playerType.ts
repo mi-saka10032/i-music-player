@@ -63,22 +63,6 @@ export interface PlayerState {
   progress: number
 }
 
-export interface PlayData {
-  id: number
-  name: string
-  artists: AR[]
-  album: AL
-}
-
-export interface SongData extends PlayData {
-  hiresUrl?: string
-  url?: string
-  /** time (ms) */
-  time?: number
-  lyric?: string
-  timestamp?: number
-}
-
 export interface InitState {
   volume: number
   mute: boolean
@@ -91,11 +75,4 @@ export interface SongOption {
   duration: number
   hires: string
   standard: string
-}
-
-export interface HackOption {
-  autoplay: boolean
-  src: string[]
-  mute: boolean
-  volume: number
 }
