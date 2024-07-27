@@ -18,6 +18,7 @@ import {
   highlightDurationClass
 } from '@/utils'
 import { useEffectLoading } from '@/hooks'
+import classNames from 'classnames'
 
 interface MusicDetailListsProps {
   isCustom: boolean
@@ -109,16 +110,14 @@ const MusicDetailLists = memo((props: MusicDetailListsProps) => {
     return (
       <li
         key={item.id + index}
-        className={`relative flex items-center w-full h-[36px] px-8 py-[8px] group ${generateZebraClass(index)}`}
+        className={classNames('relative flex items-center w-full h-[36px] px-8 py-[8px] group', generateZebraClass(index))}
         style={style}
         onDoubleClick={() => { handleSwitchSong(item.id) }}
       >
         <span className="w-[7.5rem] flex justify-between items-center pr-5">
           {
             item.id === songActiveId
-              ? <i
-                  className={`iconfont ${playerStatus === 'playing' ? 'icon-play-active' : 'icon-play-inactive'} text-xl text-primary`}
-                />
+              ? <i className={classNames('iconfont text-xl text-primary', playerStatus === 'playing' ? 'icon-play-active' : 'icon-play-inactive')} />
               : (
                 <span className="text-sm text-[#cbcbcc] leading-none">
                   {serializeNumberTrans(index)}
@@ -132,20 +131,20 @@ const MusicDetailLists = memo((props: MusicDetailListsProps) => {
         </span>
         <span
           title={item.name}
-          className={`flex-1 ${highlightNameClass(songActiveId, item.id)}`}
+          className={classNames('flex-1', highlightNameClass(songActiveId, item.id))}
         >
           {item.name}
         </span>
         <span
           title={artistsArrayTrans(item.artists)}
-          className={`w-2/12 ${highlightArtistClass(songActiveId, item.id)}`}
+          className={classNames('w-2/12', highlightArtistClass(songActiveId, item.id))}
         >
           {artistsArrayTrans(item.artists)}
         </span>
-        <span className={`w-3/12 ${highlightArtistClass(songActiveId, item.id)}`}>
+        <span className={classNames('w-3/12', highlightArtistClass(songActiveId, item.id))}>
           {item.album.name}
         </span>
-        <span className={`w-1/12 ${highlightDurationClass(songActiveId, item.id)}`}>
+        <span className={classNames('w-1/12', highlightDurationClass(songActiveId, item.id))}>
           {durationTrans(item.time ?? 0)}
         </span>
       </li>
@@ -161,7 +160,7 @@ const MusicDetailLists = memo((props: MusicDetailListsProps) => {
           <AutoSizer>
             {({ width, height }: { width: number, height: number }) => (
               <VirtualList
-                className={`${playlists.length > 0 ? '' : 'hidden'}`}
+                className={classNames({ hidden: playlists.length === 0 })}
                 width={width}
                 height={height}
                 itemData={playlists}

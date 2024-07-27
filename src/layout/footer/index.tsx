@@ -7,6 +7,7 @@ import PlayTypeIcon from './playBar/playTypeIcon'
 import VolumeController from './playBar/volumeController'
 import Thumbnail from './thumbnail'
 import { PlayerEvent, playerInstance } from '@/core'
+import classNames from 'classnames'
 
 interface FooterProps {
   queueStatusRef: React.MutableRefObject<boolean>
@@ -134,7 +135,7 @@ const Footer = memo((props: FooterProps) => {
             <i className="iconfont icon-previous text-primary text-base" />
           </button>
           <button onClick={switchPlayStatus}>
-            <i className={`iconfont text-5xl text-primary ${dynamicIconClass}`} />
+            <i className={classNames('iconfont text-5xl text-primary', dynamicIconClass)} />
           </button>
           <button onClick={handleChangeNext}>
             <i className="iconfont icon-next text-primary text-base"/>

@@ -2,6 +2,7 @@ import { memo, type ButtonHTMLAttributes, useRef, useCallback, useState, useEffe
 import { detectOS } from '@/utils'
 import { appWindow } from '@tauri-apps/api/window'
 import { message } from 'antd'
+import classNames from 'classnames'
 
 interface ButtonAttr extends ButtonHTMLAttributes<HTMLButtonElement> {
   icon?: string
@@ -11,9 +12,12 @@ interface ButtonAttr extends ButtonHTMLAttributes<HTMLButtonElement> {
 const IconBtn = memo(({ icon, title, active, disabled, onClick }: ButtonAttr) => {
   return (
     <button
-      className={`flex items-center justify-center iconfont icon-${icon} w-7 h-7 text-xl rounded-full ${
+      className={
+        classNames(
+          'flex items-center justify-center iconfont w-7 h-7 text-xl rounded-full  enabled:hover:bg-[#e9e9e9] disabled:opacity-10',
+        `icon-${icon}`,
         active === true ? 'text-primary' : 'text-ctd'
-      } enabled:hover:bg-[#e9e9e9] disabled:opacity-10`}
+        )}
       onClick={onClick}
       disabled={disabled}
       title={title}

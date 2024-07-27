@@ -3,6 +3,7 @@ import { NavLink, useNavigate } from 'react-router-dom'
 import { Popover, Button, message } from 'antd'
 import { focusWindow, getLoginWindow, initLogin } from '@/utils'
 import { useAccount, useRecommend } from '@/hooks'
+import classNames from 'classnames'
 import { getUserPlaylist } from '@/api'
 import DefaultUserIcon from '@/assets/svg/user.svg?react'
 import styles from './index.module.less'
@@ -49,11 +50,11 @@ const Menus = memo((props: MenusProps) => {
               <li key={key}>
                 <NavLink
                   to={item.to}
-                  className={({ isActive }) => ((isActive ? 'text-primary active' : 'text-[#333]') + ' group/navlink')}
+                  className={({ isActive }) => classNames(isActive ? 'text-primary active' : 'text-[#333]', ' group/navlink')}
                   onClick={event => { linkJudge({ event, ...item }) }}
               >
                   <div className="flex items-center px-6 py-2 group-hover/navlink:bg-ctd/10 group-[.active]/navlink:bg-ctd/10">
-                    { item.icon != null ? <i className={`mr-1 iconfont icon-${item.icon} text-base`}></i> : null }
+                    { item.icon != null ? <i className={classNames('mr-1 iconfont text-base', `icon-${item.icon}`)}></i> : null }
                     <span className="flex-1 text-ellipsis">{item.title}</span>
                   </div>
                 </NavLink>
@@ -187,7 +188,7 @@ const LeftSider = memo(() => {
   }, [logged])
 
   return (
-    <div className={`h-full overflow-auto ${styles.toggle_scroll}`}>
+    <div className={classNames('h-full overflow-auto', styles.toggle_scroll)}>
       <Popover
         content={<Button danger type="text" size="small" onClick={exit}>退出登录</Button>}
         trigger={ logged ? 'hover' : 'click' }
@@ -229,7 +230,7 @@ const LeftSider = memo(() => {
         创建的歌单
         {
           logged && createdMenu.length > 0
-            ? (<i className={`triangle ml-1 group-hover/created:border-l-[#333] ${showCreated ? 'rotate-90' : ''}`} />)
+            ? (<i className={classNames('triangle ml-1 group-hover/created:border-l-[#333]', { 'rotate-90': showCreated })} />)
             : null
         }
       </div>
@@ -248,7 +249,7 @@ const LeftSider = memo(() => {
         收藏的歌单
         {
           logged && subscribedMenu.length > 0
-            ? (<i className={`triangle ml-1 group-hover/sub:border-l-[#333] ${showSubscribed ? 'rotate-90' : ''}`} />)
+            ? (<i className={classNames('triangle ml-1 group-hover/sub:border-l-[#333]', { 'rotate-90': showSubscribed })} />)
             : null
         }
       </div>
