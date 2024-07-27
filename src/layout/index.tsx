@@ -1,6 +1,7 @@
 import { type MouseEvent, memo, useState, useRef, useCallback, useMemo, lazy } from 'react'
 import { footerHeight, siderWidth, topHeight } from './style'
 import { PLAY_ALL_BUTTON_ID } from '@/common/constants'
+import classNames from 'classnames'
 
 import Header from './header'
 import Content from './content'
@@ -70,14 +71,11 @@ const Layout = memo(() => {
       onClick={operateQueueStatus}
       >
       {/* Header 占据网格第1行，第1-3列网格线 */}
-      <div
-        className="flex relative z-40 col-start-1 col-end-3"
-        style={{ height: topHeight }}
-        >
+      <div className="flex relative z-40 col-start-1 col-end-3" style={{ height: topHeight }} >
         <Header showDetail={showDetail} />
       </div>
       {/* LeftSider 占据网格第2行，默认第1-2列网格线 */}
-      <div ref={leftSiderRef} className="bg-[#ededed] overflow-hidden" >
+      <div ref={leftSiderRef} className="bg-[#ededed] overflow-hidden">
         <LeftSider />
       </div>
       {/* Content 占据网格第2行，默认第2-3列网格线 */}
@@ -99,14 +97,20 @@ const Layout = memo(() => {
       {/* RightQueue fixed */}
       <div
         ref={rightQueueRef}
-        className={`fixed top-0 right-0 z-30 flex flex-col w-[30rem] h-full transition-all duration-500 ${switchQueueClass}`}
+        className={classNames(
+          'fixed top-0 right-0 z-30 flex flex-col w-[30rem] h-full transition-all duration-500',
+          switchQueueClass
+        )}
         style={{ paddingTop: topHeight, paddingBottom: footerHeight }}
         >
         <RightQueue showQueue={showQueue} />
       </div>
       {/* Detail fixed */}
       <div
-        className={`fixed z-20 left-0 w-full h-full transition-opacity duration-500 bg-[#f8f8f8] rounded-2xl ${switchDetailClass}`}
+        className={classNames(
+          'fixed z-20 left-0 w-full h-full transition-opacity duration-500 bg-[#f8f8f8] rounded-2xl',
+          switchDetailClass
+        )}
         style={{ paddingTop: topHeight, paddingBottom: footerHeight }}
         >
         <Detail detailRef={detailRef} setShowDetail={setShowDetail} />

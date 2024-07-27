@@ -3,6 +3,7 @@ import { useAtom } from 'jotai'
 import { muteAtom, volumeAtom } from '@/store'
 import ProgressBar from '@/layout/footer/playBar/progressBar'
 import { playerInstance } from '@/core'
+import classNames from 'classnames'
 
 // 音量控制器，封装原生进度条组件实现
 const VolumeController = memo(() => {
@@ -69,7 +70,7 @@ const VolumeController = memo(() => {
   return (
     <div ref={volumeRef} className="group/volume relative w-5 h-5 flex justify-center items-center">
       <i
-        className={`iconfont ${soundIcon} text-xl text-gc cursor-pointer`}
+        className={classNames('iconfont text-xl text-gc cursor-pointer', soundIcon)}
         onClick={switchMute}
       ></i>
       <div className="hidden group-hover/volume:inline-block group-active/volume:inline-block p-4 absolute -top-2 left-2/4 -translate-x-1/2 -translate-y-full bg-white shadow-md rounded">

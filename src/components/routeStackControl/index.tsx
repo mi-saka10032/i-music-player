@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { memo, useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate, useNavigationType } from 'react-router-dom'
 
 // 路由链表节点
@@ -8,7 +8,7 @@ interface RouteNode {
   prev: RouteNode | null
 }
 
-const RouteStackControl = () => {
+const RouteStackControl = memo(({ className }: { className?: string }) => {
   const location = useLocation()
   const navigate = useNavigate()
   const navigationType = useNavigationType()
@@ -65,7 +65,7 @@ const RouteStackControl = () => {
   }
 
   return (
-    <div>
+    <div className={className}>
       <button
         className="iconfont icon-al w-7 h-7 leading-7 text-center rounded-full pr-0.5 text-ct enabled:hover:bg-[#e9e9e9] disabled:opacity-10"
         onClick={handleGoBack}
@@ -80,6 +80,7 @@ const RouteStackControl = () => {
       ></button>
     </div>
   )
-}
+})
 
+RouteStackControl.displayName = 'RouteStackControl'
 export default RouteStackControl

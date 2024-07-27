@@ -4,6 +4,7 @@ import { playerStatusAtom, playlistInfoAtom, progressAtom, songActiveIndexAtom, 
 import { Lrc, type LrcLine, useRecoverAutoScrollImmediately } from 'react-lrc'
 import { getSongLyric } from '@/api'
 import { staticLyricTrans } from '@/utils'
+import classNames from 'classnames'
 import styles from './index.module.less'
 import Needle from '@/assets/png/playing_page_needle.png'
 import Disc from '@/assets/png/playing_page_disc.png'
@@ -110,7 +111,7 @@ const Detail = memo((props: DetailProps) => {
   // 正常歌词行渲染
   const lineRenderer = useCallback(({ active, line }: { active: boolean, line: LrcLine }) => {
     return (
-      <div className={`min-h-[12px] py-2 ${active ? 'text-lg font-semibold text-zinc-950' : 'text-base text-gray-600'}`}>
+      <div className={classNames('min-h-[12px] py-2', active ? 'text-lg font-semibold text-zinc-950' : 'text-base text-gray-600')}>
         {line.content}
       </div>
     )
@@ -155,7 +156,7 @@ const Detail = memo((props: DetailProps) => {
           <DiscImage src={imagePath}/>
         </div>
       </aside>
-      <main className={`w-1/2 pt-6 pr-32 pb-16 flex flex-col ${styles.vague}`}>
+      <main className={classNames('w-1/2 pt-6 pr-32 pb-16 flex flex-col', styles.vague)}>
         {
         songItem != null
           ? (
@@ -188,7 +189,7 @@ const Detail = memo((props: DetailProps) => {
                         ? (
                           <Lrc
                             verticalSpace
-                            className={`flex-1 min-h-0 ${styles.hidden_scroll}`}
+                            className={classNames('flex-1 min-h-0', styles.hidden_scroll)}
                             lrc={lrc}
                             lineRenderer={lineRenderer}
                             currentMillisecond={currentMillisecond}
@@ -197,7 +198,7 @@ const Detail = memo((props: DetailProps) => {
                             />
                           )
                         : (
-                          <div className={`flex-1 pt-12 overflow-auto ${styles.hidden_scroll}`}>
+                          <div className={classNames('flex-1 pt-12 overflow-auto', styles.hidden_scroll)}>
                             { staticLineRender(lrc) }
                           </div>
                           )

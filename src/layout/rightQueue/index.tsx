@@ -16,6 +16,7 @@ import {
   highlightDurationClass,
   highlightNameClass
 } from '@/utils'
+import classNames from 'classnames'
 
 interface RightQueueProps {
   showQueue: boolean
@@ -48,27 +49,27 @@ const FixedRow = memo(({
     ? (
       <div
         key={item.id}
-        className={`relative flex justify-between items-center space-x-1 w-full px-[8px] group ${generateZebraClass(index)}`}
+        className={classNames('relative flex justify-between items-center space-x-1 w-full px-[8px] group', generateZebraClass(index))}
         style={style}
         onDoubleClick={() => { handleChangeSongId(item.id) }}
       >
         <i
           key={`icon:${item.id}`}
-          className={`iconfont text-[12px] font-bold text-primary ${isPlayingClass} ${item.id === songActiveId ? 'visible' : 'invisible'}`}
+          className={classNames('iconfont text-[12px] font-bold text-primary', isPlayingClass, item.id === songActiveId ? 'visible' : 'invisible')}
         />
         <div
           title={item.name}
-          className={`w-6/12 ${highlightNameClass(songActiveId, item.id)}`}
+          className={classNames('w-6/12', highlightNameClass(songActiveId, item.id))}
         >
           {item.name}
         </div>
         <div
           title={artistsArrayTrans(item.artists)}
-          className={`w-4/12 ${highlightArtistClass(songActiveId, item.id)}`}
+          className={classNames('w-4/12', highlightArtistClass(songActiveId, item.id))}
         >
           {artistsArrayTrans(item.artists)}
         </div>
-        <div className={`w-1/12 ${highlightDurationClass(songActiveId, item.id)}`}>
+        <div className={classNames('w-1/12', highlightDurationClass(songActiveId, item.id))}>
           {durationTrans(item.time ?? 0)}
         </div>
       </div>
@@ -128,7 +129,7 @@ const RightQueue = memo((props: RightQueueProps) => {
             {({ width, height }: { width: number, height: number }) => (
               <FixedSizeList
                 ref={fixedListRef}
-                className={songListsSize > 0 ? '' : 'hidden'}
+                className={classNames({ hidden: songListsSize === 0 })}
                 width={width}
                 height={height}
                 itemData={songLists}
@@ -139,7 +140,9 @@ const RightQueue = memo((props: RightQueueProps) => {
               </FixedSizeList>
             )}
           </AutoSizer>
-          <div className={`${songListsSize > 0 ? 'hidden' : ''} mt-40 text-base text-ctd text-center`}>你还没有添加任何歌曲！</div>
+          <div className={classNames({ hidden: songListsSize > 0 }, 'mt-40 text-base text-ctd text-center')}>
+            你还没有添加任何歌曲！
+          </div>
         </LoadingContainer>
       </div>
     </>

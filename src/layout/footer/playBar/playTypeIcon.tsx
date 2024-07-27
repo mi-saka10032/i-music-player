@@ -2,6 +2,7 @@ import { memo, useCallback, useEffect, useRef } from 'react'
 import { useAtom } from 'jotai'
 import { playTypeAtom } from '@/store'
 import { PlayType, playerInstance } from '@/core'
+import classNames from 'classnames'
 
 // 播放类型组件
 const PlayTypeIcon = memo(() => {
@@ -27,7 +28,7 @@ const PlayTypeIcon = memo(() => {
   return (
     <div className="flex items-center justify-center">
       <i
-        className={`iconfont icon-${playType} text-gc text-xl cursor-pointer`}
+        className={classNames('iconfont text-gc text-xl cursor-pointer', `icon-${playType}`)}
         onClick={handleSwitchPlayType}
       />
     </div>
