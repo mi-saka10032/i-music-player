@@ -3,7 +3,7 @@ import { type EventType } from 'mitt'
 export enum PlayType {
   loop = 'loop',
   single = 'single',
-  random = 'random',
+  shuffle = 'shuffle',
   sequential = 'sequential',
 }
 
@@ -64,12 +64,16 @@ export interface PlayerState {
 }
 
 export interface InitState {
+  playlist: SongData[]
+  playId: number
+  index: number
+  autoplay: boolean
   volume: number
   mute: boolean
   repeatMode: PlayType
-  playlist: SongData[]
-  index: number
 }
+
+export type ListState = Pick<InitState, 'playlist' | 'playId' | 'index' | 'autoplay'>
 
 export interface SongOption {
   duration: number

@@ -45,7 +45,12 @@ export function useFetchPlaylists () {
         setSongActiveId(payload.activeId)
       }
     }
-    playerInstance.setPlaylist(payload.songLists, actualIndex, true)
+    playerInstance.setPlaylist({
+      playlist: payload.songLists,
+      playId: payload.playId,
+      index: actualIndex,
+      autoplay: true
+    })
   }, [])
 
   const getDefaultPlaylists = useCallback(async (playlistId: number, songId: number = 0) => {

@@ -7,7 +7,7 @@ interface HandlerMap {
   stop: () => void
 }
 
-export class MediaSessionInstance {
+export default class MediaSessionInstance {
   static hasMediaSession = 'mediaSession' in window.navigator
 
   constructor (handlerMap: HandlerMap) {

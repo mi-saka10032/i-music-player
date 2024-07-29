@@ -1,6 +1,7 @@
 import { type PropsWithChildren, memo, useCallback } from 'react'
 import { useSetAtom } from 'jotai'
 import {
+  type PlaylistInfo,
   PLAYLIST_INFO_CACHE_NAME,
   playlistInfoAtom,
   SONG_LISTS_CACHE_NAME,
@@ -47,7 +48,6 @@ const PlayerInitiator = memo((props: PropsWithChildren<unknown>) => {
 
   const initPlayer = useCallback(async () => {
     const setCacheMap = {
-      [PLAYLIST_INFO_CACHE_NAME]: setPlaylistInfo,
       [SONG_ACTIVE_ID_CACHE_NAME]: setSongActiveId,
       [PLAY_TYPE_CACHE_NAME]: setPlayType,
       [MUTE_CACHE_NAME]: setMute,
@@ -64,6 +64,15 @@ const PlayerInitiator = memo((props: PropsWithChildren<unknown>) => {
         if (data != null) {
           songLists = data
           setSongLists(data)
+        }
+      })
+
+    let playlistInfo: PlaylistInfo = { playId: 0, playName: '' }
+    const selectInfo = selectDB<PlaylistInfo>(PLAYLIST_INFO_CACHE_NAME)
+      .then((data) => {
+        if (data != null) {
+          playlistInfo = data
+          setPlaylistInfo(data)
         }
       })
 
@@ -88,12 +97,18 @@ const PlayerInitiator = memo((props: PropsWithChildren<unknown>) => {
     )
 
     await Promise.allSettled([
+      selectInfo,
       selectLists,
       selectId,
       ...promises
     ])
 
-    playerInstance.setPlaylist(songLists, songActiveIndex)
+    playerInstance.setPlaylist({
+      playlist: songLists,
+      playId: playlistInfo.playId,
+      index: songActiveIndex,
+      autoplay: false
+    })
   }, [])
 
   const { loading } = useEffectLoading([], initPlayer)

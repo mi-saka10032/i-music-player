@@ -13,7 +13,7 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-.icon-random:before {
+.icon-shuffle:before {
   content: "\e683";
 }
 
