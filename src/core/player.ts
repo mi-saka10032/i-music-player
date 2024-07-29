@@ -1,6 +1,7 @@
 import { Howler } from 'howler'
 import { HackHowl } from './hackHowl.ts'
-import { MediaSessionInstance } from './MediaSession.ts'
+import MediaSessionInstance from './MediaSession.ts'
+import ShuffleMap from './shuffleMap.ts'
 import mitt, { type Emitter } from 'mitt'
 import {
   type PlayerState,
@@ -8,7 +9,8 @@ import {
   type SongOption,
   type InitState,
   PlayerEvent,
-  PlayType
+  PlayType,
+  type ListState
 } from './playerType.ts'
 import { getHiResSongUrl, getSongUrl } from '@/api'
 import { formatImgUrl, replaceHttpsUrl } from '@/utils'
@@ -24,8 +26,6 @@ export class Player {
   public emit = this.emitter.emit.bind(this.emitter)
 
   static urlExpiration = 1000 * 60 * 5
-
-  private autoplay: boolean = false
 
   /** 歌单列表 */
   private _playlist: SongData[] = []
@@ -52,6 +52,10 @@ export class Player {
     const id = this._playlist[value]?.id ?? 0
     this.emit(PlayerEvent.ID_CHANGE, id)
   }
+
+  private autoplay: boolean = false
+
+  private readonly shuffleMap: ShuffleMap = new ShuffleMap([], 0)
 
   /** 歌单循环播放类型 */
   private _repeatMode: PlayType = PlayType.loop
@@ -212,11 +216,19 @@ export class Player {
   private readonly mediaSessionInstance: MediaSessionInstance
 
   /** 初始化 */
-  constructor (playlist: SongData[], index: number = 0, repeatMode = PlayType.loop, volume: number = 100, mute: boolean = false) {
-    this.setPlaylist(playlist, index)
+  constructor ({
+    playlist,
+    playId,
+    index,
+    autoplay,
+    repeatMode,
+    volume,
+    mute
+  }: InitState) {
     this.setRepeatMode(repeatMode)
     this.setVolume(volume)
     this.setMute(mute)
+    this.setPlaylist({ playlist, playId, index, autoplay })
     this.mediaSessionInstance = new MediaSessionInstance({
       next: () => { this.next() },
       pause: () => { this.pause() },
@@ -240,12 +252,14 @@ export class Player {
   }
 
   /** 设置歌曲列表 */
-  public setPlaylist (playlist: SongData[], index: number = 0, autoplay: boolean = false) {
+  public setPlaylist ({ playlist, playId, index, autoplay }: ListState) {
     if (playlist.length === 0) {
       return
     }
     this.reset()
+    const idList: number[] = []
     this.playlist = playlist.map(item => {
+      idList.push(item.id)
       return {
         id: item.id,
         name: item.name,
@@ -260,12 +274,15 @@ export class Player {
     })
     this._index = -1
     void this.setIndex(index, autoplay)
+    // generate shuffle map
+    void this.shuffleMap.generateShuffleIdMap(idList, playId)
   }
 
   /** 切换曲目（ID） */
   public setId (id: number) {
     if (this._playlist.length === 0) return
-    const index = this._playlist.findIndex(item => item.id === id)
+    const actualIndex = this.shuffleMap.getActualIndexById(id) ?? this._playlist.findIndex(item => item.id === id)
+    const index = actualIndex >= 0 ? actualIndex : 0
     void this.setIndex(index, true)
   }
 
@@ -396,7 +413,7 @@ export class Player {
   private readonly onEnd = () => {
     switch (this.repeatMode) {
       case PlayType.loop:
-      case PlayType.random:
+      case PlayType.shuffle:
         this.next()
         break
       case PlayType.single:
@@ -419,15 +436,6 @@ export class Player {
     this.emit(PlayerEvent.SEEK, this.state)
   }
 
-  // todo shuffle
-  private randomIndex (): number {
-    let random: number
-    do {
-      random = Math.floor(Math.random() * this._playlist.length)
-    } while (random === this._index)
-    return random
-  }
-
   private nextIndex (): number {
     return this._index < this._playlist.length - 1 ? this._index + 1 : 0
   }
@@ -438,13 +446,27 @@ export class Player {
 
   /** 下一首 */
   public next (): void {
-    const index = this.repeatMode === 'random' ? this.randomIndex() : this.nextIndex()
+    let index = 0
+    if (this.repeatMode === 'shuffle') {
+      const nextShuffleId = this.shuffleMap.getNextShuffleIdByCurId(this._playlist[this.index].id)
+      const nextIdsIndex = this.shuffleMap.getActualIndexById(nextShuffleId)
+      index = nextIdsIndex ?? this.nextIndex()
+    } else {
+      index = this.nextIndex()
+    }
     void this.setIndex(index, true)
   }
 
   /** 上一首 */
   public prev (): void {
-    const index = this.repeatMode === 'random' ? this.randomIndex() : this.prevIndex()
+    let index = 0
+    if (this.repeatMode === 'shuffle') {
+      const prevShuffleId = this.shuffleMap.getPrevShuffleIdByCurId(this._playlist[this.index].id)
+      const prevIdsIndex = this.shuffleMap.getActualIndexById(prevShuffleId)
+      index = prevIdsIndex ?? this.prevIndex()
+    } else {
+      index = this.prevIndex()
+    }
     void this.setIndex(index, true)
   }
 
@@ -548,8 +570,21 @@ export class Player {
     this.setVolume(state.volume)
     this.setMute(state.mute)
     this.setRepeatMode(state.repeatMode)
-    this.setPlaylist(state.playlist, state.index)
+    this.setPlaylist({
+      playlist: state.playlist,
+      playId: state.playId,
+      index: state.index,
+      autoplay: state.autoplay
+    })
   }
 }
 
-export const playerInstance = new Player([])
+export const playerInstance = new Player({
+  playlist: [],
+  playId: 0,
+  index: 0,
+  autoplay: false,
+  repeatMode: PlayType.loop,
+  volume: 60,
+  mute: false
+})

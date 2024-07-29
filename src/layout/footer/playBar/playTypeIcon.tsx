@@ -9,7 +9,7 @@ const PlayTypeIcon = memo(() => {
   const playTypeRef = useRef<PlayType[]>([
     PlayType.loop,
     PlayType.single,
-    PlayType.random,
+    PlayType.shuffle,
     PlayType.sequential
   ])
 
