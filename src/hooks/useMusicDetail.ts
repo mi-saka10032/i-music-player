@@ -1,10 +1,10 @@
-import { useMemo, useState } from 'react'
+import { useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
 export function useMusicDetail () {
   const { id } = useParams<{ id: string }>()
 
-  const [playlistHeader, setPlaylistHeader] = useState<PlayListDetail>({
+  const initialPlaylistDetail = useRef<PlayListDetail>({
     id: 0,
     name: '',
     tracks: [],
@@ -26,14 +26,12 @@ export function useMusicDetail () {
     userId: 0
   })
 
-  const listsIds = useMemo<number[]>(() => {
-    return playlistHeader.trackIds.map(item => item.id)
-  }, [playlistHeader])
+  const [playlistHeader, setPlaylistHeader] = useState<PlayListDetail>(initialPlaylistDetail.current)
 
   return {
     id: Number(id),
     playlistHeader,
     setPlaylistHeader,
-    listsIds
+    initialPlaylistDetail
   }
 }

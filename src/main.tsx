@@ -6,7 +6,7 @@ import './main.css'
 
 const root: HTMLElement = document.getElementById('root')!
 ReactDOM.createRoot(root).render(
-  // <StrictMode>
-  <App />
-  // </StrictMode>
+  <StrictMode>
+    <App />
+  </StrictMode>
 )

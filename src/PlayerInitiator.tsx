@@ -27,7 +27,7 @@ import {
 } from '@/store'
 import { selectDB } from './utils'
 import { playerInstance } from './core'
-import { useEffectLoading } from './hooks'
+import { useAsyncMount } from './hooks'
 import LoadingContainer from './components/loadingContainer'
 import LoadingInstance from './components/loadingInstance'
 
@@ -111,7 +111,7 @@ const PlayerInitiator = memo((props: PropsWithChildren<unknown>) => {
     })
   }, [])
 
-  const { loading } = useEffectLoading([], initPlayer)
+  const { loading } = useAsyncMount(initPlayer)
 
   return (
     <LoadingContainer loading={loading} fallback={<LoadingInstance />}>
