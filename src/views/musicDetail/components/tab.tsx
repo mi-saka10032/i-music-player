@@ -5,7 +5,7 @@ import MusicDetailLists from './lists'
 interface MusicDetailTabProps {
   isCustom: boolean
   listsIds: number[]
-  checkById: (id: number) => void
+  handlePlayWithExactId: (id: number) => void
 }
 
 /** MusicDetail位于中部的Tab菜单组件，暂无特殊作用，只为接收MusicLists组件 */
@@ -18,7 +18,7 @@ const MusicDetailTab = memo((props: MusicDetailTabProps) => {
         <MusicDetailLists
           isCustom={props.isCustom}
           listsIds={props.listsIds}
-          checkById={props.checkById}
+          handlePlayWithExactId={props.handlePlayWithExactId}
         />
       )
     },
@@ -32,7 +32,7 @@ const MusicDetailTab = memo((props: MusicDetailTabProps) => {
       label: '收藏者',
       children: null
     }
-  ], [props.isCustom, props.listsIds, props.checkById])
+  ], [props.isCustom, props.listsIds, props.handlePlayWithExactId])
 
   return (
     <ConfigProvider

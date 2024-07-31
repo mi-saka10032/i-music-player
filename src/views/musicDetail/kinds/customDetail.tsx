@@ -8,17 +8,13 @@ import { CUSTOM_ID, CUSTOM_IMG, CUSTOM_NAME } from '@/utils'
 import { playerInstance } from '@/core'
 
 const CustomDetail = memo(() => {
-  const {
-    playlistHeader,
-    listsIds,
-    setPlaylistHeader
-  } = useMusicDetail()
+  const { playlistHeader, setPlaylistHeader } = useMusicDetail()
 
   const { getCustomPlaylists } = useFetchPlaylists()
 
   const playlistInfo = useAtomValue(playlistInfoAtom)
 
-  const checkById = useCallback((songId: number) => {
+  const handlePlayWithExactId = useCallback((songId: number) => {
     if (CUSTOM_ID === playlistInfo.playId) {
       playerInstance.setId(songId)
     } else {
@@ -43,7 +39,7 @@ const CustomDetail = memo(() => {
     <div className="pt-8">
       <MusicDetailHeader loading={false} playlistHeader={playlistHeader} onPlayAll={handlePlayAll} >
         {/* 自定义的歌单 isCustom: true */}
-        <MusicDetailTab listsIds={listsIds} checkById={checkById} isCustom={true} />
+        <MusicDetailTab isCustom={true} listsIds={[]} handlePlayWithExactId={handlePlayWithExactId} />
       </MusicDetailHeader>
     </div>
   )

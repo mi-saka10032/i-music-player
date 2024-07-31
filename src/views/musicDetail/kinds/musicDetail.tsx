@@ -1,25 +1,20 @@
-import { memo, useCallback } from 'react'
+import { memo, useCallback, useMemo } from 'react'
 import { useAtomValue } from 'jotai'
 import { playlistInfoAtom } from '@/store'
-import { useMusicDetail, useEffectLoading, useFetchPlaylists } from '@/hooks'
+import { useMusicDetail, useFetchPlaylists, useAsyncFn } from '@/hooks'
 import MusicDetailHeader from '../components/header'
 import MusicDetailTab from '../components/tab'
 import { getPlaylistDetail } from '@/api'
 import { playerInstance } from '@/core'
 
 const MusicDetail = memo(() => {
-  const {
-    id,
-    playlistHeader,
-    setPlaylistHeader,
-    listsIds
-  } = useMusicDetail()
+  const { id, initialPlaylistDetail } = useMusicDetail()
 
   const { getDefaultPlaylists } = useFetchPlaylists()
 
   const playlistInfo = useAtomValue(playlistInfoAtom)
 
-  const checkById = useCallback((songId: number) => {
+  const handlePlayWithExactId = useCallback((songId: number) => {
     if (id === playlistInfo.playId) {
       playerInstance.setId(songId)
     } else {
@@ -31,12 +26,13 @@ const MusicDetail = memo(() => {
     void getDefaultPlaylists(id)
   }, [id])
 
-  const initPlaylistDetail = useCallback(async () => {
+  const initPlaylistDetail = useCallback(async (): Promise<PlayListDetail> => {
     const res = await getPlaylistDetail(id)
     const playlist = res.playlist
-    if (playlist == null || typeof playlist !== 'object') return
-    setPlaylistHeader(playlistHeader => ({
-      ...playlistHeader,
+    if (playlist == null || typeof playlist !== 'object') return initialPlaylistDetail.current
+
+    return {
+      ...initialPlaylistDetail.current,
       id: playlist.id ?? 0,
       name: playlist.name ?? '',
       coverImgUrl: playlist.coverImgUrl ?? '',
@@ -52,15 +48,19 @@ const MusicDetail = memo(() => {
       playCount: playlist.playCount,
       description: playlist.description,
       trackIds: playlist.trackIds
-    }))
+    }
   }, [id])
 
-  const { loading } = useEffectLoading([id], initPlaylistDetail)
+  const { data: playlistHeader, loading } = useAsyncFn(initPlaylistDetail, initialPlaylistDetail.current)
+
+  const listsIds = useMemo<number[]>(() => {
+    return playlistHeader.trackIds.map(item => item.id)
+  }, [playlistHeader])
 
   return (
     <div className="pt-8">
       <MusicDetailHeader loading={loading} playlistHeader={playlistHeader} onPlayAll={handlePlayAll}>
-        <MusicDetailTab listsIds={listsIds} checkById={checkById} isCustom={false} />
+        <MusicDetailTab listsIds={listsIds} handlePlayWithExactId={handlePlayWithExactId} isCustom={false} />
       </MusicDetailHeader>
     </div>
   )

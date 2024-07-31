@@ -15,15 +15,16 @@ import {
   customSongDataTrans,
   highlightNameClass,
   highlightArtistClass,
-  highlightDurationClass
+  highlightDurationClass,
+  normalSongDataTrans
 } from '@/utils'
-import { useEffectLoading } from '@/hooks'
+import { useAsyncFn } from '@/hooks'
 import classNames from 'classnames'
 
 interface MusicDetailListsProps {
   isCustom: boolean
   listsIds: number[]
-  checkById: (id: number) => void
+  handlePlayWithExactId: (id: number) => void
 }
 
 /** MusicDetail位于底部的列表List组件，监听外部容器scroll，手动实现虚拟滚动 */
@@ -47,29 +48,22 @@ const MusicDetailLists = memo((props: MusicDetailListsProps) => {
   // 全局播放状态 以动态切换小图标
   const playerStatus = useAtomValue(playerStatusAtom)
 
-  const [playlists, setPlaylists] = useState<SongData[]>([])
-
   const handleSwitchSong = useCallback((songId: number) => {
-    props.checkById(songId)
-  }, [props.checkById])
+    props.handlePlayWithExactId(songId)
+  }, [props.handlePlayWithExactId])
 
-  const initPlaylists = useCallback(async () => {
+  const initPlaylists = useCallback(async (): Promise<SongData[]> => {
     if (props.isCustom) {
       const res = await getJaySongs()
-      setPlaylists(customSongDataTrans(res.list))
+      return customSongDataTrans(res.list)
     } else if (props.listsIds.length > 0) {
       const res = await getSongDetail(props.listsIds)
-      setPlaylists(res.map(item => ({
-        id: item.id,
-        name: item.name,
-        artists: item.ar,
-        album: item.al,
-        time: item.dt
-      })))
+      return normalSongDataTrans(res)
     }
+    return []
   }, [props.isCustom, props.listsIds])
 
-  const { loading } = useEffectLoading([props.isCustom, props.listsIds], initPlaylists)
+  const { data: playlists, loading } = useAsyncFn(initPlaylists, [])
 
   // list动态高度设置
   const listRef = useRef<HTMLUListElement>(null)
