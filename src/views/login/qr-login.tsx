@@ -1,16 +1,8 @@
-import { memo, useEffect, useMemo, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Api from '@/api/login'
 import { setCookie, openUrl, closeCurrentWindow, flatCookies } from '@/utils'
 import { emit } from '@tauri-apps/api/event'
-import { LOGIN_SUCCESS } from '@/common/constants'
-
-// 登录状态码
-enum LoginCode {
-  EXPIRED = 800,
-  CODING,
-  WAITING,
-  SUCCESS
-}
+import { LOGIN_SUCCESS, LoginCode } from '@/common/constants'
 
 // 显示登录状态
 interface QRContentProps {
@@ -19,13 +11,12 @@ interface QRContentProps {
   onRefresh: () => void
 }
 
-// 开启下载页
-function handleOpen () {
-  openUrl('https://music.163.com/#/download')
-}
-
 // QR码状态页
 const QRContent = memo(({ qrimg, status, onRefresh }: QRContentProps) => {
+  const handleOpen = useCallback(() => {
+    openUrl('https://music.163.com/#/download')
+  }, [])
+
   return (
     <>
       <div
@@ -58,8 +49,8 @@ const QRContent = memo(({ qrimg, status, onRefresh }: QRContentProps) => {
     </>
   )
 })
-
 QRContent.displayName = 'QRContent'
+
 const QRLogin = memo(() => {
   const [qrimg, setQrimg] = useState<string>('')
   const [status, setStatus] = useState(0)
@@ -89,7 +80,7 @@ const QRLogin = memo(() => {
   }, [status])
 
   // 状态轮询
-  async function pollingCheck () {
+  const pollingCheck = useCallback(async () => {
     const statusRes = await Api.loginQrCheck({ key: key.current })
     setStatus(statusRes.data.code)
     switch (statusRes.data.code) {
@@ -122,25 +113,25 @@ const QRLogin = memo(() => {
       default:
         break
     }
-  }
+  }, [])
 
-  function reset () {
+  const reset = useCallback(() => {
     key.current = ''
     qrUserInfo.current = { code: 0 }
     clearInterval(timer.current)
     setStatus(0)
     setQrimg('')
-  }
+  }, [])
 
   // 获取key值，set QR码，开启轮询
-  async function login () {
+  const login = useCallback(async () => {
     reset()
     const keyResult = await Api.getLoginQrKey()
     key.current = keyResult.unikey
     const qrResult = await Api.loginQrCreate({ key: key.current, qrimg: true })
     setQrimg(qrResult.data.qrimg)
     timer.current = window.setInterval(pollingCheck, 1000)
-  }
+  }, [])
 
   useEffect(() => {
     void login()

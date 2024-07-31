@@ -48,6 +48,7 @@ export default defineConfig(async ({ mode }) => ({
         manualChunks (id) {
           const moduleEntry = '/node_modules/'
           const utilEntry = 'src/utils/'
+          const hookEntry = 'src/hooks'
           if (id.includes(moduleEntry)) {
             const modules = id.match(/\/node_modules\/(.*?)\//g) as RegExpMatchArray
             if (Array.isArray(modules)) {
@@ -81,6 +82,8 @@ export default defineConfig(async ({ mode }) => ({
             }
           } else if (id.includes(utilEntry)) {
             return 'util'
+          } else if (id.includes(hookEntry)) {
+            return 'hooks'
           }
         }
       }

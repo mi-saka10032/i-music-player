@@ -11,3 +11,11 @@ export const LOGIN_SUCCESS: string = 'login-success'
 export const INITIAL_STATE_LOADED: string = 'INITIAL_STATE_LOADED'
 
 export const PLAY_ALL_BUTTON_ID: string = 'UNIQUE_PLAY_ALL'
+
+// 登录状态码
+export enum LoginCode {
+  EXPIRED = 800,
+  CODING,
+  WAITING,
+  SUCCESS
+}
