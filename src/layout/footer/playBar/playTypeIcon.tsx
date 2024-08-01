@@ -9,8 +9,6 @@ import { SWITCH_REPEAT_MODE } from '@/common/constants'
 
 // 播放类型组件
 const PlayTypeIcon = memo(() => {
-  const systemTrayPlayType = useRef<PlayType | null>(null)
-
   const listenChangeTrayFn = useRef<UnlistenFn | null>(null)
 
   const playTypeRef = useRef<PlayType[]>([
@@ -30,15 +28,11 @@ const PlayTypeIcon = memo(() => {
 
   useEffect(() => {
     playerInstance.setRepeatMode(playType)
-    if (systemTrayPlayType.current !== playType) {
-      systemTrayPlayType.current = playType
-      void invoke('change_tray', { repeatMode: playType })
-    }
+    void invoke('change_tray', { repeatMode: playType })
   }, [playType])
 
   const mountSystemTrayEvent = useCallback(async () => {
     listenChangeTrayFn.current = await listen<PlayType>(SWITCH_REPEAT_MODE, ({ payload }) => {
-      systemTrayPlayType.current = payload
       setPlayType(payload)
     })
   }, [])
