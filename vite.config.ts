@@ -1,4 +1,4 @@
-import { defineConfig, splitVendorChunkPlugin } from 'vite'
+import { defineConfig } from 'vite'
 import path from 'path'
 import react from '@vitejs/plugin-react'
 import svgr from 'vite-plugin-svgr'
@@ -13,7 +13,6 @@ export default defineConfig(async ({ mode }) => ({
     react(),
     svgr(),
     createHtmlPlugin(),
-    splitVendorChunkPlugin(),
     visualizer()
   ],
 
@@ -45,46 +44,18 @@ export default defineConfig(async ({ mode }) => ({
   build: {
     rollupOptions: {
       output: {
-        manualChunks (id) {
-          const moduleEntry = '/node_modules/'
-          const utilEntry = 'src/utils/'
-          const hookEntry = 'src/hooks'
-          if (id.includes(moduleEntry)) {
-            const modules = id.match(/\/node_modules\/(.*?)\//g) as RegExpMatchArray
-            if (Array.isArray(modules)) {
-              switch (modules[1]) {
-                case `${moduleEntry}@tauri-apps/`:
-                  return 'tauri'
-                case `${moduleEntry}react/`:
-                  return 'react'
-                case `${moduleEntry}react-dom/`:
-                  return 'react-dom'
-                case `${moduleEntry}react-router-dom/`:
-                  return 'react-router'
-                case `${moduleEntry}antd/`:
-                  return 'antd'
-                case `${moduleEntry}jotai/`:
-                  return 'store'
-                case `${moduleEntry}swiper/`:
-                  return 'swiper'
-                case `${moduleEntry}localforage/`:
-                  return 'persist'
-                case `${moduleEntry}howler/`:
-                case `${moduleEntry}mitt/`:
-                  return 'core'
-                case `${moduleEntry}axios/`:
-                case `${moduleEntry}qs/`:
-                case `${moduleEntry}qrcode/`:
-                  return 'request'
-                case `${moduleEntry}react-hotkeys/`:
-                  return 'hot-key'
-              }
-            }
-          } else if (id.includes(utilEntry)) {
-            return 'util'
-          } else if (id.includes(hookEntry)) {
-            return 'hooks'
-          }
+        manualChunks: {
+          tauri: ['@tauri-apps/api'],
+          react: ['react', 'react-dom', 'react-router-dom'],
+          antd: ['antd'],
+          core: ['howler', 'mitt'],
+          store: ['jotai'],
+          persist: ['localforage'],
+          request: ['axios', 'qrcode', 'qs'],
+          swiper: ['swiper'],
+          keys: ['react-hotkeys'],
+          utils: ['src/utils/index.ts'],
+          hooks: ['src/hooks/index.ts']
         }
       }
     }
