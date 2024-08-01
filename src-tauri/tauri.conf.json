@@ -79,7 +79,7 @@
       "csp": null
     },
     "systemTray": {
-      "iconPath": "icons/icon.png",
+      "iconPath": "icons/32x32.png",
       "iconAsTemplate": true,
       "title": "i-music-player"
     },
