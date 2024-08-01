@@ -113,14 +113,17 @@ pub fn init_menu() -> SystemTray {
     let tray_menu = generate_menu("");
 
     // 设置在右键单击系统托盘时显示菜单
-    let mut tray_builder = SystemTray::new()
+    let mut tray_builder = SystemTray::new();
+
+    tray_builder = tray_builder
         .with_menu(tray_menu)
         .with_tooltip("i-music-player");
+
     #[cfg(target_os = "macos")]
     {
         tray_builder = tray_builder
-            .with_title("i-music-player")
-            .with_menu_on_left_click(false);
+            .with_menu_on_left_click(false)
+            .with_title("i-music-player");
     }
 
     tray_builder
