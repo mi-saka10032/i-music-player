@@ -4,6 +4,7 @@ mod macros;
 mod crypto;
 mod music_api;
 mod request;
+mod tray;
 
 use serde::Deserialize;
 
@@ -16,6 +17,10 @@ pub struct Options<'a> {
 }
 
 use serde::Serialize;
+use tauri::AppHandle;
+use tauri::Manager;
+use tray::SingleInstancePayload;
+
 #[derive(Serialize)]
 pub struct FormatParams {
     url: String,
@@ -24,10 +29,11 @@ pub struct FormatParams {
     method: String,
 }
 
-// Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
-fn greet(message: String) {
-    println!("{}", message);
+fn change_tray(app: AppHandle, repeat_mode: String) {
+    let tray_handle = app.tray_handle();
+    let tray_menu = tray::generate_menu(&repeat_mode);
+    let _ = tray_handle.set_menu(tray_menu);
 }
 
 #[tauri::command]
@@ -198,7 +204,14 @@ fn get_params(options: Options) -> FormatParams {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![greet, get_params])
+        .plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
+            app.emit_all("single-instance", SingleInstancePayload { args: argv, cwd })
+                .unwrap();
+            tray::show_window(app.get_window(tray::MAIN_WINDOW_LABEL).unwrap());
+        }))
+        .invoke_handler(tauri::generate_handler![change_tray, get_params])
+        .system_tray(tray::init_menu())
+        .on_system_tray_event(tray::event_handler)
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

@@ -22,7 +22,7 @@ const Header = memo((props: PropsWithChildren<HeaderProps>) => {
         style={{ width: siderWidth }}
       >
         <div data-tauri-drag-region className="pr-4 ml-4 flex h-full justify-between items-center">
-          <img src={PlayerLogo} className={classNames('ml-16 w-10 h-10', switchHeaderVisibility)} />
+          <img src={PlayerLogo} className={classNames('w-10 h-10', switchHeaderVisibility)} />
           <RouteStackControl className={switchHeaderVisibility} />
         </div>
       </div>

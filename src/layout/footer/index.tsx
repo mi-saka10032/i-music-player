@@ -1,4 +1,5 @@
-import { memo, useCallback, useEffect, useMemo } from 'react'
+import { type UnlistenFn, listen } from '@tauri-apps/api/event'
+import { memo, useCallback, useEffect, useMemo, useRef } from 'react'
 import { useAtom, useSetAtom } from 'jotai'
 import { playerStatusAtom, progressAtom, songActiveIdAtom, songActiveIndexAtom } from '@/store'
 import { message } from 'antd'
@@ -8,6 +9,7 @@ import VolumeController from './playBar/volumeController'
 import Thumbnail from './thumbnail'
 import { PlayerEvent, playerInstance } from '@/core'
 import classNames from 'classnames'
+import { SWITCH_PLAY_STATUS, SWITCH_PREV, SWITCH_NEXT } from '@/common/constants'
 
 interface FooterProps {
   queueStatusRef: React.MutableRefObject<boolean>
@@ -17,6 +19,12 @@ interface FooterProps {
 }
 
 const Footer = memo((props: FooterProps) => {
+  const listenSwitchPlayStatus = useRef<UnlistenFn | null>(null)
+
+  const listenSwitchPrev = useRef<UnlistenFn | null>(null)
+
+  const listenSwitchNext = useRef<UnlistenFn | null>(null)
+
   const setSongActiveId = useSetAtom(songActiveIdAtom)
 
   const setSongActiveIndex = useSetAtom(songActiveIndexAtom)
@@ -90,6 +98,24 @@ const Footer = memo((props: FooterProps) => {
     })
   }, [])
 
+  const mountSystemTrayEvent = useCallback(async () => {
+    listenSwitchPlayStatus.current = await listen(SWITCH_PLAY_STATUS, () => {
+      playerInstance.switchPlay()
+    })
+    listenSwitchPrev.current = await listen(SWITCH_PREV, () => {
+      playerInstance.prev()
+    })
+    listenSwitchNext.current = await listen(SWITCH_NEXT, () => {
+      playerInstance.next()
+    })
+  }, [])
+
+  const unmountSystemTrayEvent = useCallback(() => {
+    listenSwitchPlayStatus.current != null && listenSwitchPlayStatus.current()
+    listenSwitchPrev.current != null && listenSwitchPrev.current()
+    listenSwitchNext.current != null && listenSwitchNext.current()
+  }, [])
+
   useEffect(() => {
     playerInstance.on(PlayerEvent.PLAY, handlePlay)
     playerInstance.on(PlayerEvent.PAUSE, handlePause)
@@ -98,6 +124,7 @@ const Footer = memo((props: FooterProps) => {
     playerInstance.on(PlayerEvent.ID_CHANGE, handleDispatchId)
     playerInstance.on(PlayerEvent.INDEX_CHANGE, handleDispatchIndex)
     playerInstance.on(PlayerEvent.INVALID, showInvalidTips)
+    void mountSystemTrayEvent()
     return () => {
       playerInstance.off(PlayerEvent.PLAY, handlePlay)
       playerInstance.off(PlayerEvent.PAUSE, handlePause)
@@ -106,6 +133,7 @@ const Footer = memo((props: FooterProps) => {
       playerInstance.off(PlayerEvent.ID_CHANGE, handleDispatchId)
       playerInstance.off(PlayerEvent.INDEX_CHANGE, handleDispatchIndex)
       playerInstance.off(PlayerEvent.INVALID, showInvalidTips)
+      unmountSystemTrayEvent()
     }
   }, [])
 
