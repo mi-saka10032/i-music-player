@@ -77,6 +77,29 @@
     },
     "security": {
       "csp": null
-    }
+    },
+    "systemTray": {
+      "iconPath": "icons/icon.png",
+      "iconAsTemplate": true,
+      "title": "i-music-player"
+    },
+    "macOSPrivateApi": true,
+    "windows": [
+      {
+        "center": true,
+        "fullscreen": false,
+        "resizable": true,
+        "title": "i-music-player",
+        "width": 1360,
+        "height": 768,
+        "minWidth": 1360,
+        "minHeight": 768,
+        "hiddenTitle": true,
+        "theme": "Light",
+        "titleBarStyle": "Transparent",
+        "decorations": false,
+        "transparent": true
+      }
+    ]
   }
 }

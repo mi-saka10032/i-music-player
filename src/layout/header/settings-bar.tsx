@@ -1,5 +1,4 @@
-import { memo, type ButtonHTMLAttributes, useRef, useCallback, useState, useEffect } from 'react'
-import { detectOS } from '@/utils'
+import { memo, type ButtonHTMLAttributes, useCallback, useState, useEffect } from 'react'
 import { appWindow } from '@tauri-apps/api/window'
 import { message } from 'antd'
 import classNames from 'classnames'
@@ -29,7 +28,6 @@ IconBtn.displayName = 'IconBtn'
 
 const SettingsBar = memo(() => {
   const [messageApi, contextHolder] = message.useMessage()
-  const isWindows = useRef(detectOS() === 'Windows')
   const [maxState, setMaxState] = useState(false)
 
   const abilityToDo = useCallback(() => {
@@ -46,11 +44,9 @@ const SettingsBar = memo(() => {
   }, [])
 
   useEffect(() => {
-    if (isWindows.current) {
-      window.addEventListener('resize', watchWindowState)
-      return () => {
-        window.removeEventListener('resize', watchWindowState)
-      }
+    window.addEventListener('resize', watchWindowState)
+    return () => {
+      window.removeEventListener('resize', watchWindowState)
     }
   }, [])
 
@@ -75,27 +71,19 @@ const SettingsBar = memo(() => {
       <li onClick={abilityToDo}>
         <IconBtn icon="theme" />
       </li>
-      {
-        isWindows.current
-          ? (
-            <>
-              <button className="hover:text-primary" onClick={() => { void appWindow.minimize() }}>
-                <i className="iconfont icon-min text-xl" title="最小化" />
-              </button>
-              <button className="hover:text-primary" onClick={() => { void appWindow.toggleMaximize() }}>
-                {
-                  maxState
-                    ? <i className="iconfont icon-minimize text-xl" title="还原" />
-                    : <i className="iconfont icon-max text-xl" title="最大化" />
-                }
-              </button>
-              <button className="hover:text-primary" onClick={() => { void appWindow.close() }}>
-                <i className="iconfont icon-quit text-xl" title="退出" />
-              </button>
-            </>
-            )
-          : null
-      }
+      <button className="hover:text-primary" onClick={() => { void appWindow.minimize() }}>
+        <i className="iconfont icon-min text-xl" title="最小化" />
+      </button>
+      <button className="hover:text-primary" onClick={() => { void appWindow.toggleMaximize() }}>
+        {
+          maxState
+            ? <i className="iconfont icon-minimize text-xl" title="还原" />
+            : <i className="iconfont icon-max text-xl" title="最大化" />
+        }
+      </button>
+      <button className="hover:text-primary" onClick={() => { void appWindow.hide() }}>
+        <i className="iconfont icon-quit text-xl" title="退出" />
+      </button>
       {contextHolder}
     </ul>
   )

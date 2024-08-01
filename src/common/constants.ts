@@ -7,6 +7,17 @@ export const LOGIN_WINDOW_NAME: string = 'login'
 /** event name: 登录成功 */
 export const LOGIN_SUCCESS: string = 'login-success'
 
+/** system tray event */
+export const SWITCH_PLAY_STATUS = 'play_status'
+
+export const SWITCH_PREV = 'prev'
+
+export const SWITCH_NEXT = 'next'
+
+export const SWITCH_REPEAT_MODE = 'repeat_mode'
+
+/** system tray event */
+
 /** 初始化state */
 export const INITIAL_STATE_LOADED: string = 'INITIAL_STATE_LOADED'
 
