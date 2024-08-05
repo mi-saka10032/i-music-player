@@ -25,12 +25,33 @@
 - **个人服务器友情提供部分（Jay Zhou）精选歌曲**
 - **2023/12/2：更新v0.0.3版本，布局、样式、构建全面优化，并且播放歌曲时优先获取HiRes音质歌曲链接**
 - **2023/12/4：更新v0.0.4版本，解决长时间播放卡死问题**
+- **2024/8/5：更新v0.0.5版本，缓存、随机播放等方案优化调整，代码优化**
 
 ![setup_size](./images/setup_size.jpg)
 
 ![app_size](./images/app_size.jpg)
 
 ![app_memory](./images/memory.jpg)
+
+## Mac安装限制
+
+注意：由于新版本使用了PrivateMacAPI，在mac上安装后如果提示软件已损坏，请按照以下步骤解除应用限制：
+
+1. 终端输入：sudo spctl --master-disable，回车后会提示输入电脑密码
+
+```bash
+sudo spctl --master-disable
+```
+
+2. 输入命令：（复制粘贴进去，cr后面输入一个空格）。注意⚠️：cr 后面输入一个空格！不要回车！
+
+```bash
+xattr -cr 
+```
+
+3. 从应用程序或桌面上，将出现已损坏的软件拖入终端中（xattr -cr 的后面）
+
+4. 回车执行后，重新打开软件
 
 ## ☑️ Todo
 
